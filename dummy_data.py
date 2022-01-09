@@ -81,10 +81,10 @@ b3 = bisexual[2].tolist()
 q1 = queer[0].tolist()
 q2 = queer[1].tolist()
 q3 = queer[2].tolist()
-custom_lines = [Line2D([0], [0], marker='o', color='w', markerfacecolor='r', markersize=15, label='Gay'),
-                Line2D([0], [0], marker='o', color='w', markerfacecolor='k', markersize=15, label='Lesbian'),
-                Line2D([0], [0], marker='o', color='w', markerfacecolor='b', markersize=15, label='Bisexual'),
-                Line2D([0], [0], marker='o', color='w', markerfacecolor='g', markersize=15, label='Queer')]
+custom_lines = [Line2D([0], [0], marker='o', color='w', markerfacecolor='r', markersize=15),
+                Line2D([0], [0], marker='o', color='w', markerfacecolor='k', markersize=15),
+                Line2D([0], [0], marker='o', color='w', markerfacecolor='b', markersize=15),
+                Line2D([0], [0], marker='o', color='w', markerfacecolor='g', markersize=15)]
 
 # plot random ratings, means no correlations between 3 independent measures
 fig = plt.figure(figsize = (10,7))
@@ -93,7 +93,7 @@ ax.scatter(g1, g2, g3, alpha=0.8, s=30, c='r')
 ax.scatter(l1, l2, l3, alpha=0.8, s=30, c='k')
 ax.scatter(b1, b2, b3, alpha=0.8, s=30, c='b')
 ax.scatter(q1, q2, q3, alpha=0.8, s=30, c='g')
-plt.title('LGBTQ+ PSO Clouds', fontweight='bold')
+plt.title('LGBTQ+ Clouds PCA', fontweight='bold')
 ax.set_xlabel('Voice (Masc-NB-Femme)', fontweight='bold')
 ax.set_ylabel('PSO', fontweight='bold')
 ax.set_zlabel('Gender (Speaker)', fontweight='bold')
