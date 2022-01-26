@@ -8,11 +8,21 @@ print("Importing libraries...")
 import sys
 import torch
 import os
+from os.path import exists, join, expanduser
 from itertools import groupby
 import glob
 import librosa
 import soundfile as sf
-from pathlib import Path
+
+#make sure the clone is up to date
+os.chdir(expanduser("~"))
+charsiu_dir = 'charsiu'
+if exists(charsiu_dir):
+  !rm -rf /root/charsiu
+if not exists(charsiu_dir):
+  ! git clone -b development https://github.com/lingjzhu/$charsiu_dir
+  ! cd charsiu && git checkout && cd -
+os.chdir(charsiu_dir)
 
 ### do this one separately from import above
 sys.path.insert(0,'/Users/bcl/charsiu/src')
@@ -33,6 +43,7 @@ for file in all_files:
     sf.write(audio_resample_dir + str(file), audio, sr)
 
 # import selected model from Charsiu and initialize model
+# if it says it can't import, try running the source code in line 28 again
 print ("Importing Charsiu model.")
 os.chdir(charsiu_dir)
 from Charsiu import charsiu_predictive_aligner
