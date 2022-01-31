@@ -31,7 +31,11 @@ queer <- add_column(queer, Participant = 1:nrow(queer)-1, .before = 1)
 
 queer[1,] <- gsub(".*- (.+) -.*", "\\1", queer[1,])
 queer[1,] <- queer %>% separate(X1_Q36_1:X26_Q63_1, Question, Token)
- 
+
+queer_qid <- queer[-1,]
+queer_stimname <- row_to_names(queer, row_number = 1)
+
+
 # colnames(queer)[grepl('Q36',colnames(queer))] <- 'gender_id'
 # colnames(queer)[grepl('Q60',colnames(queer))] <- 'gender_id'
 # colnames(queer)[grepl('Q29',colnames(queer))] <- 'sexual_orientation'
