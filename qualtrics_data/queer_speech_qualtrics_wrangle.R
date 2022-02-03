@@ -20,7 +20,7 @@ library(data.table)
 
 setwd('/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/')
 options(stringsAsFactors=F)
-queer = read.csv('queer-speech_February 1, 2022_22.51.csv')
+queer = read.csv('queer-speech_February 3, 2022_00.08.csv')
 
 #cleaning data down to just ratings, trial type, and stimulus ID
 # queer <- subset(queer, Status == 0 | Status == "Response Type") # just for if there's people that don't complete the survey
@@ -45,30 +45,33 @@ queer_qid_long <- queer_qid %>% gather(Qualtrics_Trial_Num, Rating, X1_Q36_1:X33
 #queer[1,] <- queer %>% separate(X1_Q36_1:X33_Q62_1, Question, Token)
 queer_stimname <- row_to_names(queer, row_number = 1)
 names(queer_stimname)[names(queer_stimname) == '0'] <- 'Participant'
+names(queer_stimname) <- make.unique(names(queer_stimname), sep="*")
+queer_stimname_long <- queer_stimname %>% gather(Trial_Type, Rating, -Participant)
 
+# must be same length
+nrow(queer_qid_long)
+nrow(queer_stimname_long)
 
+# remove duplicates columns from one, then merge together
+queer_qid_long <- select(queer_qid_long, -c(Participant, Rating))
+merged_queer <- bind_cols(queer_stimname_long, queer_qid_long)
 
-queer %>% 
-  gather(X1_Q36_1:X33_Q62_1, queer[1,], -Participant) %>% 
-  separate(X1_Q36_1:X33_Q62_1, into = c("result", "time"), sep = 6) %>% 
-  spread(result, queer[1,]) %>% 
-  mutate(time = gsub("_", "", time))
+merged_queer$Qualtrics_Trial_Num[merged_queer$Qualtrics_Trial_Num %like% "Q36"] <- 'gender_id'
+merged_queer$Qualtrics_Trial_Num[merged_queer$Qualtrics_Trial_Num %like% "Q60"] <- 'gender_id'
+merged_queer$Qualtrics_Trial_Num[merged_queer$Qualtrics_Trial_Num %like% "Q29"] <- 'sexual_orientation'
+merged_queer$Qualtrics_Trial_Num[merged_queer$Qualtrics_Trial_Num %like% "Q61"] <- 'sexual_orientation'
+merged_queer$Qualtrics_Trial_Num[merged_queer$Qualtrics_Trial_Num %like% "Q30"] <- 'voice_id'
+merged_queer$Qualtrics_Trial_Num[merged_queer$Qualtrics_Trial_Num %like% "Q62"] <- 'voice_id'
+names(merged_queer)[names(merged_queer) == 'Qualtrics_Trial_Num'] <- 'Condition'
 
+matches = read.csv('matches_queer_speech.csv')
+for (item in matches$finalurl) {
+  # match strings between dfs
+  # add column or replace column with f_name
+}
 
-
-merged_queer <- merge(queer_stimname, queer_qid)
-
-queer_stimname_ls <- rbind(c(1:ncol(queer_stimname)))
-queer_stimname[nrow(queer_stimname) + 1,] = queer_stimname_ls
-
-queer_stimname_long <- queer_stimname %>% gather(Trial_Type, Rating)
-
-#something else
-queer_long <- queer %>% pivot_longer(cols = X1_Q36_1:X33_Q62_1, names_to = c(".value","Q3"), names_sep = "_")
-queer_long <- queer %>%
-  gather(key, value) %>%
-  extract(key, c("question", "loop_number"), "(Q.\\..)\\.(.)") %>%
-  spread(question, value)
+# write.csv(queer_qid, "/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/queer_qid.csv", row.names=FALSE)
+# write.csv(queer_stimname, "/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/queer_stimname.csv", row.names=FALSE)
 
 # colnames(queer)[grepl('Q36',colnames(queer))] <- 'gender_id'
 # colnames(queer)[grepl('Q60',colnames(queer))] <- 'gender_id'
@@ -78,7 +81,3 @@ queer_long <- queer %>%
 # colnames(queer)[grepl('Q62',colnames(queer))] <- 'voice_effect'
 # colnames(queer)[grepl('Q26',colnames(queer))] <- 'cis_trans'
 # colnames(queer)[grepl('Q63',colnames(queer))] <- 'cis_trans'
-
-
-queer_long$Rating <- gsub(".*- (.+) -.*", "\\1", queer_long$Rating)
-
