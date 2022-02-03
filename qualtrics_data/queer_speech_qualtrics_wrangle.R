@@ -19,7 +19,7 @@ library(janitor)
 library(data.table)
 
 setwd('/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/')
-
+options(stringsAsFactors=F)
 queer = read.csv('queer-speech_February 1, 2022_22.51.csv')
 
 #cleaning data down to just ratings, trial type, and stimulus ID
@@ -40,10 +40,28 @@ queer <- add_column(queer, Participant = 1:nrow(queer)-1, .before = 1)
 queer_qid <- queer[-1,]
 queer_qid_long <- queer_qid %>% gather(Qualtrics_Trial_Num, Rating, X1_Q36_1:X33_Q62_1)
 
+
+
 #queer[1,] <- queer %>% separate(X1_Q36_1:X33_Q62_1, Question, Token)
 queer_stimname <- row_to_names(queer, row_number = 1)
 names(queer_stimname)[names(queer_stimname) == '0'] <- 'Participant'
-queer_stimname_long <- queer_stimname %>% gather(Trial_Type, Rating, -Participant)
+
+
+
+queer %>% 
+  gather(X1_Q36_1:X33_Q62_1, queer[1,], -Participant) %>% 
+  separate(X1_Q36_1:X33_Q62_1, into = c("result", "time"), sep = 6) %>% 
+  spread(result, queer[1,]) %>% 
+  mutate(time = gsub("_", "", time))
+
+
+
+merged_queer <- merge(queer_stimname, queer_qid)
+
+queer_stimname_ls <- rbind(c(1:ncol(queer_stimname)))
+queer_stimname[nrow(queer_stimname) + 1,] = queer_stimname_ls
+
+queer_stimname_long <- queer_stimname %>% gather(Trial_Type, Rating)
 
 #something else
 queer_long <- queer %>% pivot_longer(cols = X1_Q36_1:X33_Q62_1, names_to = c(".value","Q3"), names_sep = "_")
@@ -63,5 +81,4 @@ queer_long <- queer %>%
 
 
 queer_long$Rating <- gsub(".*- (.+) -.*", "\\1", queer_long$Rating)
-queer_long <- queer_long %>% spread(Qualtrics_Trial_Num, Participant)
 
