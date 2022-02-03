@@ -1,21 +1,22 @@
 ## Queer Speech Data Analysis and Visualization Treasure Trove
 ## Author: Ben Lang, blang@ucsd.edu
 
-library(lmerTest)
+# library(lmerTest)
 library(dplyr) # this checks for normality 
-library(ggpubr) # this plots normality
+# library(ggpubr) # this plots normality
 library(magrittr)
-library(effects)
-#library(ggplot2)
+# library(effects)
+# library(ggplot2)
 library(tidyr)
-#library(scales)
+# library(scales)
 library(reshape2)
-library(lme4)
-library(emmeans)
+# library(lme4)
+# library(emmeans)
 library(forcats)
-library(psycho)
+# library(psycho)
 library(tibble)
 library(janitor)
+library(data.table)
 
 setwd('/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/')
 
@@ -31,8 +32,8 @@ queer <- select(queer, -c(D1:id)) # eliminate practice questions
 # queer <- queer %>% relocate(D2:Q47, .before = 1)
 # queer <- queer %>% relocate(Q56, .before = 1)
 queer <- queer[-2,]
+queer[1,] <- gsub(".*- (.+) -.*", "\\1", queer[1,]) # works on iMac, for some reason not on laptop, supposed to just grab URLs
 queer <- add_column(queer, Participant = 1:nrow(queer)-1, .before = 1)
-# queer[1,] <- gsub(".*- (.+) -.*", "\\1", queer[1,]) # works on iMac for some reason, supposed to just grab URLs
 
 
 # splitting dfs to then concatenate
@@ -44,7 +45,12 @@ queer_stimname <- row_to_names(queer, row_number = 1)
 names(queer_stimname)[names(queer_stimname) == '0'] <- 'Participant'
 queer_stimname_long <- queer_stimname %>% gather(Trial_Type, Rating, -Participant)
 
-
+#something else
+queer_long <- queer %>% pivot_longer(cols = X1_Q36_1:X33_Q62_1, names_to = c(".value","Q3"), names_sep = "_")
+queer_long <- queer %>%
+  gather(key, value) %>%
+  extract(key, c("question", "loop_number"), "(Q.\\..)\\.(.)") %>%
+  spread(question, value)
 
 # colnames(queer)[grepl('Q36',colnames(queer))] <- 'gender_id'
 # colnames(queer)[grepl('Q60',colnames(queer))] <- 'gender_id'
