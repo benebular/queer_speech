@@ -2,7 +2,8 @@
 ## Author: Ben Lang, blang@ucsd.edu
 
 # library(lmerTest)
-library(dplyr) # this checks for normality 
+library(plyr)
+library(dplyr) # this checks for normality
 # library(ggpubr) # this plots normality
 library(magrittr)
 # library(effects)
@@ -20,7 +21,7 @@ library(data.table)
 
 setwd('/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/')
 options(stringsAsFactors=F)
-queer = read.csv('queer-speech_February 3, 2022_00.08.csv')
+queer = read.csv('queer-speech_February 3, 2022_18.42.csv')
 
 #cleaning data down to just ratings, trial type, and stimulus ID
 # queer <- subset(queer, Status == 0 | Status == "Response Type") # just for if there's people that don't complete the survey
@@ -65,19 +66,14 @@ merged_queer$Qualtrics_Trial_Num[merged_queer$Qualtrics_Trial_Num %like% "Q62"] 
 names(merged_queer)[names(merged_queer) == 'Qualtrics_Trial_Num'] <- 'Condition'
 
 matches = read.csv('matches_queer_speech.csv')
-for (item in matches$finalurl) {
-  # match strings between dfs
-  # add column or replace column with f_name
-}
+merged_queer <- merged_queer %>% mutate(Trial_Type = gsub("\\*1", "", Trial_Type))
+merged_queer <- merged_queer %>% mutate(Trial_Type = gsub("\\*2", "", Trial_Type))
+
+matched_queer <- join(merged_queer, matches, by = "Trial_Type")
+matched_queer <- select(matched_queer, -c(url, id, X, Trial_Type))
+names(matched_queer)[names(matched_queer) == 'phon'] <- 'WAV'
+
+
 
 # write.csv(queer_qid, "/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/queer_qid.csv", row.names=FALSE)
 # write.csv(queer_stimname, "/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/queer_stimname.csv", row.names=FALSE)
-
-# colnames(queer)[grepl('Q36',colnames(queer))] <- 'gender_id'
-# colnames(queer)[grepl('Q60',colnames(queer))] <- 'gender_id'
-# colnames(queer)[grepl('Q29',colnames(queer))] <- 'sexual_orientation'
-# colnames(queer)[grepl('Q61',colnames(queer))] <- 'sexual_orientation'
-# colnames(queer)[grepl('Q30',colnames(queer))] <- 'voice_effect'
-# colnames(queer)[grepl('Q62',colnames(queer))] <- 'voice_effect'
-# colnames(queer)[grepl('Q26',colnames(queer))] <- 'cis_trans'
-# colnames(queer)[grepl('Q63',colnames(queer))] <- 'cis_trans'
