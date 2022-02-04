@@ -72,8 +72,11 @@ merged_queer <- merged_queer %>% mutate(Trial_Type = gsub("\\*2", "", Trial_Type
 matched_queer <- join(merged_queer, matches, by = "Trial_Type")
 matched_queer <- select(matched_queer, -c(url, id, X, Trial_Type))
 names(matched_queer)[names(matched_queer) == 'phon'] <- 'WAV'
+matched_queer$Rating <- as.numeric(matched_queer$Rating)
 
+### The plot thickens
 
+ggplot(matched_queer, aes)
 
-# write.csv(queer_qid, "/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/queer_qid.csv", row.names=FALSE)
+write.csv(matched_queer, "/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/matched_queer.csv", row.names=FALSE)
 # write.csv(queer_stimname, "/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/queer_stimname.csv", row.names=FALSE)
