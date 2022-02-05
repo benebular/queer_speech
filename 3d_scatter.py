@@ -9,11 +9,11 @@ import sklearn
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import string
-import mpld3
+#import mpld3
 
 dir = '/Users/bcl/Documents/GitHub/queer_speech'
 os.chdir(dir)
-ratings_fname = os.path.join(dir,'matched_queer.csv')
+ratings_fname = os.path.join(dir,'qualtrics_data/mark1_jan28/matched_queer.csv')
 ratings = pd.read_csv(ratings_fname)
 
 # establish participant list
