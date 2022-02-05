@@ -9,6 +9,7 @@ import sklearn
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import string
+import mpld3
 
 dir = '/Users/bcl/Documents/GitHub/queer_speech'
 os.chdir(dir)
@@ -25,8 +26,8 @@ ratings['Condition'] = ratings['Condition'].astype('category')
 ratings['WAV'] = ratings['WAV'].astype('category')
 ratings_avg = ratings.groupby(['WAV', 'Condition'], as_index=False)['Rating'].mean()
 print(ratings_avg)
-ratings_avg_pivot = ratings_avg.pivot(index = 'WAV', columns = 'Condition', values = 'Rating').reset_index().rename_axis(None, axis=1)
-ratings_avg_pivot.set_index(['Condition']).VALUE.unstack().reset_index()
+ratings_avg_pivot = ratings_avg.pivot(index = 'WAV', columns = 'Condition', values = 'Rating')
+# ratings_avg_pivot.set_index(['Condition']).VALUE.unstack().reset_index()
 
 # plot individual ratings
 fig = plt.figure(figsize = (10,7))
@@ -34,7 +35,7 @@ ax = plt.axes(projection='3d')
 for participant in participants:
     ratings_indiv = ratings[ratings['Participant'] == participant]
     ratings_indiv_pivot = ratings_indiv.pivot(index = 'WAV', columns = 'Condition', values = 'Rating')
-    ax.scatter(ratings_indiv_pivot['gender_id'], ratings_pivot['sexual_orientation'], ratings_pivot['voice_id'], alpha=0.8, s=30)
+    ax.scatter(ratings_indiv_pivot['gender_id'], ratings_indiv_pivot['sexual_orientation'], ratings_indiv_pivot['voice_id'], alpha=0.8, s=30)
 plt.title('Gender Identity, Sexual Orientation, and Vocie Identity Ratings (Indiv)', fontweight='bold')
 ax.set_xlabel('Gender ID', fontweight='bold')
 ax.set_ylabel('PSO', fontweight='bold')
@@ -45,9 +46,9 @@ plt.show()
 ## plot averages
 fig = plt.figure(figsize = (10,7))
 ax = plt.axes(projection='3d')
-ax.scatter(ratings_pivot['gender_id'], ratings_pivot['sexual_orientation'], ratings_pivot['voice_id'], alpha=0.8, s=30, c='r')
-for i, txt in enumerate(ratings_pivot['gender_id']):
-    plt.annotate(txt, (ratings_pivot['gender_id'][i], ratings_pivot['sexual_orientation'][i], ratings_pivot['voice_id'][i]))
+ax.scatter(ratings_avg_pivot['gender_id'], ratings_avg_pivot['sexual_orientation'], ratings_avg_pivot['voice_id'], alpha=0.8, s=30, c='r')
+# for i, txt in enumerate(ratings_pivot['gender_id']):
+#     plt.annotate(txt, (ratings_pivot['gender_id'][i], ratings_pivot['sexual_orientation'][i], ratings_pivot['voice_id'][i]))
 plt.title('Gender Identity, Sexual Orientation, and Vocie Identity Ratings (Avg)', fontweight='bold')
 ax.set_xlabel('Gender ID', fontweight='bold')
 ax.set_ylabel('PSO', fontweight='bold')

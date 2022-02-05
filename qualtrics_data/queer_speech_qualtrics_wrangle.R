@@ -21,7 +21,7 @@ library(data.table)
 
 setwd('/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/')
 options(stringsAsFactors=F)
-queer = read.csv('queer-speech_February 3, 2022_18.42.csv')
+queer = read.csv('queer-speech_February 4, 2022_15.58.csv')
 
 #cleaning data down to just ratings, trial type, and stimulus ID
 # queer <- subset(queer, Status == 0 | Status == "Response Type") # just for if there's people that don't complete the survey
