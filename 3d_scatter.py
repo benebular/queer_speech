@@ -49,7 +49,7 @@ ax = plt.axes(projection='3d')
 ax.scatter(ratings_avg_pivot['gender_id'], ratings_avg_pivot['sexual_orientation'], ratings_avg_pivot['voice_id'], alpha=0.8, s=30, c='r')
 # for i, txt in enumerate(ratings_pivot['gender_id']):
 #     plt.annotate(txt, (ratings_pivot['gender_id'][i], ratings_pivot['sexual_orientation'][i], ratings_pivot['voice_id'][i]))
-plt.title('Gender Identity, Sexual Orientation, and Vocie Identity Ratings (Avg)', fontweight='bold')
+plt.title('Gender Identity, Sexual Orientation, and Voice Identity Ratings (Avg)', fontweight='bold')
 ax.set_xlabel('Gender ID', fontweight='bold')
 ax.set_ylabel('PSO', fontweight='bold')
 ax.set_zlabel('Voice (Masc-N-Femme)', fontweight='bold')
