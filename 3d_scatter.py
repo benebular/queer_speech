@@ -29,20 +29,6 @@ print(ratings_avg)
 ratings_avg_pivot = ratings_avg.pivot(index = 'WAV', columns = 'Condition', values = 'Rating')
 # ratings_avg_pivot.set_index(['Condition']).VALUE.unstack().reset_index()
 
-# plot individual ratings
-fig = plt.figure(figsize = (10,7))
-ax = plt.axes(projection='3d')
-for participant in participants:
-    ratings_indiv = ratings[ratings['Participant'] == participant]
-    ratings_indiv_pivot = ratings_indiv.pivot(index = 'WAV', columns = 'Condition', values = 'Rating')
-    ax.scatter(ratings_indiv_pivot['gender_id'], ratings_indiv_pivot['sexual_orientation'], ratings_indiv_pivot['voice_id'], alpha=0.8, s=30)
-plt.title('Gender Identity, Sexual Orientation, and Vocie Identity Ratings (Indiv)', fontweight='bold')
-ax.set_xlabel('Gender ID', fontweight='bold')
-ax.set_ylabel('PSO', fontweight='bold')
-ax.set_zlabel('Voice (Masc-N-Femme)', fontweight='bold')
-plt.show()
-
-
 ## plot averages
 fig = plt.figure(figsize = (10,7))
 ax = plt.axes(projection='3d')
@@ -54,6 +40,19 @@ ax.set_xlabel('Gender ID', fontweight='bold')
 ax.set_ylabel('PSO', fontweight='bold')
 ax.set_zlabel('Voice (Masc-N-Femme)', fontweight='bold')
 # ax.legend(handles=ratings_pivot['WAV'])
+plt.show()
+
+# plot individual ratings
+fig = plt.figure(figsize = (10,7))
+ax = plt.axes(projection='3d')
+for participant in participants:
+    ratings_indiv = ratings[ratings['Participant'] == participant]
+    ratings_indiv_pivot = ratings_indiv.pivot(index = 'WAV', columns = 'Condition', values = 'Rating')
+    ax.scatter(ratings_indiv_pivot['gender_id'], ratings_indiv_pivot['sexual_orientation'], ratings_indiv_pivot['voice_id'], alpha=0.8, s=30)
+plt.title('Gender Identity, Sexual Orientation, and Vocie Identity Ratings (Indiv)', fontweight='bold')
+ax.set_xlabel('Gender ID', fontweight='bold')
+ax.set_ylabel('PSO', fontweight='bold')
+ax.set_zlabel('Voice (Masc-N-Femme)', fontweight='bold')
 plt.show()
 
 # ## check if ratings already made and load
