@@ -29,9 +29,9 @@ sys.path.insert(0,'/Users/bcl/charsiu/src')
 
 print("Filling directory variables...")
 charsiu_dir = '/Users/bcl/charsiu/'
-audio_dir = "/Volumes/GoogleDrive/My Drive/Comps/sounds_survey/pilot_jan21/sounds/"
-audio_resample_dir = "/Volumes/GoogleDrive/My Drive/Comps/sounds_survey/pilot_jan21/sounds_resample/"
-grid_dir = "/Volumes/GoogleDrive/My Drive/Comps/sounds_survey/pilot_jan21/grids/"
+audio_dir = "/Volumes/GoogleDrive/My Drive/Comps/sounds_survey/mark1_jan28/mark1_jan28_normalized/"
+audio_resample_dir = "/Volumes/GoogleDrive/My Drive/Comps/sounds_survey/mark1_jan28/resample/"
+grid_dir = "/Volumes/GoogleDrive/My Drive/Comps/sounds_survey/mark1_jan28/grids/"
 
 ## resample
 print("Resampling audio at 16kHz.")
