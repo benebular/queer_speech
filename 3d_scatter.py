@@ -29,17 +29,26 @@ print(ratings_avg)
 ratings_avg_pivot = ratings_avg.pivot(index = 'WAV', columns = 'Condition', values = 'Rating')
 # ratings_avg_pivot.set_index(['Condition']).VALUE.unstack().reset_index()
 
+ratings_avg_pivot.index.name = None
+ratings_avg_pivot.index = pd.Series(ratings_avg_pivot.index).astype(str)
+categories = pd.Series(ratings_avg_pivot.index).astype(str)
+
+import random
+get_colors = lambda n: list(map(lambda i: "#" + "%06x" % random.randint(0, 0xFFFFFF),range(n)))
+colors = get_colors(len(categories)) # sample return:  ['#8af5da', '#fbc08c', '#b741d0', '#e599f1', '#bbcb59', '#a2a6c0']
+
 ## plot averages
 fig = plt.figure(figsize = (10,7))
 ax = plt.axes(projection='3d')
-ax.scatter(ratings_avg_pivot['gender_id'], ratings_avg_pivot['sexual_orientation'], ratings_avg_pivot['voice_id'], alpha=0.8, s=30, c='r')
-# for i, txt in enumerate(ratings_pivot['gender_id']):
-#     plt.annotate(txt, (ratings_pivot['gender_id'][i], ratings_pivot['sexual_orientation'][i], ratings_pivot['voice_id'][i]))
+for i, txt in enumerate(categories): # plots ewach point in red and then plots a text from a separate list to label the dots
+    ax.scatter(ratings_avg_pivot['gender_id'][i],ratings_avg_pivot['sexual_orientation'][i],ratings_avg_pivot['voice_id'][i], alpha=0.8, s=30, color=colors[i])
+    ax.text(ratings_avg_pivot['gender_id'][i],ratings_avg_pivot['sexual_orientation'][i],ratings_avg_pivot['voice_id'][i],  '%s' % (str(txt)), size=10, zorder=1, color='k')
+# ax.scatter(ratings_avg_pivot['gender_id'], ratings_avg_pivot['sexual_orientation'], ratings_avg_pivot['voice_id'], alpha=0.8, s=30, c='r') # just the scatter, no text
 plt.title('Gender Identity, Sexual Orientation, and Voice Identity Ratings (Avg)', fontweight='bold')
 ax.set_xlabel('Gender ID', fontweight='bold')
 ax.set_ylabel('PSO', fontweight='bold')
 ax.set_zlabel('Voice (Masc-N-Femme)', fontweight='bold')
-# ax.legend(handles=ratings_pivot['WAV'])
+plt.legend()
 plt.show()
 
 # plot individual ratings
