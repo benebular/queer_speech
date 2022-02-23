@@ -40,15 +40,15 @@ colors = get_colors(len(categories)) # sample return:  ['#8af5da', '#fbc08c', '#
 ## plot averages
 fig = plt.figure(figsize = (10,7))
 ax = plt.axes(projection='3d')
-for i, txt in enumerate(categories): # plots ewach point in red and then plots a text from a separate list to label the dots
-    ax.scatter(ratings_avg_pivot['gender_id'][i],ratings_avg_pivot['sexual_orientation'][i],ratings_avg_pivot['voice_id'][i], alpha=0.8, s=30, color=colors[i])
-    ax.text(ratings_avg_pivot['gender_id'][i],ratings_avg_pivot['sexual_orientation'][i],ratings_avg_pivot['voice_id'][i],  '%s' % (str(txt)), size=10, zorder=1, color='k')
-# ax.scatter(ratings_avg_pivot['gender_id'], ratings_avg_pivot['sexual_orientation'], ratings_avg_pivot['voice_id'], alpha=0.8, s=30, c='r') # just the scatter, no text
+# for i, txt in enumerate(categories): # plots ewach point in red and then plots a text from a separate list to label the dots
+#     ax.scatter(ratings_avg_pivot['gender_id'][i],ratings_avg_pivot['sexual_orientation'][i],ratings_avg_pivot['voice_id'][i], alpha=0.8, s=30, color=colors[i])
+#     ax.text(ratings_avg_pivot['gender_id'][i],ratings_avg_pivot['sexual_orientation'][i],ratings_avg_pivot['voice_id'][i],  '%s' % (str(txt)), size=10, zorder=1, color='k')
+ax.scatter(ratings_avg_pivot['gender_id'], ratings_avg_pivot['sexual_orientation'], ratings_avg_pivot['voice_id'], alpha=0.8, s=30, c='r') # just the scatter, no text
 plt.title('Gender Identity, Sexual Orientation, and Voice Identity Ratings (Avg)', fontweight='bold')
 ax.set_xlabel('Gender ID', fontweight='bold')
 ax.set_ylabel('PSO', fontweight='bold')
 ax.set_zlabel('Voice (Masc-N-Femme)', fontweight='bold')
-plt.legend()
+# plt.legend()
 plt.show()
 
 # plot individual ratings
