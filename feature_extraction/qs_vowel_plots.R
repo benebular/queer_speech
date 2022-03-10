@@ -19,7 +19,6 @@ vowel_data = read.csv('vs_output.csv')
 vowel_data$Vowel <- vowel_data$vowel_id_spk
 
 ## grab all vowel rows, group_by speaker, average F1, average F2, then average across all speakers
-vowel_avg <- 
 vowel_data %>% subset(vowel_data$Label == "IY") %>% select(sF1) %>% na.omit() %>% summarise(mean(sF1))
 vowel_data %>% subset(vowel_data$Label == "IY") %>% select(sF2) %>% na.omit() %>% summarise(mean(sF2))
 vowel_data %>% subset(vowel_data$Label == "UW") %>% select(sF1) %>% na.omit() %>% summarise(mean(sF1))
