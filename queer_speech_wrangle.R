@@ -112,3 +112,10 @@ names(matched_queer)[names(matched_queer) == 'D8'] <- 'participant_race_free_res
 ### same as csv for analysis or plotting elsewhere
 write.csv(matched_queer, "/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/matched_queer.csv", row.names=FALSE)
 # write.csv(queer_stimname, "/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/queer_stimname.csv", row.names=FALSE)
+
+
+
+### transform VoiceSauce features
+vs = read.csv('/Users/bcl/Documents/GitHub/queer_speech/feature_extraction/vs_output.csv')
+vs_wide = vs %>% spread(Label, strF0_mean)
+
