@@ -75,7 +75,7 @@ merged_queer$Qualtrics_Trial_Num[merged_queer$Qualtrics_Trial_Num %like% "Q62"] 
 names(merged_queer)[names(merged_queer) == 'Qualtrics_Trial_Num'] <- 'Condition'
 
 ## remove uniqueness
-matches = read.csv('matches_queer_speech.csv')
+matches = read.csv('matches_queer_speech.csv') # from regex
 merged_queer <- merged_queer %>% mutate(Trial_Type = gsub("\\*1", "", Trial_Type))
 merged_queer <- merged_queer %>% mutate(Trial_Type = gsub("\\*2", "", Trial_Type))
 
@@ -116,6 +116,6 @@ write.csv(matched_queer, "/Users/bcl/Documents/GitHub/queer_speech/qualtrics_dat
 
 
 ### transform VoiceSauce features
-vs = read.csv('/Users/bcl/Documents/GitHub/queer_speech/feature_extraction/vs_output.csv')
+vs = read.csv('/Users/bcl/Documents/GitHub/queer_speech/feature_extraction/vs_ms_output.csv')
 vs_wide = vs %>% spread(Label, strF0_mean)
 
