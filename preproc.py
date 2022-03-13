@@ -5,6 +5,8 @@
 import numpy as np
 import pandas as pd
 import time
+import seaborn as sns
+import ptitprince as pt
 import os
 import os.path as op
 import sys
@@ -23,14 +25,8 @@ matches = pd.read_csv(matches_fname)
 queer_ratings = pd.read_csv(queer_ratings_fname)
 vs.rename(columns = {'Filename':'WAV'}, inplace = True)
 # view all labels in each file
-# with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-#     print(vs[['Filename','Label']])
-
-# make a list of all the features in the VS output
-vs_features = ['strF0','sF1','sF2','sF3','sF4','sB1','sB2','sB3','sB4']
-#get rid of indexes or random columns to make list of features from VS ouput
-# vs_colnames = pd.Series(vs.columns.values.tolist())
-# vs_colnames = vs_colnames.drop(labels=[0, 1, 72], axis=0)
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+    print(vs[['WAV','Label']].head(5))
 
 # remove file extension .mat from strings to match other columns
 new_names = []
@@ -39,16 +35,78 @@ for i in vs['WAV']:
     new_names.append(x)
 vs['WAV'] = new_names
 
+# segment durations
+vs['duration'] = vs['seg_End'] - vs['seg_Start']
+duration_pivot = vs.pivot_table(index = ['WAV'], columns = 'Label', values = 'duration')
+duration_pivot_mask = vs.pivot_table(index = ['WAV'], columns = 'Label', values = 'duration', aggfunc=lambda x: len(x.unique()))
+duration = (duration_pivot/duration_pivot_mask).add_suffix('_dur')
+
 # collect average strF0 across single utterances by speaker
-strF0_avg = vs.groupby(['WAV'], as_index=False)['strF0'].mean()
+F0_avg = vs.groupby(['WAV'], as_index=False)['strF0'].mean().rename(columns = {'strF0':'F0_mean'})
+F0_std = vs.groupby(['WAV'], as_index=False)['strF0'].std().rename(columns = {'strF0':'F0_std'})
 
 # collect 90th and 10th percentiles for min, max, and range of F0
-# strF0_range_temp = vs.groupby(['Filename'], as_index=False)['strF0']
-# strF0_range = np.percentile(vs['strF0'], 90)
-
+F0_90 = vs.groupby(['WAV'], as_index=False)['strF0'].quantile(0.9).rename(columns = {'strF0':'F0_mean'})
+F0_10 = vs.groupby(['WAV'], as_index=False)['strF0'].quantile(0.1).rename(columns = {'strF0':'F0_mean'})
+F0_subtraction = F0_90['F0_mean'] - F0_10['F0_mean']
+F0_range = pd.DataFrame({'WAV':F0_10['WAV'],'F0_range':F0_subtraction})
 
 # concatenate dfs into ratings df
-ratings_all = pd.merge(queer_ratings, strF0_avg, on='WAV')
+ratings_all = pd.merge(queer_ratings, F0_avg, on='WAV')
+ratings_all = pd.merge(ratings_all, F0_std, on='WAV')
+ratings_all = pd.merge(ratings_all, F0_range, on='WAV')
+ratings_all = pd.merge(ratings_all, duration, on='WAV')
+
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+    print(F0_90)
+
+
+### EXPORT ###
+ratings_all.to_csv('ratings_features_all.csv', index=True, encoding='utf-8')
+
+
+### Plotting
+#adding the boxplot with quartiles
+f, ax = plt.subplots(figsize=(7, 5))
+dy="WAV"; dx="F0_mean"; ort="h"; pal = sns.color_palette(n_colors=1)
+ax=pt.half_violinplot( x = dx, y = dy, data = ratings_all, bw = .2, cut = 0., palette = pal,
+                      scale = "area", width = .6, inner = None, orient = ort)
+ax=sns.stripplot( x = dx, y = dy, data = ratings_all, palette = pal, edgecolor = "white",
+                 size = 3, jitter = 1, zorder = 0, orient = ort)
+ax=sns.boxplot( x = dx, y = dy, data = ratings_all, color = "black", width = .15, zorder = 10,\
+            showcaps = True, boxprops = {'facecolor':'none', "zorder":10},\
+            showfliers=True, whiskerprops = {'linewidth':2, "zorder":10},\
+               saturation = 1, orient = ort)
+
+ax = sns.barplot(x=dy, y=dx, data=ratings_all, capsize=.1)
+plt.boxplot(ratings_all['WAV'].drop_duplicates(),ratings_all['F0_mean'].drop_duplicates())
+plt.show()
+
+### graveyard
+
+# make a list of all the features in the VS output
+# vs_features = ['strF0','sF1','sF2','sF3','sF4','sB1','sB2','sB3','sB4']
+# get rid of indexes or random columns to make list of features from VS ouput
+# vs_colnames = pd.Series(vs.columns.values.tolist())
+# vs_colnames = vs_colnames.drop(labels=[0, 1, 72], axis=0)
+
+# merge_list = [strF0_avg, strF0_std]
+# for idx in range(len(merge_list)):
+#     i = merge_list[idx]
+#     if ratings_all is None:
+#         ratings_all = pd.merge(queer_ratings, i, on='WAV')
+#         mid = ratings_all['WAV']
+#         ratings_all.drop(labels=['WAV'], axis=1, inplace = True)
+#         ratings_all.insert(len(ratings_all.columns), 'WAV', mid)
+#     else:
+#         ratings_all = pd.merge(ratings_all, i, on='WAV')
+#         mid = ratings_all['WAV']
+#         ratings_all.drop(labels=['WAV'], axis=1, inplace = True)
+#         ratings_all.insert(len(ratings_all.columns), 'WAV', mid)
+#
+# with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+#     print(ratings_all.head(5))
+
 
 # for i in range(len(vs['Filename'])):
 #     strF0 = vs['strF0'][i]
