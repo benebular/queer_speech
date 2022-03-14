@@ -39,7 +39,7 @@ vs['WAV'] = new_names
 vs['duration'] = vs['seg_End'] - vs['seg_Start']
 duration_pivot = vs.pivot_table(index = ['WAV'], columns = 'Label', values = 'duration')
 duration_pivot_mask = vs.pivot_table(index = ['WAV'], columns = 'Label', values = 'duration', aggfunc=lambda x: len(x.unique()))
-duration = (duration_pivot/duration_pivot_mask).add_suffix('_dur')
+duration = (duration_pivot/duration_pivot_mask).add_suffix('_avg_dur')
 
 # collect average strF0 across single utterances by speaker
 window = 50
@@ -70,25 +70,33 @@ ratings_all = pd.merge(ratings_all, duration, on='WAV')
 # formants for vowels
 formant_labels = ['sF1','sF2','sF3','sF4','sB1','sB2','sB3','sB4']
 for val in formant_labels:
-    vowels_pivot = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val)
-    vowels_pivot_mask = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val, aggfunc=lambda x: len(x.unique()))
-    vowels = (vowels_pivot/vowels_pivot_mask).add_suffix('_%s'%val)
-    ratings_all = pd.merge(ratings_all, vowels, on='WAV')
+    vowels_pivot = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val).add_suffix('_%s'%val)
+    # vowels_pivot_mask = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val, aggfunc=lambda x: len(x.unique()))
+    # vowels = (vowels_pivot/vowels_pivot_mask).add_suffix('_%s'%val)
+    ratings_all = pd.merge(ratings_all, vowels_pivot, on='WAV')
 
 # vowel center measurements
 vowel_labels = ['AA','AE','AH','AO','AW','AX','AY','EH','EY','IH','IY','OW','OY','UH','UW']
+# vowels_B4 = vowels_pivot[['AA','AE','AH','AO','AW','AX','AY','EH','EY','IH','IY','OW','OY','UH','UW']]
+
 
 
 # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-#     print(vowels.head(20))
+#     print(vowels_pivot[['AA','AE','AH','AO','AW','AX','AY','EH','EY','IH','IY','OW','OY','UH','UW']])
 
 ### EXPORT ###
 print ("Saving ratings_all as ratings_features_all.csv")
 ratings_all.to_csv(os.path.join(dir,'feature_extraction','ratings_features_all.csv'), index=True, encoding='utf-8')
 
 
+'------------------------------------------------------------------------------'
+
 ### Plotting
-#adding the boxplot with quartiles
+gender_id = ratings_all[ratings_all['Condition']=='gender_id']
+sexual_orientation = ratings_all[ratings_all['Condition']=='sexual_orientation']
+voice_id = ratings_all[ratings_all['Condition']=='voice_id']
+
+# F0, adding the boxplot with quartiles
 plot_F0_mean = pd.DataFrame({'group':'F0', 'F0': ratings_all['F0_mean']}).drop_duplicates()
 plot_F0_90 = pd.DataFrame({'group':'F0_90', 'F0': ratings_all['F0_90']}).drop_duplicates()
 plot_F0_10 = pd.DataFrame({'group':'F0_10', 'F0': ratings_all['F0_10']}).drop_duplicates()
@@ -102,6 +110,189 @@ pt.RainCloud(x = dx, y = dy, data = plot_F0, palette = pal, bw = sigma,
 plt.title("10th percentile; Average F0; 90th percentile, by speaker (across entire utterance)")
 # plt.show()
 plt.savefig(os.path.join(dir,'figs', 'F0_raincloud.png'), bbox_inches='tight', dpi=300)
+
+# # proximity, gender_id, adding the boxplot with quartiles
+# plot_gender_id_prox_social = pd.DataFrame({'group':'prox_social', 'Rating': gender_id['Rating']}).drop_duplicates()
+# plot_gender_id_prox_affiliation = pd.DataFrame({'group':'prox_affiliation', 'Rating': gender_id['Rating']}).drop_duplicates()
+# plot_gender_id_prox_media = pd.DataFrame({'group':'prox_media', 'Rating': gender_id['Rating']}).drop_duplicates()
+# plot_gender_id_prox = pd.concat([plot_gender_id_prox_social, plot_gender_id_prox_affiliation, plot_gender_id_prox_media])
+#
+# dx="group"; dy="Rating"; ort="h"; pal = sns.color_palette(n_colors=3); sigma = .2
+# f, ax = plt.subplots(figsize=(7, 5))
+# pt.RainCloud(x = dx, y = dy, data = plot_gender_id_prox, palette = pal, bw = sigma,
+#                  width_viol = .6, ax = ax, orient = ort)
+#
+# plt.title("Ratings of Gender Identity by Proximity")
+# # plt.show()
+# plt.savefig(os.path.join(dir,'figs', 'gender_id_prox_raincloud.png'), bbox_inches='tight', dpi=300)
+
+
+### F0 AVG ####create scatterplot with regression line and confidence interval lines
+gender_id_avg_rating = gender_id.groupby('WAV', as_index=False)['Rating'].mean()
+gender_id_avg_F0 = gender_id.groupby('WAV', as_index=False)['F0_mean'].mean()
+gender_id_F0 = pd.merge(gender_id_avg_rating, gender_id_avg_F0, on='WAV')
+
+sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating'].mean()
+sexual_orientation_avg_F0 = sexual_orientation.groupby('WAV', as_index=False)['F0_mean'].mean()
+sexual_orientation_F0 = pd.merge(sexual_orientation_avg_rating, sexual_orientation_avg_F0, on='WAV')
+
+voice_id_rating = voice_id.groupby('WAV', as_index=False)['Rating'].mean()
+voice_id_avg_F0 = voice_id.groupby('WAV', as_index=False)['F0_mean'].mean()
+voice_id_F0 = pd.merge(voice_id_rating, voice_id_avg_F0, on='WAV')
+
+# plot
+fig, axes = plt.subplots(1, 3)
+fig.subplots_adjust(hspace=0.5)
+fig.set_size_inches(16, 6)
+fig.suptitle("Avg F0 by Rating", fontsize=20, fontweight='bold')
+fig.subplots_adjust( top = 0.85 )
+
+axes[0].set_title('Gender Identity')
+axes[0].set_xlim(1,7)
+sns.regplot(data=gender_id_F0, x='Rating', y='F0_mean', ax=axes[0], color='#d55e00')
+axes[0].set_xlabel('Rating (1-Male, 7-Female)')
+axes[0].set_ylabel('Avg F0')
+
+axes[1].set_title('Sexual Orientation')
+axes[1].set_xlim(1,7)
+sns.regplot(data=sexual_orientation_F0, x='Rating', y='F0_mean', ax=axes[1], color='#0072b2')
+axes[1].set_xlabel('Rating (1-Homo, 7-Het)')
+axes[1].set_ylabel('')
+
+axes[2].set_title('Voice Identity')
+axes[2].set_xlim(1,7)
+sns.regplot(data=voice_id_F0, x='Rating', y='F0_mean', ax=axes[2], color='#009e73')
+axes[2].set_xlabel('Rating (1-Masc, 7-Femme)')
+axes[2].set_ylabel('')
+
+# plt.show()
+plt.savefig(os.path.join(dir,'figs', 'F0_avgbycondition.png'), bbox_inches='tight', dpi=300)
+plt.clf()
+
+# overlay
+fig, axes = plt.subplots()
+fig.set_size_inches(18, 10)
+axes.set_title('Avg F0 by Condition Rating', fontsize=20, fontweight='bold')
+axes.set_xlim(1,7)
+sns.regplot(data=gender_id_F0, x='Rating', y='F0_mean', color='#d55e00')
+sns.regplot(data=sexual_orientation_F0, x='Rating', y='F0_mean', color='#0072b2')
+sns.regplot(data=voice_id_F0, x='Rating', y='F0_mean', color='#009e73')
+axes.set_xlabel('Rating (1-7)')
+axes.set_ylabel('Avg F0')
+plt.legend(labels=['Gender ID','Sexual Orientation','Voice ID'])
+plt.savefig(os.path.join(dir,'figs', 'F0_avgbycondition_overlay.png'), bbox_inches='tight', dpi=300)
+# plt.show()
+
+
+#### proximity
+# social
+gender_id_avg_rating = gender_id.groupby('Participant', as_index=False)['Rating'].mean()
+gender_id_prox_social = pd.DataFrame({'Participant':gender_id['Participant'], 'prox_social': gender_id['participant_prox_social']}).drop_duplicates()
+gender_id_social = pd.merge(gender_id_avg_rating, gender_id_prox_social, on='Participant')
+
+sexual_orientation_avg_rating = sexual_orientation.groupby('Participant', as_index=False)['Rating'].mean()
+sexual_orientation_prox_social = pd.DataFrame({'Participant':sexual_orientation['Participant'], 'prox_social': sexual_orientation['participant_prox_social']}).drop_duplicates()
+sexual_orientation_social = pd.merge(sexual_orientation_avg_rating, sexual_orientation_prox_social, on='Participant')
+
+voice_id_avg_rating = voice_id.groupby('Participant', as_index=False)['Rating'].mean()
+voice_id_prox_social = pd.DataFrame({'Participant':voice_id['Participant'], 'prox_social': voice_id['participant_prox_social']}).drop_duplicates()
+voice_id_social = pd.merge(voice_id_avg_rating, voice_id_prox_social, on='Participant')
+
+# affiliation
+gender_id_prox_affiliation = pd.DataFrame({'Participant':gender_id['Participant'], 'prox_affiliation': gender_id['participant_prox_affiliation']}).drop_duplicates()
+sexual_orientation_prox_affiliation = pd.DataFrame({'Participant':sexual_orientation['Participant'], 'prox_affiliation': sexual_orientation['participant_prox_affiliation']}).drop_duplicates()
+voice_id_prox_affiliation = pd.DataFrame({'Participant':voice_id['Participant'], 'prox_affiliation': voice_id['participant_prox_affiliation']}).drop_duplicates()
+
+gender_id_affiliation = pd.merge(gender_id_avg_rating, gender_id_prox_affiliation, on='Participant')
+sexual_orientation_affiliation = pd.merge(sexual_orientation_avg_rating, sexual_orientation_prox_affiliation, on='Participant')
+voice_id_affiliation = pd.merge(voice_id_avg_rating, voice_id_prox_affiliation, on='Participant')
+
+# media
+gender_id_prox_media = pd.DataFrame({'Participant':gender_id['Participant'], 'prox_media': gender_id['participant_prox_media']}).drop_duplicates()
+sexual_orientation_prox_media = pd.DataFrame({'Participant':sexual_orientation['Participant'], 'prox_media': sexual_orientation['participant_prox_media']}).drop_duplicates()
+voice_id_prox_media = pd.DataFrame({'Participant':voice_id['Participant'], 'prox_media': voice_id['participant_prox_media']}).drop_duplicates()
+
+gender_id_media = pd.merge(gender_id_avg_rating, gender_id_prox_media, on='Participant')
+sexual_orientation_media = pd.merge(sexual_orientation_avg_rating, sexual_orientation_prox_media, on='Participant')
+voice_id_media = pd.merge(voice_id_avg_rating, voice_id_prox_media, on='Participant')
+
+# plot
+fig, axes = plt.subplots(3, 3)
+fig.subplots_adjust(hspace=0.5)
+fig.set_size_inches(16, 6)
+fig.suptitle("Rating by Proximity to LGBTQ+ Community", fontsize=20, fontweight='bold')
+fig.subplots_adjust( top = 0.85 )
+
+# social
+axes[0,0].set_title('Gender Identity')
+axes[0,0].set_xlim(0,100)
+axes[0,0].set_ylim(1,7)
+sns.regplot(data=gender_id_social, x='prox_social', y='Rating', ax=axes[0,0], color='#d55e00')
+axes[0,0].set_xlabel('Percent of Social Circle')
+axes[0,0].set_ylabel('')
+
+axes[0,1].set_title('Sexual Orientation')
+axes[0,1].set_xlim(0,100)
+axes[0,1].set_ylim(1,7)
+sns.regplot(data=sexual_orientation_social, x='prox_social', y='Rating', ax=axes[0,1], color='#0072b2')
+axes[0,1].set_xlabel('Percent of Social Circle')
+axes[0,1].set_ylabel('')
+
+axes[0,2].set_title('Voice Identity')
+axes[0,2].set_xlim(0,100)
+axes[0,2].set_ylim(1,7)
+sns.regplot(data=voice_id_social, x='prox_social', y='Rating', ax=axes[0,2], color='#009e73')
+axes[0,2].set_xlabel('Percent of Social Circle')
+axes[0,2].set_ylabel('')
+
+# affiliation
+# axes[1,0].set_title('Gender Identity')
+axes[1,0].set_xlim(0,100)
+axes[1,0].set_ylim(1,7)
+sns.regplot(data=gender_id_affiliation, x='prox_affiliation', y='Rating', ax=axes[1,0], color='#d55e00')
+axes[1,0].set_xlabel('Percent of Affiliation')
+axes[1,0].set_ylabel('Rating (1-Male, 7-Female)')
+
+# axes[1,1].set_title('Sexual Orientation')
+axes[1,1].set_xlim(0,100)
+axes[1,1].set_ylim(1,7)
+sns.regplot(data=sexual_orientation_affiliation, x='prox_affiliation', y='Rating', ax=axes[1,1], color='#0072b2')
+axes[1,1].set_xlabel('Percent of Affiliation')
+axes[1,1].set_ylabel('Rating (1-Homo, 7-Het)')
+
+# axes[1,2].set_title('Voice Identity')
+axes[1,2].set_xlim(0,100)
+axes[1,2].set_ylim(1,7)
+sns.regplot(data=voice_id_affiliation, x='prox_affiliation', y='Rating', ax=axes[1,2], color='#009e73')
+axes[1,2].set_xlabel('Percent of Affiliation')
+axes[1,2].set_ylabel('Rating (1-Masc, 7-Femme)')
+
+# media
+# axes[2,0].set_title('Gender Identity')
+axes[2,0].set_xlim(0,100)
+axes[2,0].set_ylim(1,7)
+sns.regplot(data=gender_id_media, x='prox_media', y='Rating', ax=axes[2,0], color='#d55e00')
+axes[2,0].set_xlabel('Percent of Media Consumed')
+axes[2,0].set_ylabel('')
+
+# axes[2,1].set_title('Sexual Orientation')
+axes[2,1].set_xlim(0,100)
+axes[2,1].set_ylim(1,7)
+sns.regplot(data=sexual_orientation_media, x='prox_media', y='Rating', ax=axes[2,1], color='#0072b2')
+axes[2,1].set_xlabel('Percent of Media Consumed')
+axes[2,1].set_ylabel('')
+
+# axes[2,2].set_title('Voice Identity')
+axes[2,2].set_xlim(0,100)
+axes[2,2].set_ylim(1,7)
+sns.regplot(data=voice_id_media, x='prox_media', y='Rating', ax=axes[2,2], color='#009e73')
+axes[2,2].set_xlabel('Percent of Media Consumed')
+axes[2,2].set_ylabel('')
+
+# plt.show()
+plt.savefig(os.path.join(dir,'figs', 'proximity_social.png'), bbox_inches='tight', dpi=300)
+plt.clf()
+
 ### graveyard
 
 # make a list of all the features in the VS output
