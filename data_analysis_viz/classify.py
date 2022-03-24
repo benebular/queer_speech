@@ -21,13 +21,13 @@ from sklearn.decomposition import PCA
 # set up directory and read in csv
 dir = '/Users/bcl/Documents/GitHub/queer_speech'
 os.chdir(dir)
-ratings_features_fname = os.path.join(dir, 'ratings_features_all.csv')
+ratings_features_fname = os.path.join(dir, 'feature_extraction', 'ratings_features_all.csv')
 data = pd.read_csv(ratings_features_fname)
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
     print(data.head(5))
 
 ## PCA
-features = ['participant_prox_social','participant_prox_affiliation','participant_prox_media']
+features = ['spectral_S_cog','spectral_S_sdev','spectral_S_skew', 'spectral_S_kurt','spectral_S_duration','spectral_S_intensity','F0_mean','F0_range']
 
 # Separating out the features
 x = data.loc[:, features].values
