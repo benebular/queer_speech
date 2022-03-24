@@ -276,19 +276,19 @@ for feature in features_to_plot:
 
     axes[0].set_title('Gender Identity')
     axes[0].set_xlim(1,7)
-    sns.regplot(data=gender_id_feature, x='Rating', y=feature, ax=axes[0], color='#d55e00') # #648FFF
+    sns.regplot(data=gender_id_feature, x='Rating', y=feature, ax=axes[0], color='#648FFF') # #648FFF d55e00
     axes[0].set_xlabel('Rating (1-Male, 7-Female)')
     axes[0].set_ylabel('Avg %s'%feature)
 
     axes[1].set_title('Sexual Orientation')
     axes[1].set_xlim(1,7)
-    sns.regplot(data=sexual_orientation_feature, x='Rating', y=feature, ax=axes[1], color='#0072b2') # #785EF0
+    sns.regplot(data=sexual_orientation_feature, x='Rating', y=feature, ax=axes[1], color='#785EF0') # #785EF0 0072b2
     axes[1].set_xlabel('Rating (1-Homo, 7-Het)')
     axes[1].set_ylabel('')
 
     axes[2].set_title('Voice Identity')
     axes[2].set_xlim(1,7)
-    sns.regplot(data=voice_id_feature, x='Rating', y=feature, ax=axes[2], color='#009e73') # #DC267F
+    sns.regplot(data=voice_id_feature, x='Rating', y=feature, ax=axes[2], color='#DC267F') # #DC267F 009e73
     axes[2].set_xlabel('Rating (1-Masc, 7-Femme)')
     axes[2].set_ylabel('')
 
