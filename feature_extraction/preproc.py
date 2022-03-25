@@ -11,6 +11,7 @@ import os
 import os.path as op
 import sys
 import matplotlib.pyplot as plt
+import re
 np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
@@ -126,21 +127,58 @@ for val in formant_labels:
     # vowels = (vowels_pivot/vowels_pivot_mask).add_suffix('_%s'%val)
     ratings_all = pd.merge(ratings_all, vowels_pivot, on='WAV')
 
+# creak (Podesva)
+dir = '/Users/bcl/Documents/MATLAB/covarep/output'
+os.chdir(dir)
+creak_WAV_list = []
+creak_percent_list =[]
+for name in glob.glob(os.path.join(dir,'*')):
+    creak_fname = str(name)
+    creak_WAV_name = re.search(r'creak_(.*?).csv', creak_fname).group(1)
+    creak_WAV_list.append(creak_WAV_name)
+    creak = pd.read_csv(name, header=None, nrows=1)
+    total_creaks = np.count_nonzero(~np.isnan(creak))
+    creak_hits = np.count_nonzero(creak == 1)
+    percent_creak = creak_hits/total_creaks
+    creak_percent_list.append(percent_creak)
+
+creak_data = pd.DataFrame({'WAV':creak_WAV_list,'percent_creak':creak_percent_list}).sort_values(by='WAV')
+creak_data['percent_creak'] = creak_data['percent_creak'].mul(100,axis=0)
+creak_data['percent_creak'] = creak_data['percent_creak'].replace(0,np.nan)
+ratings_all = pd.merge(ratings_all, creak_data, on='WAV')
+
 # vowel center measurements
 vowel_labels = ['AA','AE','AH','AO','AW','AX','AY','EH','EY','IH','IY','OW','OY','UH','UW']
 formant_bandwidth_label = ['F1','F2','F3','F4','B1','B2','B3','B4']
 vowel_spectral_names = []
-for vowel in vowel_labels:
+for vowel in vowel_labels: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
     for fblabel in formant_bandwidth_label:
         # concatenate strings with '_'
         vowel_string = vowel + "_s" + fblabel
         # append to list
         vowel_spectral_names.append(vowel_string)
 
+# mean vowel duration (Pierrehumbert)
+vowel_avg_duration_names = []
+for vowel in vowel_labels:
+    vowel_string = vowel + '_avg_dur'
+    vowel_avg_duration_names.append(vowel_string)
+
+vowel_avg_duration = pd.DataFrame({'WAV':duration_pivot.index})
+for vowel in vowel_avg_duration_names:
+    vowel_avg = ratings_all.groupby(['WAV'], as_index=False)[vowel].mean()
+    vowel_avg_duration = pd.merge(vowel_avg_duration, vowel_avg, on='WAV', how='outer')
+vowel_avg_duration['vowel_avg_dur'] = vowel_avg_duration.mean(axis=1)
+ratings_all = pd.merge(ratings_all, vowel_avg_duration, on='WAV')
+
+# vowel formant min and max
+
+
 # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
 #     print(vowels_pivot[['AA','AE','AH','AO','AW','AX','AY','EH','EY','IH','IY','OW','OY','UH','UW']])
 
 ### EXPORT ###
+dir = '/Users/bcl/Documents/GitHub/queer_speech'
 sc_WAV_count = ratings_all['WAV'].nunique()
 print("Sanity check: There are %s unique WAV files in ratings_all."%sc_WAV_count)
 sc_participant_count = ratings_all['Participant'].nunique()

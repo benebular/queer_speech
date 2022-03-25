@@ -131,106 +131,6 @@ plt.legend(labels=['Gender ID','Sexual Orientation','Voice ID'])
 plt.savefig(os.path.join(dir,'figs', 'F0_avgbycondition_overlay.png'), bbox_inches='tight', dpi=300)
 # plt.show()
 
-### F0 AVG ####create scatterplot with regression line and confidence interval lines
-gender_id_avg_rating = gender_id.groupby('WAV', as_index=False)['Rating'].mean()
-gender_id_avg_F0 = gender_id.groupby('WAV', as_index=False)['F0_mean'].mean()
-gender_id_F0 = pd.merge(gender_id_avg_rating, gender_id_avg_F0, on='WAV')
-
-sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating'].mean()
-sexual_orientation_avg_F0 = sexual_orientation.groupby('WAV', as_index=False)['F0_mean'].mean()
-sexual_orientation_F0 = pd.merge(sexual_orientation_avg_rating, sexual_orientation_avg_F0, on='WAV')
-
-voice_id_rating = voice_id.groupby('WAV', as_index=False)['Rating'].mean()
-voice_id_avg_F0 = voice_id.groupby('WAV', as_index=False)['F0_mean'].mean()
-voice_id_F0 = pd.merge(voice_id_rating, voice_id_avg_F0, on='WAV')
-
-# plot
-fig, axes = plt.subplots(1, 3)
-fig.subplots_adjust(hspace=0.5)
-fig.set_size_inches(16, 6)
-fig.suptitle("Avg F0 by Rating", fontsize=20, fontweight='bold')
-fig.subplots_adjust( top = 0.85 )
-
-axes[0].set_title('Gender Identity')
-axes[0].set_xlim(1,7)
-sns.regplot(data=gender_id_F0, x='Rating', y='F0_mean', ax=axes[0], color='#d55e00')
-axes[0].set_xlabel('Rating (1-Male, 7-Female)')
-axes[0].set_ylabel('Avg F0')
-
-axes[1].set_title('Sexual Orientation')
-axes[1].set_xlim(1,7)
-sns.regplot(data=sexual_orientation_F0, x='Rating', y='F0_mean', ax=axes[1], color='#0072b2')
-axes[1].set_xlabel('Rating (1-Homo, 7-Het)')
-axes[1].set_ylabel('')
-
-axes[2].set_title('Voice Identity')
-axes[2].set_xlim(1,7)
-sns.regplot(data=voice_id_F0, x='Rating', y='F0_mean', ax=axes[2], color='#009e73')
-axes[2].set_xlabel('Rating (1-Masc, 7-Femme)')
-axes[2].set_ylabel('')
-
-# plt.show()
-plt.savefig(os.path.join(dir,'figs', 'F0_avgbycondition.png'), bbox_inches='tight', dpi=300)
-plt.clf()
-
-
-######################################################
-#### COG ####
-gender_id_avg_rating = gender_id.groupby('WAV', as_index=False)['Rating'].mean()
-gender_id_avg_S_cog = gender_id.groupby('WAV', as_index=False)['spectral_S_cog'].mean()
-gender_id_S_cog = pd.merge(gender_id_avg_rating, gender_id_avg_S_cog, on='WAV')
-
-sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating'].mean()
-sexual_orientation_avg_S_cog = sexual_orientation.groupby('WAV', as_index=False)['spectral_S_cog'].mean()
-sexual_orientation_S_cog = pd.merge(sexual_orientation_avg_rating, sexual_orientation_avg_S_cog, on='WAV')
-
-voice_id_rating = voice_id.groupby('WAV', as_index=False)['Rating'].mean()
-voice_id_avg_S_cog = voice_id.groupby('WAV', as_index=False)['spectral_S_cog'].mean()
-voice_id_S_cog = pd.merge(voice_id_rating, voice_id_avg_S_cog, on='WAV')
-
-# plot
-fig, axes = plt.subplots(1, 3)
-fig.subplots_adjust(hspace=0.5)
-fig.set_size_inches(16, 6)
-fig.suptitle("Avg /s/ COG by Rating", fontsize=20, fontweight='bold')
-fig.subplots_adjust( top = 0.85 )
-
-axes[0].set_title('Gender Identity')
-axes[0].set_xlim(1,7)
-sns.regplot(data=gender_id_S_cog, x='Rating', y='spectral_S_cog', ax=axes[0], color='#d55e00')
-axes[0].set_xlabel('Rating (1-Male, 7-Female)')
-axes[0].set_ylabel('Avg /s/ COG')
-
-axes[1].set_title('Sexual Orientation')
-axes[1].set_xlim(1,7)
-sns.regplot(data=sexual_orientation_S_cog, x='Rating', y='spectral_S_cog', ax=axes[1], color='#0072b2')
-axes[1].set_xlabel('Rating (1-Homo, 7-Het)')
-axes[1].set_ylabel('')
-
-axes[2].set_title('Voice Identity')
-axes[2].set_xlim(1,7)
-sns.regplot(data=voice_id_S_cog, x='Rating', y='spectral_S_cog', ax=axes[2], color='#009e73')
-axes[2].set_xlabel('Rating (1-Masc, 7-Femme)')
-axes[2].set_ylabel('')
-
-# plt.show()
-plt.savefig(os.path.join(dir,'figs', 'S_COG_avgbycondition.png'), bbox_inches='tight', dpi=300)
-plt.clf()
-
-# overlay
-fig, axes = plt.subplots()
-fig.set_size_inches(18, 10)
-axes.set_title('Avg /s/ COG by Condition Rating', fontsize=20, fontweight='bold')
-axes.set_xlim(1,7)
-sns.regplot(data=gender_id_S_cog, x='Rating', y='spectral_S_cog', color='#d55e00')
-sns.regplot(data=sexual_orientation_S_cog, x='Rating', y='spectral_S_cog', color='#0072b2')
-sns.regplot(data=voice_id_S_cog, x='Rating', y='spectral_S_cog', color='#009e73')
-axes.set_xlabel('Rating (1-7)')
-axes.set_ylabel('Avg /s/ COG')
-plt.legend(labels=['Gender ID','Sexual Orientation','Voice ID'])
-plt.savefig(os.path.join(dir,'figs', 'S_COG_avgbycondition_overlay.png'), bbox_inches='tight', dpi=300)
-# plt.show()
-
 ##### regression indiv and overlay loop over all features ########
 # need to add in the number of WAV files for each since there's variability
 vowel_labels = ['AA','AE','AH','AO','AW','AX','AY','EH','EY','IH','IY','OW','OY','UH','UW']
@@ -249,7 +149,8 @@ features_to_plot = ['F0_mean','F0_range','F0_std','spectral_S_duration','spectra
                                                     'spectral_F_duration','spectral_F_intensity','spectral_F_cog','spectral_F_sdev', 'spectral_F_skew','spectral_F_kurt',
                                                     'spectral_V_duration','spectral_V_intensity','spectral_V_cog','spectral_V_sdev', 'spectral_V_skew','spectral_V_kurt',
                                                     'spectral_SH_duration','spectral_SH_intensity','spectral_SH_cog','spectral_SH_sdev', 'spectral_SH_skew','spectral_SH_kurt',
-                                                    'spectral_JH_duration','spectral_JH_intensity','spectral_JH_cog','spectral_JH_sdev', 'spectral_JH_skew','spectral_JH_kurt']
+                                                    'spectral_JH_duration','spectral_JH_intensity','spectral_JH_cog','spectral_JH_sdev', 'spectral_JH_skew','spectral_JH_kurt',
+                                                    'percent_creak']
 
 features_to_plot = features_to_plot + vowel_spectral_names
 
@@ -271,7 +172,7 @@ for feature in features_to_plot:
     fig, axes = plt.subplots(1, 3)
     fig.subplots_adjust(hspace=0.5)
     fig.set_size_inches(16, 6)
-    fig.suptitle("Avg %s by Rating"%feature, fontsize=20, fontweight='bold')
+    fig.suptitle("(Avg) %s by Rating"%feature, fontsize=20, fontweight='bold')
     fig.subplots_adjust( top = 0.85 )
 
     axes[0].set_title('Gender Identity')
