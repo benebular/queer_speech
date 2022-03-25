@@ -21,7 +21,7 @@ library(data.table)
 
 setwd('/Users/bcl/Documents/GitHub/queer_speech/qualtrics_data/mark1_jan28/')
 options(stringsAsFactors=F)
-queer = read.csv('/Volumes/GoogleDrive/My Drive/Comps/qualtrics_data/mark1_jan28/queer-speech_March 10, 2022_15.41.csv')
+queer = read.csv('/Volumes/GoogleDrive/My Drive/Comps/qualtrics_data/mark1_jan28/queer-speech_March 24, 2022_18.19.csv')
 
 #cleaning data down to just ratings, trial type, and stimulus ID
 # queer <- subset(queer, Status == 0 | Status == "Response Type") # just for if there's people that don't complete the survey
@@ -89,12 +89,26 @@ matched_queer$Rating <- as.numeric(matched_queer$Rating)
 
 # do some subsetting to find out how many people are excluded based on D1, D2, D5, HC1
 
-# now do teh actual filtering
-matched_queer <- subset(matched_queer, D1 == "Yes")
-matched_queer <- subset(matched_queer, D2 == "Yes")
-matched_queer <- subset(matched_queer, HC1 == "Yes")
-matched_queer <- subset(matched_queer, D5 == "No")
-matched_queer <- select(matched_queer, -c(F1, F2, D1, D2, HC1, D5))
+# now do the actual filtering
+# matched_queer <- subset(matched_queer, HC1 == "Yes")
+# matched_queer <- subset(matched_queer, D1 == "Yes")
+# matched_queer <- subset(matched_queer, D2 == "Yes")
+# matched_queer <- subset(matched_queer, D5 == "No")
+# matched_queer <- select(matched_queer, -c(F1, F2, D1, D2, HC1, D5))
+
+# remove the blanks, Rating column is best because we don't want any missing ratings anyway
+sum(!complete.cases(matched_queer$Rating[-1]))/66/3 # should be 13, corresponding to the 13 participants that have blank responses
+matched_queer <- subset(matched_queer, Rating != "NA")
+
+## just change names, no filtering
+names(matched_queer)[names(matched_queer) == 'HC1'] <- 'headphone_check'
+names(matched_queer)[names(matched_queer) == 'D1'] <- 'eng_primary_early'
+names(matched_queer)[names(matched_queer) == 'D2'] <- 'eng_primary_current'
+names(matched_queer)[names(matched_queer) == 'D5'] <- 'deaf_hoh'
+names(matched_queer)[names(matched_queer) == 'F1'] <- 'survey_experience'
+names(matched_queer)[names(matched_queer) == 'F2'] <- 'survey_feedback'
+
+
 names(matched_queer)[names(matched_queer) == 'D9_1'] <- 'participant_gender_id'
 names(matched_queer)[names(matched_queer) == 'D10_1'] <- 'participant_sexual_orientation'
 names(matched_queer)[names(matched_queer) == 'D11_1'] <- 'participant_voice_id'

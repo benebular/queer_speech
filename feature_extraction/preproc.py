@@ -143,6 +143,8 @@ for vowel in vowel_labels:
 ### EXPORT ###
 sc_WAV_count = ratings_all['WAV'].nunique()
 print("Sanity check: There are %s unique WAV files in ratings_all."%sc_WAV_count)
+sc_participant_count = ratings_all['Participant'].nunique()
+print("Sanity check: There are %s unique participants in ratings_all."%sc_participant_count)
 print ("Saving ratings_all as ratings_features_all.csv")
 ratings_all.to_csv(os.path.join(dir,'feature_extraction','ratings_features_all.csv'), index=True, encoding='utf-8')
 
