@@ -136,11 +136,15 @@ plt.savefig(os.path.join(dir,'figs', 'F0_avgbycondition_overlay.png'), bbox_inch
 vowel_labels = ['AA','AE','AH','AO','AW','AX','AY','EH','EY','IH','IY','OW','OY','UH','UW']
 formant_bandwidth_label = ['F1','F2','F3','F4','B1','B2','B3','B4']
 vowel_spectral_names = []
-for vowel in vowel_labels:
+for vowel in vowel_labels: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
     for fblabel in formant_bandwidth_label:
         # concatenate strings with '_'
-        vowel_string = vowel + "_s" + fblabel
+        vowel_string = vowel + "_s" + fblabel + "_mean"
         # append to list
+        vowel_spectral_names.append(vowel_string)
+        vowel_string = vowel + "_s" + fblabel + "_min"
+        vowel_spectral_names.append(vowel_string)
+        vowel_string = vowel + "_s" + fblabel + "_max"
         vowel_spectral_names.append(vowel_string)
 
 

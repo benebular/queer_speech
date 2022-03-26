@@ -6,12 +6,12 @@ import numpy as np
 import pandas as pd
 import time
 import seaborn as sns
-import ptitprince as pt
 import os
 import os.path as op
 import sys
 import matplotlib.pyplot as plt
 import re
+import glob
 np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
@@ -119,46 +119,35 @@ ratings_all = pd.merge(ratings_all, spectral_SH, on='WAV')
 ratings_all = pd.merge(ratings_all, spectral_JH, on='WAV')
 
 
-# formants for vowels
-formant_labels = ['sF1','sF2','sF3','sF4','sB1','sB2','sB3','sB4']
-for val in formant_labels:
-    vowels_pivot = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val).add_suffix('_%s'%val)
-    # vowels_pivot_mask = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val, aggfunc=lambda x: len(x.unique()))
-    # vowels = (vowels_pivot/vowels_pivot_mask).add_suffix('_%s'%val)
-    ratings_all = pd.merge(ratings_all, vowels_pivot, on='WAV')
-
-# creak (Podesva)
-dir = '/Users/bcl/Documents/MATLAB/covarep/output'
-os.chdir(dir)
-creak_WAV_list = []
-creak_percent_list =[]
-for name in glob.glob(os.path.join(dir,'*')):
-    creak_fname = str(name)
-    creak_WAV_name = re.search(r'creak_(.*?).csv', creak_fname).group(1)
-    creak_WAV_list.append(creak_WAV_name)
-    creak = pd.read_csv(name, header=None, nrows=1)
-    total_creaks = np.count_nonzero(~np.isnan(creak))
-    creak_hits = np.count_nonzero(creak == 1)
-    percent_creak = creak_hits/total_creaks
-    creak_percent_list.append(percent_creak)
-
-creak_data = pd.DataFrame({'WAV':creak_WAV_list,'percent_creak':creak_percent_list}).sort_values(by='WAV')
-creak_data['percent_creak'] = creak_data['percent_creak'].mul(100,axis=0)
-creak_data['percent_creak'] = creak_data['percent_creak'].replace(0,np.nan)
-ratings_all = pd.merge(ratings_all, creak_data, on='WAV')
-
-# vowel center measurements
+############## VOWEL MEASUREMENTS ##############
 vowel_labels = ['AA','AE','AH','AO','AW','AX','AY','EH','EY','IH','IY','OW','OY','UH','UW']
 formant_bandwidth_label = ['F1','F2','F3','F4','B1','B2','B3','B4']
 vowel_spectral_names = []
 for vowel in vowel_labels: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
     for fblabel in formant_bandwidth_label:
         # concatenate strings with '_'
-        vowel_string = vowel + "_s" + fblabel
+        vowel_string = vowel + "_s" + fblabel + "_mean"
         # append to list
         vowel_spectral_names.append(vowel_string)
+        vowel_string = vowel + "_s" + fblabel + "_min"
+        vowel_spectral_names.append(vowel_string)
+        vowel_string = vowel + "_s" + fblabel + "_max"
+        vowel_spectral_names.append(vowel_string)
 
-# mean vowel duration (Pierrehumbert)
+# mean, min, max formants and bandwidths for individual vowels
+formant_labels = ['sF1','sF2','sF3','sF4','sB1','sB2','sB3','sB4']
+for val in formant_labels:
+    vowels_pivot_mean = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val, aggfunc=np.mean).add_suffix('_%s_mean'%val)
+    vowels_pivot_min = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val, aggfunc=np.min).add_suffix('_%s_min'%val)
+    vowels_pivot_max = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val, aggfunc=np.max).add_suffix('_%s_max'%val)
+
+    # vowels_pivot_mask = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val, aggfunc=lambda x: len(x.unique()))
+    # vowels = (vowels_pivot/vowels_pivot_mask).add_suffix('_%s'%val)
+    ratings_all = pd.merge(ratings_all, vowels_pivot_mean, on='WAV')
+    ratings_all = pd.merge(ratings_all, vowels_pivot_min, on='WAV')
+    ratings_all = pd.merge(ratings_all, vowels_pivot_max, on='WAV')
+
+# mean vowel duration across entire utterance (Pierrehumbert)
 vowel_avg_duration_names = []
 for vowel in vowel_labels:
     vowel_string = vowel + '_avg_dur'
@@ -169,13 +158,103 @@ for vowel in vowel_avg_duration_names:
     vowel_avg = ratings_all.groupby(['WAV'], as_index=False)[vowel].mean()
     vowel_avg_duration = pd.merge(vowel_avg_duration, vowel_avg, on='WAV', how='outer')
 vowel_avg_duration['vowel_avg_dur'] = vowel_avg_duration.mean(axis=1)
+vowel_avg_duration = vowel_avg_duration[['WAV','vowel_avg_dur']]
 ratings_all = pd.merge(ratings_all, vowel_avg_duration, on='WAV')
 
-# vowel formant min and max
+# dispersion (average of euclidean distances within a speaker, centered on IH or AH) # dykingout_notlikeme needs to be separate
+vowel_labels_euc = ['AA','AE','AH','AO','AW','AX','AY','EH','EY','IY','OW','OY','UH','UW'] # does not have 'IH', held out as center of vowel space
+formant_bandwidth_label_euc = ['F1','F2','F3','F4']
+euc_center_IH_list = ['IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean']
+euc_center_AH_list = ['AH_sF1_mean','AH_sF2_mean','AH_sF3_mean','AH_sF4_mean']
+euc_center_IH = ratings_all.groupby('WAV', as_index=False)[euc_center_IH_list].mean().set_index('WAV').dropna()
+# WAV_list = euc_center_IH['WAV'].to_list()
+# euc_center_all = ratings_all.groupby('WAV', as_index=False)[vowel_spectral_names_euc].mean()
+
+# vowel_spectral_names_euc = []
+dist_list = []
+WAV_list = []
+dispersion_strings =[]
+for vowel in vowel_labels_euc: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
+    vowel_spectral_names_short = []
+    for fblabel in formant_bandwidth_label_euc:
+        # concatenate strings with '_'
+        vowel_string = vowel + "_s" + fblabel + "_mean"
+        # append to list
+        vowel_spectral_names_short.append(vowel_string)
+    # create a df of just one vowel and formant combination
+    euc_center_short = ratings_all.groupby('WAV', as_index=False)[vowel_spectral_names_short].mean().set_index('WAV').dropna() # creates
+    # merge the single vowel and formant combination with the baseline vowel, in this case IH, and only merge on rows where IH and the vowel are in the same file, rest will need to happen with AH or IY
+    combined_euc = pd.merge(euc_center_short, euc_center_IH, on='WAV')
+    # split the dfs out again so you can compute distance on their values
+    new_euc_byvowel = combined_euc[vowel_spectral_names_short]
+    new_euc_IH = combined_euc[euc_center_IH_list]
+    # loop through the rows of the dfs (which are now the same length)
+    for i in range(len(new_euc_IH)):
+        # compute euclidean distance between individual vowels
+        dist = np.linalg.norm(new_euc_IH.iloc[i].values-new_euc_byvowel.iloc[i].values)
+        # get the WAV for vowel being compared
+        WAV_compared = new_euc_IH.index[i]
+        # grab first vowel string from both frames
+        IH_string = new_euc_IH.columns[0]
+        byvowel_string = new_euc_byvowel.columns[0]
+        IH_string = IH_string[0:2]
+        byvowel_string = byvowel_string[0:2]
+        # concatenate it
+        vowel_pair = IH_string + "_to_" + byvowel_string
+        #append things to lists in order
+        dist_list.append(dist)
+        WAV_list.append(WAV_compared)
+        dispersion_strings.append(vowel_pair)
+
+# make a df with the three lists from the dispersion measures
+distance_all = pd.DataFrame({"WAV": WAV_list, "vowel_distance_pair": dispersion_strings, "vowel_distance_value": dist_list})
+# sort for easy viewing
+distance_all = distance_all.sort_values(by='WAV')
+# save so you can double check which vowels are missing for certain speakers and make a decision about reducing spaces or norming this all somehow
+distance_all.to_csv(os.path.join(dir,'feature_extraction','distance_all.csv'), index=True, encoding='utf-8')
+
+dispersion_all = distance_all.groupby('WAV', as_index=False)['vowel_distance_value'].mean()
+
+## sanity check##
+assert len(dist_list) == len(WAV_list) == len(dispersion_strings)
+## verify that length of dispersion is the same length as the number of vowel tokens in the data, this will throw an error if something went wrong
+# if this goes fine, it means dispersion_all has a single value that is the average distance between IH and all the other vowels in the speaker's vowel space, when IH and other vowels are present
+# for IH, it should be 56, which means another 10 need to be found, 1 will need to be done on its own
+assert ratings_all['IH_sF1_mean'].nunique() == len(dispersion_all)
+
+# merge dispersion
+ratings_all = pd.merge(ratings_all, dispersion_all, on='WAV')
 
 
 # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-#     print(vowels_pivot[['AA','AE','AH','AO','AW','AX','AY','EH','EY','IH','IY','OW','OY','UH','UW']])
+#     print(ratings_all.head(5))
+
+# creak (Podesva)
+print ('Extracting creak...')
+dir = '/Users/bcl/Documents/MATLAB/covarep/output'
+os.chdir(dir)
+creak_WAV_list = []
+creak_percent_list =[]
+for name in glob.glob(os.path.join(dir,'*')):
+    # get corresponding WAV name
+    creak_fname = str(name)
+    creak_WAV_name = re.search(r'creak_(.*?).csv', creak_fname).group(1)
+    creak_WAV_list.append(creak_WAV_name)
+    # read in the creak csv for a WAV
+    creak = pd.read_csv(name, header=None, nrows=1) # this takes time per file because they are ms-by-ms and so it's like 40000 lines
+    # get all the values that have a 0 or 1 and ignore the NaNs at the beginning
+    total_creaks = np.count_nonzero(~np.isnan(creak))
+    # get all the hits where there is creak
+    creak_hits = np.count_nonzero(creak == 1)
+    # divide and get percentage
+    percent_creak = creak_hits/total_creaks
+    # append the values in order
+    creak_percent_list.append(percent_creak)
+
+creak_data = pd.DataFrame({'WAV':creak_WAV_list,'percent_creak':creak_percent_list}).sort_values(by='WAV')
+creak_data['percent_creak'] = creak_data['percent_creak'].mul(100,axis=0)
+creak_data['percent_creak'] = creak_data['percent_creak'].replace(0,np.nan)
+ratings_all = pd.merge(ratings_all, creak_data, on='WAV')
 
 ### EXPORT ###
 dir = '/Users/bcl/Documents/GitHub/queer_speech'
