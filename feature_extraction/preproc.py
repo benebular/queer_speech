@@ -165,8 +165,8 @@ ratings_all = pd.merge(ratings_all, vowel_avg_duration, on='WAV')
 vowel_labels_euc = ['AA','AE','AH','AO','AW','AX','AY','EH','EY','IY','OW','OY','UH','UW'] # does not have 'IH', held out as center of vowel space
 formant_bandwidth_label_euc = ['F1','F2','F3','F4']
 euc_center_IH_list = ['IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean']
-euc_center_AH_list = ['AH_sF1_mean','AH_sF2_mean','AH_sF3_mean','AH_sF4_mean']
 euc_center_IH = ratings_all.groupby('WAV', as_index=False)[euc_center_IH_list].mean().set_index('WAV').dropna()
+
 # WAV_list = euc_center_IH['WAV'].to_list()
 # euc_center_all = ratings_all.groupby('WAV', as_index=False)[vowel_spectral_names_euc].mean()
 
@@ -207,27 +207,137 @@ for vowel in vowel_labels_euc: # loop for making a list of the vowel spectral fe
         dispersion_strings.append(vowel_pair)
 
 # make a df with the three lists from the dispersion measures
-distance_all = pd.DataFrame({"WAV": WAV_list, "vowel_distance_pair": dispersion_strings, "vowel_distance_value": dist_list})
+distance_all_IH = pd.DataFrame({"WAV": WAV_list, "vowel_distance_pair": dispersion_strings, "vowel_distance_value": dist_list})
 # sort for easy viewing
-distance_all = distance_all.sort_values(by='WAV')
+distance_IH = distance_all_IH.sort_values(by='WAV')
+
+
+# vowel_spectral_names_euc = []
+vowel_labels_euc = ['AA','AE','IH','AO','AW','AX','AY','EH','EY','IY','OW','OY','UH','UW'] # does not have 'AH', held out as center of vowel space
+euc_center_AH_list = ['AH_sF1_mean','AH_sF2_mean','AH_sF3_mean','AH_sF4_mean']
+euc_center_AH = ratings_all.groupby('WAV', as_index=False)[euc_center_AH_list].mean().set_index('WAV').dropna()
+dist_list = []
+WAV_list = []
+dispersion_strings =[]
+for vowel in vowel_labels_euc: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
+    vowel_spectral_names_short = []
+    for fblabel in formant_bandwidth_label_euc:
+        # concatenate strings with '_'
+        vowel_string = vowel + "_s" + fblabel + "_mean"
+        # append to list
+        vowel_spectral_names_short.append(vowel_string)
+    # create a df of just one vowel and formant combination
+    euc_center_short = ratings_all.groupby('WAV', as_index=False)[vowel_spectral_names_short].mean().set_index('WAV').dropna() # creates
+    # merge the single vowel and formant combination with the baseline vowel, in this case IH, and only merge on rows where IH and the vowel are in the same file, rest will need to happen with AH or IY
+    combined_euc = pd.merge(euc_center_short, euc_center_AH, on='WAV')
+    # split the dfs out again so you can compute distance on their values
+    new_euc_byvowel = combined_euc[vowel_spectral_names_short]
+    new_euc_AH = combined_euc[euc_center_AH_list]
+    # loop through the rows of the dfs (which are now the same length)
+    for i in range(len(new_euc_AH)):
+        # compute euclidean distance between individual vowels
+        dist = np.linalg.norm(new_euc_AH.iloc[i].values-new_euc_byvowel.iloc[i].values)
+        # get the WAV for vowel being compared
+        WAV_compared = new_euc_AH.index[i]
+        # grab first vowel string from both frames
+        AH_string = new_euc_AH.columns[0]
+        byvowel_string = new_euc_byvowel.columns[0]
+        AH_string = AH_string[0:2]
+        byvowel_string = byvowel_string[0:2]
+        # concatenate it
+        vowel_pair = AH_string + "_to_" + byvowel_string
+        #append things to lists in order
+        dist_list.append(dist)
+        WAV_list.append(WAV_compared)
+        dispersion_strings.append(vowel_pair)
+
+# make a df with the three lists from the dispersion measures
+distance_all_AH = pd.DataFrame({"WAV": WAV_list, "vowel_distance_pair": dispersion_strings, "vowel_distance_value": dist_list})
+# sort for easy viewing
+distance_AH = distance_all_AH.sort_values(by='WAV')
+
+# dykingout_notlikeme
+vowel_labels_euc = ['AA','AE','AH','AO','AW','AX','AY','EH','EY','OW','OY','UH','UW'] # does not have 'IY', held out as center of vowel space
+euc_center_IY_list = ['IY_sF1_mean','IY_sF2_mean','IY_sF3_mean','IY_sF4_mean']
+euc_center_IY = ratings_all.groupby('WAV', as_index=False)[euc_center_IY_list].mean().set_index('WAV').dropna()
+dist_list = []
+WAV_list = []
+dispersion_strings =[]
+for vowel in vowel_labels_euc: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
+    vowel_spectral_names_short = []
+    for fblabel in formant_bandwidth_label_euc:
+        # concatenate strings with '_'
+        vowel_string = vowel + "_s" + fblabel + "_mean"
+        # append to list
+        vowel_spectral_names_short.append(vowel_string)
+    # create a df of just one vowel and formant combination
+    euc_center_short = ratings_all.groupby('WAV', as_index=False)[vowel_spectral_names_short].mean().set_index('WAV').dropna() # creates
+    # merge the single vowel and formant combination with the baseline vowel, in this case IH, and only merge on rows where IH and the vowel are in the same file, rest will need to happen with AH or IY
+    combined_euc = pd.merge(euc_center_short, euc_center_IY, on='WAV')
+    # split the dfs out again so you can compute distance on their values
+    new_euc_byvowel = combined_euc[vowel_spectral_names_short]
+    new_euc_IY = combined_euc[euc_center_IY_list]
+    # loop through the rows of the dfs (which are now the same length)
+    for i in range(len(new_euc_IY)):
+        # compute euclidean distance between individual vowels
+        dist = np.linalg.norm(new_euc_IY.iloc[i].values-new_euc_byvowel.iloc[i].values)
+        # get the WAV for vowel being compared
+        WAV_compared = new_euc_IY.index[i]
+        # grab first vowel string from both frames
+        IY_string = new_euc_IY.columns[0]
+        byvowel_string = new_euc_byvowel.columns[0]
+        IY_string = IY_string[0:2]
+        byvowel_string = byvowel_string[0:2]
+        # concatenate it
+        vowel_pair = IY_string + "_to_" + byvowel_string
+        #append things to lists in order
+        dist_list.append(dist)
+        WAV_list.append(WAV_compared)
+        dispersion_strings.append(vowel_pair)
+
+# make a df with the three lists from the dispersion measures
+distance_all_IY = pd.DataFrame({"WAV": WAV_list, "vowel_distance_pair": dispersion_strings, "vowel_distance_value": dist_list})
+# sort for easy viewing
+distance_IY = distance_all_IY.sort_values(by='WAV')
+
+
+# distance_all = pd.merge(distance_IH, distance_AH, on='WAV', how='right')
+
+distance_interim_AH = (distance_IH.merge(distance_AH, on='WAV', how='right', indicator=True)
+     .query('_merge == "right_only"')
+     .drop('_merge', 1)
+     .dropna(axis=1, how='all')
+     .rename(columns={'vowel_distance_pair_y': 'vowel_distance_pair', 'vowel_distance_value_y': 'vowel_distance_value'}))
+
+distance_AH_IH = pd.concat([distance_IH, distance_interim_AH], axis=0)
+
+distance_interim_IY = (distance_AH_IH.merge(distance_IY, on='WAV', how='right', indicator=True)
+     .query('_merge == "right_only"')
+     .drop('_merge', 1)
+     .dropna(axis=1, how='all')
+     .rename(columns={'vowel_distance_pair_y': 'vowel_distance_pair', 'vowel_distance_value_y': 'vowel_distance_value'}))
+
+distance_all = pd.concat([distance_AH_IH, distance_interim_IY], axis=0)
+
 # save so you can double check which vowels are missing for certain speakers and make a decision about reducing spaces or norming this all somehow
 distance_all.to_csv(os.path.join(dir,'feature_extraction','distance_all.csv'), index=True, encoding='utf-8')
 
-dispersion_all = distance_all.groupby('WAV', as_index=False)['vowel_distance_value'].mean()
+dispersion_all = distance_all.groupby('WAV', as_index=False)['vowel_distance_value'].mean().rename(columns={"vowel_distance_value":'dispersion'})
 
 ## sanity check##
 assert len(dist_list) == len(WAV_list) == len(dispersion_strings)
 ## verify that length of dispersion is the same length as the number of vowel tokens in the data, this will throw an error if something went wrong
 # if this goes fine, it means dispersion_all has a single value that is the average distance between IH and all the other vowels in the speaker's vowel space, when IH and other vowels are present
 # for IH, it should be 56, which means another 10 need to be found, 1 will need to be done on its own
-assert ratings_all['IH_sF1_mean'].nunique() == len(dispersion_all)
+# assert ratings_all['IH_sF1_mean'].nunique() == len(dispersion_all)
+distance_all['WAV'].nunique() # must be 66
 
 # merge dispersion
-ratings_all = pd.merge(ratings_all, dispersion_all, on='WAV')
+ratings_all = pd.merge(ratings_all, dispersion_all, on='WAV', how='outer')
 
 
 # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-#     print(ratings_all.head(5))
+#     print(distance_all)
 
 # creak (Podesva)
 print ('Extracting creak...')

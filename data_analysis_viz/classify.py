@@ -24,10 +24,19 @@ os.chdir(dir)
 ratings_features_fname = os.path.join(dir, 'feature_extraction', 'ratings_features_all.csv')
 data = pd.read_csv(ratings_features_fname)
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-    print(data.head(5))
+    print(finalDf)
+
+# data = data.dropna()
+# fill creak nans with 0
+data['percent_creak'] = data['percent_creak'].fillna(0)
+
+gender_id = data[data['Condition']=='gender_id']
+sexual_orientation = data[data['Condition']=='sexual_orientation']
+voice_id = data[data['Condition']=='voice_id']
+
 
 ## PCA
-features = ['spectral_S_cog','spectral_S_sdev','spectral_S_skew', 'spectral_S_kurt','spectral_S_duration','spectral_S_intensity','F0_mean','F0_range']
+features = ['F0_mean','F0_range','F0_std','percent_creak','vowel_avg_dur','dispersion']
 
 # Separating out the features
 x = data.loc[:, features].values
@@ -36,19 +45,18 @@ y = data.loc[:,['Condition']].values
 # Standardizing the features
 x = StandardScaler().fit_transform(x)
 
-pca = PCA(n_components=2)
+pca = PCA(n_components=2, random_state=42)
 principalComponents = pca.fit_transform(x)
-principalDf = pd.DataFrame(data = principalComponents
-             , columns = ['principal component 1', 'principal component 2'])
+principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2'])
 
-finalDf = pd.concat([principalDf, data[['Condition']]], axis = 1)
+finalDf = pd.concat([principalDf, data['Condition']], axis=1)
 
 fig = plt.figure(figsize = (8,8))
 ax = fig.add_subplot(1,1,1)
 ax.set_xlabel('Principal Component 1', fontsize = 15)
 ax.set_ylabel('Principal Component 2', fontsize = 15)
 ax.set_title('2 component PCA', fontsize = 20)
-targets = ['gender_id', 'sexual_orientation', 'voice_id']
+targets = ['gender_id','sexual_orientation','voice_id']
 colors = ['r', 'g', 'b']
 for target, color in zip(targets,colors):
     indicesToKeep = finalDf['Condition'] == target

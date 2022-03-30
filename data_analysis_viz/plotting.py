@@ -29,6 +29,8 @@ gender_id = ratings_all[ratings_all['Condition']=='gender_id']
 sexual_orientation = ratings_all[ratings_all['Condition']=='sexual_orientation']
 voice_id = ratings_all[ratings_all['Condition']=='voice_id']
 
+number_participants = ratings_all['Participant'].nunique()
+
 # F0, adding the boxplot with quartiles
 plot_F0_mean = pd.DataFrame({'group':'F0', 'F0': ratings_all['F0_mean']}).drop_duplicates()
 plot_F0_90 = pd.DataFrame({'group':'F0_90', 'F0': ratings_all['F0_90']}).drop_duplicates()
@@ -40,7 +42,7 @@ f, ax = plt.subplots(figsize=(7, 5))
 pt.RainCloud(x = dx, y = dy, data = plot_F0, palette = pal, bw = sigma,
                  width_viol = .6, ax = ax, orient = ort)
 
-plt.title("10th percentile; Average F0; 90th percentile, by speaker (across entire utterance)")
+plt.title("10th percentile; Average F0; 90th percentile, by speaker (across entire utterance), %s Participants"%number_participants)
 # plt.show()
 plt.savefig(os.path.join(dir,'figs', 'F0_raincloud.png'), bbox_inches='tight', dpi=300)
 
@@ -70,7 +72,7 @@ f, ax = plt.subplots(figsize=(7, 5))
 pt.RainCloud(x = dx, y = dy, data = plot_conditions, palette = pal, bw = sigma,
                  width_viol = .6, ax = ax, orient = ort)
 
-plt.title("Avg Ratings Distribution by Condition")
+plt.title("Avg Ratings Distribution by Condition, %s Participants"%number_participants)
 # plt.show()
 plt.savefig(os.path.join(dir,'figs', 'ratingsbycondition_raincloud.png'), bbox_inches='tight', dpi=300)
 
@@ -92,7 +94,7 @@ voice_id_F0 = pd.merge(voice_id_rating, voice_id_avg_F0, on='WAV')
 fig, axes = plt.subplots(1, 3)
 fig.subplots_adjust(hspace=0.5)
 fig.set_size_inches(16, 6)
-fig.suptitle("Avg F0 by Rating", fontsize=20, fontweight='bold')
+fig.suptitle("Avg F0 by Rating, %s Participants"%number_participants, fontsize=20, fontweight='bold')
 fig.subplots_adjust( top = 0.85 )
 
 axes[0].set_title('Gender Identity')
@@ -120,7 +122,7 @@ plt.clf()
 # overlay
 fig, axes = plt.subplots()
 fig.set_size_inches(18, 10)
-axes.set_title('Avg F0 by Condition Rating', fontsize=20, fontweight='bold')
+axes.set_title('Avg F0 by Condition Rating, %s Participants'%number_participants, fontsize=20, fontweight='bold')
 axes.set_xlim(1,7)
 sns.regplot(data=gender_id_F0, x='Rating', y='F0_mean', color='#d55e00')
 sns.regplot(data=sexual_orientation_F0, x='Rating', y='F0_mean', color='#0072b2')
@@ -154,7 +156,7 @@ features_to_plot = ['F0_mean','F0_range','F0_std','spectral_S_duration','spectra
                                                     'spectral_V_duration','spectral_V_intensity','spectral_V_cog','spectral_V_sdev', 'spectral_V_skew','spectral_V_kurt',
                                                     'spectral_SH_duration','spectral_SH_intensity','spectral_SH_cog','spectral_SH_sdev', 'spectral_SH_skew','spectral_SH_kurt',
                                                     'spectral_JH_duration','spectral_JH_intensity','spectral_JH_cog','spectral_JH_sdev', 'spectral_JH_skew','spectral_JH_kurt',
-                                                    'percent_creak']
+                                                    'percent_creak','vowel_avg_dur','dispersion']
 
 features_to_plot = features_to_plot + vowel_spectral_names
 
@@ -171,12 +173,15 @@ for feature in features_to_plot:
     voice_id_avg_feature = voice_id.groupby('WAV', as_index=False)[feature].mean()
     voice_id_feature = pd.merge(voice_id_rating, voice_id_avg_feature, on='WAV')
 
+    assert gender_id_feature[feature].nunique() == sexual_orientation_feature[feature].nunique() == voice_id_feature[feature].nunique()
+    feature_number = gender_id_feature[feature].nunique()
+
     ## add something in here that counts the number of WAV with a value, then assign a subplot value to graphs that says "N=inserted value" so that we know how many of each sound file had a certain feature
 
     fig, axes = plt.subplots(1, 3)
     fig.subplots_adjust(hspace=0.5)
     fig.set_size_inches(16, 6)
-    fig.suptitle("(Avg) %s by Rating"%feature, fontsize=20, fontweight='bold')
+    fig.suptitle("(Avg) %s by Rating, %s Tokens, %s Participants"%(feature, feature_number, number_participants), fontsize=20, fontweight='bold')
     fig.subplots_adjust( top = 0.85 )
 
     axes[0].set_title('Gender Identity')
@@ -239,7 +244,7 @@ voice_id_media = pd.merge(voice_id_avg_rating, voice_id_prox_media, on='Particip
 fig, axes = plt.subplots(3, 3)
 fig.subplots_adjust(hspace=0.5)
 fig.set_size_inches(16, 6)
-fig.suptitle("Rating by Proximity to LGBTQ+ Community", fontsize=20, fontweight='bold')
+fig.suptitle("Rating by Proximity to LGBTQ+ Community, %s Participants"%number_participants, fontsize=20, fontweight='bold')
 fig.subplots_adjust( top = 0.85 )
 
 # social
