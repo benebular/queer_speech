@@ -45,6 +45,7 @@ pt.RainCloud(x = dx, y = dy, data = plot_F0, palette = pal, bw = sigma,
 plt.title("10th percentile; Average F0; 90th percentile, by speaker (across entire utterance), %s Participants"%number_participants)
 # plt.show()
 plt.savefig(os.path.join(dir,'figs', 'F0_raincloud.png'), bbox_inches='tight', dpi=300)
+plt.close()
 
 # # proximity, gender_id, adding the boxplot with quartiles
 # plot_gender_id_prox_social = pd.DataFrame({'group':'prox_social', 'Rating': gender_id['Rating']}).drop_duplicates()
@@ -62,12 +63,12 @@ plt.savefig(os.path.join(dir,'figs', 'F0_raincloud.png'), bbox_inches='tight', d
 # plt.savefig(os.path.join(dir,'figs', 'gender_id_prox_raincloud.png'), bbox_inches='tight', dpi=300)
 
 # Ratings by Condition
-plot_gender_id_rating = pd.DataFrame({'group':'Gender Identity', 'Rating': gender_id['Rating']}).drop_duplicates()
-plot_sexual_orientation_rating = pd.DataFrame({'group':'PSO', 'Rating': sexual_orientation['Rating']}).drop_duplicates()
-plot_voice_id_rating = pd.DataFrame({'group':'Voice Typicality', 'Rating': voice_id['Rating']}).drop_duplicates()
+plot_gender_id_rating = pd.DataFrame({'group':'Gender Identity', 'Rating_z_score': gender_id['Rating_z_score']}).drop_duplicates()
+plot_sexual_orientation_rating = pd.DataFrame({'group':'PSO', 'Rating_z_score': sexual_orientation['Rating_z_score']}).drop_duplicates()
+plot_voice_id_rating = pd.DataFrame({'group':'Voice Typicality', 'Rating_z_score': voice_id['Rating_z_score']}).drop_duplicates()
 plot_conditions = pd.concat([plot_sexual_orientation_rating, plot_gender_id_rating, plot_voice_id_rating])
 
-dx="group"; dy="Rating"; ort="h"; pal = sns.color_palette(n_colors=3); sigma = .2
+dx="group"; dy="Rating_z_score"; ort="h"; pal = sns.color_palette(n_colors=3); sigma = .2
 f, ax = plt.subplots(figsize=(7, 5))
 pt.RainCloud(x = dx, y = dy, data = plot_conditions, palette = pal, bw = sigma,
                  width_viol = .6, ax = ax, orient = ort)
@@ -75,18 +76,19 @@ pt.RainCloud(x = dx, y = dy, data = plot_conditions, palette = pal, bw = sigma,
 plt.title("Avg Ratings Distribution by Condition, %s Participants"%number_participants)
 # plt.show()
 plt.savefig(os.path.join(dir,'figs', 'ratingsbycondition_raincloud.png'), bbox_inches='tight', dpi=300)
+plt.close()
 
 
 ### F0 AVG ####create scatterplot with regression line and confidence interval lines
-gender_id_avg_rating = gender_id.groupby('WAV', as_index=False)['Rating'].mean()
+gender_id_avg_rating = gender_id.groupby('WAV', as_index=False)['Rating_z_score'].mean()
 gender_id_avg_F0 = gender_id.groupby('WAV', as_index=False)['F0_mean'].mean()
 gender_id_F0 = pd.merge(gender_id_avg_rating, gender_id_avg_F0, on='WAV')
 
-sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating'].mean()
+sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating_z_score'].mean()
 sexual_orientation_avg_F0 = sexual_orientation.groupby('WAV', as_index=False)['F0_mean'].mean()
 sexual_orientation_F0 = pd.merge(sexual_orientation_avg_rating, sexual_orientation_avg_F0, on='WAV')
 
-voice_id_rating = voice_id.groupby('WAV', as_index=False)['Rating'].mean()
+voice_id_rating = voice_id.groupby('WAV', as_index=False)['Rating_z_score'].mean()
 voice_id_avg_F0 = voice_id.groupby('WAV', as_index=False)['F0_mean'].mean()
 voice_id_F0 = pd.merge(voice_id_rating, voice_id_avg_F0, on='WAV')
 
@@ -98,39 +100,40 @@ fig.suptitle("Avg F0 by Rating, %s Participants"%number_participants, fontsize=2
 fig.subplots_adjust( top = 0.85 )
 
 axes[0].set_title('Gender Identity')
-axes[0].set_xlim(1,7)
-sns.regplot(data=gender_id_F0, x='Rating', y='F0_mean', ax=axes[0], color='#d55e00')
-axes[0].set_xlabel('Rating (1-Male, 7-Female)')
+axes[0].set_xlim(-1.5,1.5)
+sns.regplot(data=gender_id_F0, x='Rating_z_score', y='F0_mean', ax=axes[0], color='#d55e00')
+axes[0].set_xlabel('Rating (-: Male, +: Female)')
 axes[0].set_ylabel('Avg F0')
 
 axes[1].set_title('Sexual Orientation')
-axes[1].set_xlim(1,7)
-sns.regplot(data=sexual_orientation_F0, x='Rating', y='F0_mean', ax=axes[1], color='#0072b2')
-axes[1].set_xlabel('Rating (1-Homo, 7-Het)')
+axes[1].set_xlim(-1.5,1.5)
+sns.regplot(data=sexual_orientation_F0, x='Rating_z_score', y='F0_mean', ax=axes[1], color='#0072b2')
+axes[1].set_xlabel('Rating (-: Homo, +: Het)')
 axes[1].set_ylabel('')
 
 axes[2].set_title('Voice Identity')
-axes[2].set_xlim(1,7)
-sns.regplot(data=voice_id_F0, x='Rating', y='F0_mean', ax=axes[2], color='#009e73')
-axes[2].set_xlabel('Rating (1-Masc, 7-Femme)')
+axes[2].set_xlim(-1.5,1.5)
+sns.regplot(data=voice_id_F0, x='Rating_z_score', y='F0_mean', ax=axes[2], color='#009e73')
+axes[2].set_xlabel('Rating (-: Masc, +: Femme)')
 axes[2].set_ylabel('')
 
 # plt.show()
 plt.savefig(os.path.join(dir,'figs', 'F0_avgbycondition.png'), bbox_inches='tight', dpi=300)
-plt.clf()
+plt.close()
 
 # overlay
 fig, axes = plt.subplots()
 fig.set_size_inches(18, 10)
 axes.set_title('Avg F0 by Condition Rating, %s Participants'%number_participants, fontsize=20, fontweight='bold')
-axes.set_xlim(1,7)
-sns.regplot(data=gender_id_F0, x='Rating', y='F0_mean', color='#d55e00')
-sns.regplot(data=sexual_orientation_F0, x='Rating', y='F0_mean', color='#0072b2')
-sns.regplot(data=voice_id_F0, x='Rating', y='F0_mean', color='#009e73')
-axes.set_xlabel('Rating (1-7)')
+axes.set_xlim(-1.5,1.5)
+sns.regplot(data=gender_id_F0, x='Rating_z_score', y='F0_mean', color='#d55e00')
+sns.regplot(data=sexual_orientation_F0, x='Rating_z_score', y='F0_mean', color='#0072b2')
+sns.regplot(data=voice_id_F0, x='Rating_z_score', y='F0_mean', color='#009e73')
+axes.set_xlabel('Rating (-1.5-1.5)')
 axes.set_ylabel('Avg F0')
 plt.legend(labels=['Gender ID','Sexual Orientation','Voice ID'])
 plt.savefig(os.path.join(dir,'figs', 'F0_avgbycondition_overlay.png'), bbox_inches='tight', dpi=300)
+plt.close()
 # plt.show()
 
 ##### regression indiv and overlay loop over all features ########
@@ -156,20 +159,20 @@ features_to_plot = ['F0_mean','F0_range','F0_std','spectral_S_duration','spectra
                                                     'spectral_V_duration','spectral_V_intensity','spectral_V_cog','spectral_V_sdev', 'spectral_V_skew','spectral_V_kurt',
                                                     'spectral_SH_duration','spectral_SH_intensity','spectral_SH_cog','spectral_SH_sdev', 'spectral_SH_skew','spectral_SH_kurt',
                                                     'spectral_JH_duration','spectral_JH_intensity','spectral_JH_cog','spectral_JH_sdev', 'spectral_JH_skew','spectral_JH_kurt',
-                                                    'percent_creak','vowel_avg_dur','dispersion']
+                                                    'percent_creak','vowel_avg_dur','dispersion','rando']
 
 features_to_plot = features_to_plot + vowel_spectral_names
 
 for feature in features_to_plot:
-    gender_id_avg_rating = gender_id.groupby('WAV', as_index=False)['Rating'].mean()
+    gender_id_avg_rating = gender_id.groupby('WAV', as_index=False)['Rating_z_score'].mean()
     gender_id_avg_feature = gender_id.groupby('WAV', as_index=False)[feature].mean()
     gender_id_feature = pd.merge(gender_id_avg_rating, gender_id_avg_feature, on='WAV')
 
-    sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating'].mean()
+    sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating_z_score'].mean()
     sexual_orientation_avg_feature = sexual_orientation.groupby('WAV', as_index=False)[feature].mean()
     sexual_orientation_feature = pd.merge(sexual_orientation_avg_rating, sexual_orientation_avg_feature, on='WAV')
 
-    voice_id_rating = voice_id.groupby('WAV', as_index=False)['Rating'].mean()
+    voice_id_rating = voice_id.groupby('WAV', as_index=False)['Rating_z_score'].mean()
     voice_id_avg_feature = voice_id.groupby('WAV', as_index=False)[feature].mean()
     voice_id_feature = pd.merge(voice_id_rating, voice_id_avg_feature, on='WAV')
 
@@ -185,21 +188,21 @@ for feature in features_to_plot:
     fig.subplots_adjust( top = 0.85 )
 
     axes[0].set_title('Gender Identity')
-    axes[0].set_xlim(1,7)
-    sns.regplot(data=gender_id_feature, x='Rating', y=feature, ax=axes[0], color='#648FFF') # #648FFF d55e00
-    axes[0].set_xlabel('Rating (1-Male, 7-Female)')
+    axes[0].set_xlim(-1.5,1.5)
+    sns.regplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[0], color='#648FFF') # #648FFF d55e00
+    axes[0].set_xlabel('Rating (-: Male, +: Female)')
     axes[0].set_ylabel('Avg %s'%feature)
 
     axes[1].set_title('Sexual Orientation')
-    axes[1].set_xlim(1,7)
-    sns.regplot(data=sexual_orientation_feature, x='Rating', y=feature, ax=axes[1], color='#785EF0') # #785EF0 0072b2
-    axes[1].set_xlabel('Rating (1-Homo, 7-Het)')
+    axes[1].set_xlim(-1.5,1.5)
+    sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[1], color='#785EF0') # #785EF0 0072b2
+    axes[1].set_xlabel('Rating (-: Homo, +: Het)')
     axes[1].set_ylabel('')
 
     axes[2].set_title('Voice Identity')
-    axes[2].set_xlim(1,7)
-    sns.regplot(data=voice_id_feature, x='Rating', y=feature, ax=axes[2], color='#DC267F') # #DC267F 009e73
-    axes[2].set_xlabel('Rating (1-Masc, 7-Femme)')
+    axes[2].set_xlim(-1.5,1.5)
+    sns.regplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2], color='#DC267F') # #DC267F 009e73
+    axes[2].set_xlabel('Rating (-: Masc, +: Femme)')
     axes[2].set_ylabel('')
 
     # plt.show()
@@ -315,4 +318,4 @@ axes[2,2].set_ylabel('')
 
 # plt.show()
 plt.savefig(os.path.join(dir,'figs', 'proximity_social.png'), bbox_inches='tight', dpi=300)
-plt.clf()
+plt.close()

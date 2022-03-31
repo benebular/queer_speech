@@ -12,6 +12,7 @@ import sys
 import matplotlib.pyplot as plt
 import re
 import glob
+import scipy.stats as stats
 np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
@@ -365,6 +366,12 @@ creak_data = pd.DataFrame({'WAV':creak_WAV_list,'percent_creak':creak_percent_li
 creak_data['percent_creak'] = creak_data['percent_creak'].mul(100,axis=0)
 creak_data['percent_creak'] = creak_data['percent_creak'].replace(0,np.nan)
 ratings_all = pd.merge(ratings_all, creak_data, on='WAV')
+
+## z-score Ratings columns
+ratings_all['Rating_z_score'] = stats.zscore(ratings_all['Rating'], axis=0)
+
+## random number column for sanity checks
+ratings_all['rando'] = np.random.rand(len(ratings_all), 1)
 
 ### EXPORT ###
 dir = '/Users/bcl/Documents/GitHub/queer_speech'
