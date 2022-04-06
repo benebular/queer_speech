@@ -222,6 +222,7 @@ ratings_all = pd.merge(ratings_all, creak_data, on='WAV')
 
 ## random number column for sanity checks
 ratings_all['rando'] = np.random.rand(len(ratings_all), 1)
+ratings_all['rando_baseline_z_score'] = stats.zscore(np.round(np.random.uniform(1.0,8.0,len(ratings_all)), 1), axis=0)
 
 ### EXPORT ###
 dir = '/Users/bcl/Documents/GitHub/queer_speech'

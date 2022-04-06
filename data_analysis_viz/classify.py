@@ -81,6 +81,13 @@ abc = x
 abc = abc.drop(columns=['gender_id','sexual_orientation','voice_id','kmeans_4_cluster'])
 df = pd.merge(data_merged, abc, on='WAV')
 
+df['rando_baseline_z_score'] = stats.zscore(np.round(np.random.uniform(1.0,8.0,len(df)), 1), axis=0)
+
+
+
+print ("Saving data as queer_data.csv")
+df.to_csv(os.path.join(dir,'feature_extraction','queer_data.csv'), index=True, encoding='utf-8')
+
 # # Visualising the clusters
 # plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = 'red', label = 'Identity 1')
 # plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = 'blue', label = 'Identity 2')
@@ -118,65 +125,44 @@ df = pd.merge(data_merged, abc, on='WAV')
 # for each group from the K-means clustering, slice out the relevant z-scored ratings, with all of the other acoustics features
 # what is the acoustic information that is important to the ratings in a particular separate clusters
 
-df = df.drop(['Rating','Rating_z_score','kmeans_4_cluster','participant_other_langs','participant_race_free_response','participant_gender_pso_free_response',
+df = df.drop(['Rating','Rating_z_score','kmeans_4_cluster','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
+                'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
+                'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh','rando',
                 'survey_experience','survey_feedback','Condition','WAV'], axis=1)
-df_dummies_all = pd.get_dummies(df)
-df_dummies_clusters = pd.get_dummies(df['kmeans_5_cluster'], prefix="cluster")
-df_dummies_all = pd.concat([df_dummies_all,df_dummies_clusters], axis=1)
-df_dummies_all = df_dummies_all.drop(['kmeans_5_cluster'], axis=1)
-df_dummies_all.iloc[:,5:].head(5)
+
+# df_dummies_all = pd.get_dummies(df)
+# df_dummies_clusters = pd.get_dummies(df['kmeans_5_cluster'], prefix="cluster")
+# df_dummies_all = pd.concat([df_dummies_all,df_dummies_clusters], axis=1)
+# df_dummies_all = df_dummies_all.drop(['kmeans_5_cluster'], axis=1)
+# df_dummies_all.iloc[:,5:].head(5)
 
 ## random number column for sanity checks
 # df_dummies_all['rando_baseline'] = np.round(np.random.uniform(1.0,8.0,len(df_dummies_all)), 1)
-df_dummies_all['rando_baseline_z_score'] = stats.zscore(np.round(np.random.uniform(1.0,8.0,len(df_dummies_all)), 1), axis=0)
 
-df_group_1 = df_dummies_all.drop(['cluster_1','cluster_2','cluster_3','cluster_4'], axis=1)
-df_group_2 = df_dummies_all[df_dummies_all['cluster_1'] == 1]
-df_group_3 = df_dummies_all[df_dummies_all['cluster_2'] == 1]
-df_group_4 = df_dummies_all[df_dummies_all['cluster_3'] == 1]
-df_group_5 = df_dummies_all[df_dummies_all['cluster_4'] == 1]
+# df_group_1 = df_dummies_all.drop(['cluster_1','cluster_2','cluster_3','cluster_4'], axis=1)
+# df_group_2 = df_dummies_all[df_dummies_all['cluster_1'] == 1]
+# df_group_3 = df_dummies_all[df_dummies_all['cluster_2'] == 1]
+# df_group_4 = df_dummies_all[df_dummies_all['cluster_3'] == 1]
+# df_group_5 = df_dummies_all[df_dummies_all['cluster_4'] == 1]
 
 # df_group_1 = pd.get_dummies(df[df['kmeans_5_cluster'] == 0])
 # df_group_1.iloc[:,5:].head(5)
 
 ###### BASELINE #######
 # Labels are the values we want to predict
-labels = np.array(df_group_1['cluster_0'])
+labels = np.array(df['kmeans_5_cluster'])
 # Remove the labels from the features
 # axis 1 refers to the columns
-df_group_1 = df_group_1.drop('cluster_0', axis = 1)
+df = df.drop('kmeans_5_cluster', axis = 1)
 # Saving feature names for later use
-feature_list = list(df_group_1.columns)
+feature_list = list(df.columns)
 # Convert to numpy array
-df_group_1 = np.array(df_group_1)
+df = np.array(df)
 
 # Using Skicit-learn to split data into training and testing sets
 from sklearn.model_selection import train_test_split
 # Split the data into training and testing sets
-train_features, test_features, train_labels, test_labels = train_test_split(df_group_1, labels, test_size = 0.25, random_state = 42)
-
-# The baseline predictions are the historical averages
-baseline_preds = test_features[:, feature_list.index('rando_baseline_z_score')]
-# Baseline errors, and display average baseline error
-baseline_errors = abs(baseline_preds - test_labels)
-print('Average baseline error: ', round(np.mean(baseline_errors), 2))
-
-
-
-# Labels are the values we want to predict
-labels = np.array(df_group_1['cluster_0'])
-# Remove the labels from the features
-# axis 1 refers to the columns
-df_group_1 = df_group_1.drop('cluster_0', axis = 1)
-# Saving feature names for later use
-feature_list = list(df_group_1.columns)
-# Convert to numpy array
-df_group_1 = np.array(df_group_1)
-
-# Using Skicit-learn to split data into training and testing sets
-from sklearn.model_selection import train_test_split
-# Split the data into training and testing sets
-train_features, test_features, train_labels, test_labels = train_test_split(df_group_1, labels, test_size = 0.25, random_state = 42)
+train_features, test_features, train_labels, test_labels = train_test_split(df, labels, test_size = 0.25, random_state = 42)
 
 # The baseline predictions are the historical averages
 baseline_preds = test_features[:, feature_list.index('rando_baseline_z_score')]
@@ -192,6 +178,7 @@ imp = imp.fit(train_features)
 train_features_imp = imp.transform(train_features)
 imp = imp.fit(test_features)
 test_features_imp = imp.transform(test_features)
+
 
 
 # Import the model we are using
@@ -221,7 +208,7 @@ print('Accuracy:', round(accuracy, 2), '%.')
 # Get numerical feature importances
 importances = list(rf.feature_importances_)
 # List of tuples with variable and importance
-feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(feature_list, importances)]
+feature_importances = [(feature, round(importance, 5)) for feature, importance in zip(feature_list, importances)]
 # Sort the feature importances by most important first
 feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse = True)
 # Print out the feature and importances
@@ -230,25 +217,131 @@ feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse 
 # Import matplotlib for plotting and use magic command for Jupyter Notebooks
 # Set the style
 # plt.style.use('fivethirtyeight')
-fig = plt.figure(figsize = (8,8))
+fig = plt.figure(figsize = (20,8))
 
 # list of x locations for plotting
 x_values = list(range(len(importances)))
 # Make a bar chart
 plt.bar(x_values, importances, orientation = 'vertical')
 # Tick labels for x axis
-plt.xticks(x_values, feature_list, rotation='vertical')
+plt.xticks(x_values, feature_list, rotation='vertical', fontsize = 8)
 # Axis labels and title
 plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances');
 
+plt.savefig(os.path.join(dir,'figs', 'randomforest_grandmean.png'), bbox_inches='tight', dpi=300)
+plt.close()
+
+## loop for individual clusters
+df = pd.merge(data_merged, abc, on='WAV')
+df['rando_baseline_z_score'] = stats.zscore(np.round(np.random.uniform(1.0,8.0,len(df)), 1), axis=0)
+df = df.drop(['Rating','Rating_z_score','kmeans_4_cluster','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
+                'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
+                'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh','rando',
+                'survey_experience','survey_feedback','Condition','WAV'], axis=1)
+df_cluster_dummies = pd.get_dummies(df['kmeans_5_cluster'], prefix='cluster')
+df = pd.concat([df, df_cluster_dummies], axis=1)
+df = df.drop('kmeans_5_cluster', axis=1)
+df_group_0 = df.drop(['cluster_1','cluster_2','cluster_3','cluster_4'], axis=1)
+df_group_1 = df.drop(['cluster_0','cluster_2','cluster_3','cluster_4'], axis=1)
+df_group_2 = df.drop(['cluster_0','cluster_1','cluster_3','cluster_4'], axis=1)
+df_group_3 = df.drop(['cluster_0','cluster_1','cluster_2','cluster_4'], axis=1)
+df_group_4 = df.drop(['cluster_0','cluster_1','cluster_2','cluster_3'], axis=1)
+
+cluster_dict  = {'df_group_0':df_group_0,'df_group_1':df_group_1,'df_group_2':df_group_2,'df_group_3':df_group_3,'df_group_4':df_group_4}
+for cluster, value in cluster_dict.items():
+    cluster_number = 'cluster_' + cluster[-1:]
+    ###### BASELINE #######
+    # Labels are the values we want to predict
+    labels = np.array(value[cluster_number])
+    # Remove the labels from the features
+    # axis 1 refers to the columns
+    value = value.drop('%s'%cluster_number, axis = 1)
+    # Saving feature names for later use
+    feature_list = list(value.columns)
+    # Convert to numpy array
+    value = np.array(value)
+
+    # Using Skicit-learn to split data into training and testing sets
+    from sklearn.model_selection import train_test_split
+    # Split the data into training and testing sets
+    train_features, test_features, train_labels, test_labels = train_test_split(value, labels, test_size = 0.25, random_state = 42)
+
+    # The baseline predictions are the historical averages
+    baseline_preds = test_features[:, feature_list.index('rando_baseline_z_score')]
+    # Baseline errors, and display average baseline error
+    baseline_errors = abs(baseline_preds - test_labels)
+    print('Average baseline error: ', round(np.mean(baseline_errors), 2))
+
+    # Create our imputer to replace missing values with the mean e.g.,
+    # Imputing values shouldn't matter at this stage because the ratings have already been clustered so
+    # the effect of a missing values of a fricatives within a given group doesn't change that WAVs membership to a group *in this data*
+    imp = SimpleImputer(missing_values=np.nan, strategy='mean')
+    imp = imp.fit(train_features)
+    train_features_imp = imp.transform(train_features)
+    imp = imp.fit(test_features)
+    test_features_imp = imp.transform(test_features)
+
+
+
+    # Import the model we are using
+    from sklearn.ensemble import RandomForestRegressor
+    # Instantiate model with 1000 decision trees
+    rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
+    # Train the model on training data
+    print ("Fitting Random Forest on %s..."%cluster_number)
+    t = time.time()
+    rf.fit(train_features_imp, train_labels);
+    elapsed_rf = time.time() - t
+    print("Random Forest elapsed time (in sec): %s" %elapsed_rf)
+
+    # Use the forest's predict method on the test data
+    predictions = rf.predict(test_features_imp)
+    # Calculate the absolute errors
+    errors = abs(predictions - test_labels)
+    # Print out the mean absolute error (mae)
+    print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
+
+    # Calculate mean absolute percentage error (MAPE)
+    mape = 100 * (errors / test_labels)
+    # Calculate and display accuracy
+    accuracy = 100 - np.mean(mape)
+    print('Accuracy:', round(accuracy, 2), '%.')
+
+    # Get numerical feature importances
+    importances = list(rf.feature_importances_)
+    # List of tuples with variable and importance
+    feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(feature_list, importances)]
+    # Sort the feature importances by most important first
+    feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse = True)
+    # Print out the feature and importances
+    [print('Variable: {:20} Importance: {}'.format(*pair)) for pair in feature_importances];
+
+    # Import matplotlib for plotting and use magic command for Jupyter Notebooks
+    # Set the style
+    # plt.style.use('fivethirtyeight')
+    fig = plt.figure(figsize = (20,8))
+
+    # list of x locations for plotting
+    x_values = list(range(len(importances)))
+    # Make a bar chart
+    plt.bar(x_values, importances, orientation = 'vertical')
+    # Tick labels for x axis
+    plt.xticks(x_values, feature_list, rotation='vertical', fontsize = 8)
+    # Axis labels and title
+    plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances %s'%cluster_number);
+
+    print("Saving Variable Importances for %s as figure..."%cluster_number)
+    plt.savefig(os.path.join(dir,'figs', 'randomforest_grandmean_%s.png'%cluster_number), bbox_inches='tight', dpi=300)
+    plt.close()
+
+
+
 ## save
-print ("Saving data as queer_data.csv")
-df.to_csv(os.path.join(dir,'feature_extraction','queer_data.csv'), index=True, encoding='utf-8')
-df_dummies_all.to_csv(os.path.join(dir,'feature_extraction','dummies_data.csv'), index=True, encoding='utf-8')
-
-
-with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-    print(df_dummies_all)
+# df_dummies_all.to_csv(os.path.join(dir,'feature_extraction','dummies_data.csv'), index=True, encoding='utf-8')
+#
+#
+# with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+#     print(df_dummies_all)
 
 # ## PCA
 # features = ['F0_mean','F0_range','F0_std','percent_creak','vowel_avg_dur','dispersion']
