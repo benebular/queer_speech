@@ -28,10 +28,11 @@ print(participants)
 ratings['Condition'] = ratings['Condition'].astype('category')
 ratings['WAV'] = ratings['WAV'].astype('category')
 ratings_avg = ratings.groupby(['WAV', 'Condition'], as_index=False)[['Rating_z_score','kmeans_5_cluster']].mean()
-clusters = ratings.groupby(['WAV', 'Condition'], as_index=False)['kmeans_5_cluster'].mean()
+# clusters = ratings.groupby(['WAV', 'Condition'], as_index=False)['kmeans_5_cluster'].mean()
 ratings_avg_pivot = ratings_avg.pivot(index = 'WAV', columns = 'Condition', values = ['Rating_z_score','kmeans_5_cluster'])
 ratings_avg_pivot = pd.DataFrame(ratings_avg_pivot.values, columns = ['gender_id','sexual_orientation','voice_id','cluster','delete1','delete2'], index=ratings_avg_pivot.index)
 ratings_avg_pivot = ratings_avg_pivot.drop(['delete1','delete2'], axis = 1)
+ratings_avg_pivot['cluster'] = ratings_avg_pivot['cluster'].astype('int64')
 print(ratings_avg_pivot)
 
 # clusters_avg_pivot = clusters.pivot(index = 'WAV', columns = 'Condition', values = 'kmeans_5_cluster')
@@ -45,15 +46,15 @@ print(ratings_avg_pivot)
 # clusters_avg_pivot.index = pd.Series(clusters_avg_pivot.index).astype(str)
 # categories = pd.Series(ratings_avg_pivot.index).astype(str)
 
-import random
-get_colors = lambda n: list(map(lambda i: "#" + "%06x" % random.randint(0, 0xFFFFFF),range(n)))
-colors = pd.DataFrame(get_colors(5), columns={'color'}) # sample return:  ['#8af5da', '#fbc08c', '#b741d0', '#e599f1', '#bbcb59', '#a2a6c0']
+# import random
+# get_colors = lambda n: list(map(lambda i: "#" + "%06x" % random.randint(0, 0xFFFFFF),range(n)))
+# colors = pd.DataFrame(get_colors(5), columns={'color'}) # sample return:  ['#8af5da', '#fbc08c', '#b741d0', '#e599f1', '#bbcb59', '#a2a6c0']
+# colors['cluster'] = [0,1,2,3,4]
+# labels = ratings_avg_pivot.groupby(['cluster'], as_index=False)[['gender_id','sexual_orientation','voice_id']].mean()
+
+colors = pd.DataFrame({"color": ['#648FFF','#785EF0','#DC267F','#FE6100','#FFB000']})
 colors['cluster'] = [0,1,2,3,4]
-
 ratings_avg_pivot = pd.merge(ratings_avg_pivot, colors, on = 'cluster', how = "outer")
-
-labels = ratings_avg_pivot.groupby(['cluster'], as_index=False)[['gender_id','sexual_orientation','voice_id']].mean()
-
 
 
 ## plot averages
@@ -72,7 +73,7 @@ scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['co
 scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][2], marker = 'o')
 scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][3], marker = 'o')
 scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][4], marker = 'o')
-ax.legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['straight masc men','queer masc men','queer NB men and women','queer femme women','straight femme women'], numpoints = 1, loc = 'lower right')
+ax.legend([scatter1_proxy, scatter5_proxy, scatter3_proxy, scatter4_proxy, scatter2_proxy], ['straight masc men','queer masc men','queer NB men and women','queer femme women','straight femme women'], numpoints = 1, loc = 'lower right')
 # plt.legend()
 plt.show()
 
