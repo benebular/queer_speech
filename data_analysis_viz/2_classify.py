@@ -9,19 +9,22 @@ import pandas as pd
 import os
 import sys
 import time
+import seaborn as sns
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LogisticRegression, Ridge
-from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import make_scorer, get_scorer, accuracy_score
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
+from sklearn.metrics import make_scorer, get_scorer, accuracy_score, confusion_matrix, classification_report
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.impute import SimpleImputer
 from sklearn import datasets
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.model_selection import cross_val_score
+from sklearn.inspection import permutation_importance
+
 # np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
@@ -138,7 +141,7 @@ df.to_csv(os.path.join(dir,'feature_extraction','queer_data.csv'), index=True, e
 
 df = df.drop(['Rating','Rating_z_score','kmeans_4_cluster','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
                 'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
-                'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh','rando',
+                'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
                 'survey_experience','survey_feedback','Condition','WAV','color','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start'], axis=1)
 
 number_of_features = len(df.columns)
@@ -176,9 +179,9 @@ from sklearn.model_selection import train_test_split
 # Split the data into training and testing sets
 train_features, test_features, train_labels, test_labels = train_test_split(df_imp, labels, test_size = 0.75, random_state = 42)
 
-# # The baseline predictions are the historical averages
-# baseline_preds = test_features[:, feature_list.index('Rating_z_score')]
-# # # Baseline errors, and display average baseline error
+# # # The baseline predictions are the historical averages
+# baseline_preds = test_features[:, feature_list.index('rando')]
+# # # # Baseline errors, and display average baseline error
 # baseline_errors = abs(baseline_preds - test_labels)
 # print('Average baseline error: ', round(np.mean(baseline_errors), 3))
 
@@ -194,7 +197,7 @@ train_features, test_features, train_labels, test_labels = train_test_split(df_i
 
 # Import the model we are using
 # Instantiate model with 1000 decision trees
-rf = RandomForestClassifier(n_estimators = 1000, random_state = 42)
+rf = make_pipeline(StandardScaler(), RandomForestClassifier(n_estimators = 5000, random_state = 42, n_jobs = -1, max_features = 10, max_depth = 5))
 # Train the model on training data
 print ("Training Random Forest on %s features for all clusters..."%number_of_features)
 t = time.time()
@@ -206,45 +209,51 @@ print("Accuracy on train data: {:.2f}".format(rf.score(train_features, train_lab
 # cross validation
 print ("Cross-validation...")
 # rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
+t = time.time()
 scores = cross_val_score(rf, train_features, train_labels, cv=10)
+elapsed_rf = time.time() - t
+print("CV elapsed time (in sec): %s" %elapsed_rf)
 scores
 print('Mean CV Accuracy: %.3f (%.3f)' % (np.mean(scores), np.std(scores)))
 
+# # accuracy score
+# predictions=rf.predict(test_features)
+# print("Accuracy:", accuracy_score(test_features, predictions))
+
+# # Get and reshape confusion matrix data
+# matrix = confusion_matrix(test_labels, predictions)
+# matrix = matrix.astype('float') / matrix.sum(axis=1)[:, np.newaxis]
+#
+# # Build the plot
+# plt.figure(figsize=(16,7))
+# sns.set(font_scale=1.4)
+# sns.heatmap(matrix, annot=True, annot_kws={'size':10},
+#             cmap=plt.cm.Greens, linewidths=0.2)
+#
+# # Add labels to the plot
+# class_names = feature_list
+# tick_marks = np.arange(len(class_names))
+# tick_marks2 = tick_marks + 0.5
+# plt.xticks(tick_marks, class_names, rotation=25)
+# plt.yticks(tick_marks2, class_names, rotation=0)
+# plt.xlabel('Predicted label')
+# plt.ylabel('True label')
+# plt.title('Confusion Matrix for Random Forest Model')
+# plt.show()
 
 # # Use the forest's predict method on the test data
 predictions = rf.predict(test_features)
 # # Calculate the absolute errors
-errors = abs(predictions - test_labels)
-# # Print out the mean absolute error (mae)
-print('Mean Absolute Error:', round(np.mean(errors), 3), 'degrees.')
-print("Accuracy on test data: {:.2f}".format(rf.score(test_features, test_labels)))
+# errors = abs(predictions - test_labels)
+# # # Print out the mean absolute error (mae)
+# print('Mean Absolute Error:', round(np.mean(errors), 3), 'degrees.')
+# print("Accuracy on test data: {:.2f}".format(rf.score(test_features, test_labels)))
 
+# View the classification report for test data and predictions
+print(confusion_matrix(test_labels,predictions))
+print(accuracy_score(test_labels, predictions))
+print(classification_report(test_labels, predictions))
 
-
-# y_pred=rf.predict(test_features)
-# print("Accuracy:", accuracy_score(test_features, predictions))
-
-
-from sklearn.inspection import permutation_importance
-
-start_time = time.time()
-result = permutation_importance(
-    rf, test_features, test_labels, n_repeats=10, random_state=42, n_jobs=3
-)
-elapsed_time = time.time() - start_time
-print(f"Elapsed time to compute the importances: {elapsed_time:.3f} seconds")
-
-forest_importances = pd.Series(result.importances_mean, index=feature_names)
-#
-# fig, ax = plt.subplots()
-# forest_importances.plt.bar(yerr=result.importances_std, ax=ax)
-# ax.set_title("Feature importances using permutation on full model")
-# ax.set_ylabel("Mean accuracy decrease")
-# fig.tight_layout()
-# plt.show()
-
-
-#
 # # Calculate mean absolute percentage error (MAPE)
 # mape = 100 * (errors / test_labels)
 # # Calculate and display accuracy
@@ -252,7 +261,7 @@ forest_importances = pd.Series(result.importances_mean, index=feature_names)
 # print('Accuracy:', round(accuracy, 2), '%.')
 
 # Get numerical feature importances
-importances = list(rf.feature_importances_)
+importances = list(rf.steps[1][1].feature_importances_)
 # importances = list(result.importances_mean)
 # List of tuples with variable and importance
 feature_importances = [(feature, round(importance, 5)) for feature, importance in zip(feature_list, importances)]
@@ -287,6 +296,25 @@ plt.savefig(os.path.join(dir,'figs', 'randomforest_grandmean.png'), bbox_inches=
 plt.close()
 
 
+# start_time = time.time()
+# result = permutation_importance(
+#     rf, test_features, test_labels, n_repeats=10, random_state=42, n_jobs=5,
+#     scoring = 'f1'
+# )
+# elapsed_time = time.time() - start_time
+# print(f"Elapsed time to compute the importances: {elapsed_time:.3f} seconds")
+#
+# forest_importances = pd.Series(result.importances_mean, index=feature_list)
+#
+# fig, ax = plt.subplots()
+# forest_importances.plt.bar(yerr=result.importances_std, ax=ax)
+# ax.set_title("Feature importances using permutation on full model")
+# ax.set_ylabel("Mean accuracy decrease")
+# fig.tight_layout()
+# plt.show()
+
+
+
 ######### CLUSTERS ########
 ### clusters using grand mean, no additional imputing needed
 
@@ -309,21 +337,15 @@ for cluster, value in cluster_dict.items():
     # Split the data into training and testing sets
     train_features, test_features, train_labels, test_labels = train_test_split(value, labels, test_size = 0.25, random_state = 42)
 
-    # # The baseline predictions are the historical averages
-    # baseline_preds = test_features[:, feature_list.index('rando_baseline_z_score')]
-    # # Baseline errors, and display average baseline error
+    # # # The baseline predictions are the historical averages
+    # baseline_preds = test_features[:, feature_list.index('rando')]
+    # # # # Baseline errors, and display average baseline error
     # baseline_errors = abs(baseline_preds - test_labels)
-    # print('Average baseline error: ', round(np.mean(baseline_errors), 2))
+    # print('Average baseline error: ', round(np.mean(baseline_errors), 3))
 
-    # cross validation
-    print ("Cross-validation...")
     # Instantiate model with 1000 decision trees
     # rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
-    rf = RandomForestClassifier(n_estimators = 1000, random_state = 42)
-    scores = cross_val_score(rf, df_imp, labels, cv=5)
-    scores
-    print('Mean Accuracy: %.3f (%.3f)' % (np.mean(scores), np.std(scores)))
-
+    rf = make_pipeline(StandardScaler(), RandomForestClassifier(n_estimators = 5000, random_state = 42, n_jobs = -1, max_features = 10, max_depth = 5))
     # Train the model on training data
     print ("Training Random Forest on %s features for %s..."%(number_of_features, cluster_number))
     t = time.time()
@@ -331,22 +353,41 @@ for cluster, value in cluster_dict.items():
     elapsed_rf = time.time() - t
     print("Random Forest elapsed time (in sec): %s" %elapsed_rf)
 
+    # cross validation
+    print ("Cross-validation...")
+    t = time.time()
+    scores = cross_val_score(rf, train_features, train_labels, cv=10)
+    elapsed_rf = time.time() - t
+    print("CV elapsed time (in sec): %s" %elapsed_rf)
+    scores
+    print('Mean CV Accuracy: %.3f (%.3f)' % (np.mean(scores), np.std(scores)))
 
-    # # Use the forest's predict method on the test data
-    # predictions = rf.predict(test_features_imp)
-    # # Calculate the absolute errors
-    # errors = abs(predictions - test_labels)
-    # # Print out the mean absolute error (mae)
-    # print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
-    #
+    # # accuracy score
+    # predictions=rf.predict(test_features)
+    # print("Accuracy:", accuracy_score(test_features, predictions))
+
     # # Calculate mean absolute percentage error (MAPE)
     # mape = 100 * (errors / test_labels)
     # # Calculate and display accuracy
     # accuracy = 100 - np.mean(mape)
     # print('Accuracy:', round(accuracy, 2), '%.')
 
+
+    # # Use the forest's predict method on the test data
+    predictions = rf.predict(test_features)
+    # # # Calculate the absolute errors
+    # errors = abs(predictions - test_labels)
+    # # # Print out the mean absolute error (mae)
+    # print('Mean Absolute Error:', round(np.mean(errors), 3), 'degrees.')
+    # print("Accuracy on test data: {:.2f}".format(rf.score(test_features, test_labels)))
+
+    # View the classification report for test data and predictions
+    print(confusion_matrix(test_labels,predictions))
+    print(accuracy_score(test_labels, predictions))
+    print(classification_report(test_labels, predictions))
+
     # Get numerical feature importances
-    importances = list(rf.feature_importances_)
+    importances = list(rf.steps[1][1].feature_importances_)
     # List of tuples with variable and importance
     feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(feature_list, importances)]
     # Sort the feature importances by most important first
@@ -378,125 +419,128 @@ for cluster, value in cluster_dict.items():
     plt.close()
 
 
-## loop for clusters using cluster means, instead of grand means
-df = df_orig
-# df['rando_baseline_z_score'] = stats.zscore(np.round(np.random.uniform(1.0,8.0,len(df)), 1), axis=0)
-df = df.drop(['Rating','Rating_z_score','kmeans_4_cluster','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
-                'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
-                'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh','rando',
-                'survey_experience','survey_feedback','Condition','WAV','color','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start'], axis=1)
-number_of_features = len(df.columns)
-df_cluster_dummies = pd.get_dummies(df['kmeans_5_cluster'], prefix='cluster')
-df = pd.concat([df, df_cluster_dummies], axis=1)
-df = df.drop('kmeans_5_cluster', axis=1)
-df_group_0 = df.drop(['cluster_1','cluster_2','cluster_3','cluster_4'], axis=1)
-df_group_1 = df.drop(['cluster_0','cluster_2','cluster_3','cluster_4'], axis=1)
-df_group_2 = df.drop(['cluster_0','cluster_1','cluster_3','cluster_4'], axis=1)
-df_group_3 = df.drop(['cluster_0','cluster_1','cluster_2','cluster_4'], axis=1)
-df_group_4 = df.drop(['cluster_0','cluster_1','cluster_2','cluster_3'], axis=1)
-
-cluster_dict  = {'df_group_0':df_group_0,'df_group_1':df_group_1,'df_group_2':df_group_2,'df_group_3':df_group_3,'df_group_4':df_group_4}
-for cluster, value in cluster_dict.items():
-    cluster_number = 'cluster_' + cluster[-1:]
-
-    ## impute cluster means for each cluster in the loop
-    imp = SimpleImputer(missing_values=np.nan, strategy='mean')
-    imp = imp.fit(value)
-    value_imp = imp.transform(value)
-    value_imp = pd.DataFrame(value_imp, columns = value.columns)
-
-    ###### BASELINE #######
-    # Labels are the values we want to predict
-    labels = np.array(value_imp[cluster_number])
-    # Remove the labels from the features
-    # axis 1 refers to the columns
-    value_imp = value_imp.drop('%s'%cluster_number, axis = 1)
-    # Saving feature names for later use
-    feature_list = list(value_imp.columns)
-    # Convert to numpy array
-    value_imp = np.array(value_imp)
-
-    # Using Skicit-learn to split data into training and testing sets
-    from sklearn.model_selection import train_test_split
-    # Split the data into training and testing sets
-    train_features, test_features, train_labels, test_labels = train_test_split(value_imp, labels, test_size = 0.25, random_state = 42)
-
-    # # The baseline predictions are the historical averages
-    # baseline_preds = test_features[:, feature_list.index('rando_baseline_z_score')]
-    # # Baseline errors, and display average baseline error
-    # baseline_errors = abs(baseline_preds - test_labels)
-    # print('Average baseline error: ', round(np.mean(baseline_errors), 2))
-
-    # # Create our imputer to replace missing values with the mean e.g.,
-    # # Imputing values shouldn't matter at this stage because the ratings have already been clustered so
-    # # the effect of a missing values of a fricatives within a given group doesn't change that WAVs membership to a group *in this data*
-    # imp = SimpleImputer(missing_values=np.nan, strategy='mean')
-    # imp = imp.fit(train_features)
-    # train_features_imp = imp.transform(train_features)
-    # imp = imp.fit(test_features)
-    # test_features_imp = imp.transform(test_features)
-
-    # cross validation
-    print ("Cross-validation for %s..."%cluster_number)
-    # Instantiate model with 1000 decision trees
-    # rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
-    rf = RandomForestClassifier(n_estimators = 1000, random_state = 42)
-    scores = cross_val_score(rf, value_imp, labels, cv=5)
-    scores
-    print('Mean Accuracy: %.3f (%.3f)' % (np.mean(scores), np.std(scores)))
-
-    # Train the model on training data
-    print ("Training Random Forest on %s features for %s..."%(number_of_features, cluster_number))
-    t = time.time()
-    rf.fit(train_features, train_labels);
-    elapsed_rf = time.time() - t
-    print("Random Forest elapsed time (in sec): %s" %elapsed_rf)
-
-    # # Use the forest's predict method on the test data
-    # predictions = rf.predict(test_features_imp)
-    # # Calculate the absolute errors
-    # errors = abs(predictions - test_labels)
-    # # Print out the mean absolute error (mae)
-    # print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
-    #
-    # # Calculate mean absolute percentage error (MAPE)
-    # mape = 100 * (errors / test_labels)
-    # # Calculate and display accuracy
-    # accuracy = 100 - np.mean(mape)
-    # print('Accuracy:', round(accuracy, 2), '%.')
-
-    # Get numerical feature importances
-    importances = list(rf.feature_importances_)
-    # List of tuples with variable and importance
-    feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(feature_list, importances)]
-    # Sort the feature importances by most important first
-    feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse = True)
-    cluster_features = pd.DataFrame(feature_importances, columns = {'feature': '0','importance': '1'})
-    cluster_features_50 = cluster_features['importance'].quantile(0.5)
-    cluster_features = cluster_features[cluster_features['importance'] > cluster_features_50]
-
-    # Print out the feature and importances
-    [print('Variable: {:20} Importance: {}'.format(*pair)) for pair in feature_importances];
-    print(cluster_features)
-
-    # Import matplotlib for plotting and use magic command for Jupyter Notebooks
-    # Set the style
-    # plt.style.use('fivethirtyeight')
-    fig = plt.figure(figsize = (100,8))
-
-    # list of x locations for plotting
-    x_values = list(range(len(importances)))
-    # Make a bar chart
-    plt.bar(x_values, importances, orientation = 'vertical')
-    # Tick labels for x axis
-    plt.xticks(x_values, feature_list, rotation='vertical', fontsize = 8)
-    # Axis labels and title
-    plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances %s'%cluster_number);
-
-    print("Saving Variable Importances for %s as figure..."%cluster_number)
-    plt.savefig(os.path.join(dir,'figs', 'randomforest_clustermean_%s.png'%cluster_number), bbox_inches='tight', dpi=300)
-    plt.close()
-
+# ## loop for clusters using cluster means, instead of grand means
+# df = df_orig
+# # df['rando_baseline_z_score'] = stats.zscore(np.round(np.random.uniform(1.0,8.0,len(df)), 1), axis=0)
+# df = df.drop(['Rating','Rating_z_score','kmeans_4_cluster','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
+#                 'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
+#                 'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
+#                 'survey_experience','survey_feedback','Condition','WAV','color','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start'], axis=1)
+# number_of_features = len(df.columns)
+# df_cluster_dummies = pd.get_dummies(df['kmeans_5_cluster'], prefix='cluster')
+# df = pd.concat([df, df_cluster_dummies], axis=1)
+# df = df.drop('kmeans_5_cluster', axis=1)
+# df_group_0 = df.drop(['cluster_1','cluster_2','cluster_3','cluster_4'], axis=1)
+# df_group_1 = df.drop(['cluster_0','cluster_2','cluster_3','cluster_4'], axis=1)
+# df_group_2 = df.drop(['cluster_0','cluster_1','cluster_3','cluster_4'], axis=1)
+# df_group_3 = df.drop(['cluster_0','cluster_1','cluster_2','cluster_4'], axis=1)
+# df_group_4 = df.drop(['cluster_0','cluster_1','cluster_2','cluster_3'], axis=1)
+#
+# cluster_dict  = {'df_group_0':df_group_0,'df_group_1':df_group_1,'df_group_2':df_group_2,'df_group_3':df_group_3,'df_group_4':df_group_4}
+# for cluster, value in cluster_dict.items():
+#     cluster_number = 'cluster_' + cluster[-1:]
+#
+#     ## impute cluster means for each cluster in the loop
+#     imp = SimpleImputer(missing_values=np.nan, strategy='mean')
+#     imp = imp.fit(value)
+#     value_imp = imp.transform(value)
+#     value_imp = pd.DataFrame(value_imp, columns = value.columns)
+#
+#     ###### BASELINE #######
+#     # Labels are the values we want to predict
+#     labels = np.array(value_imp[cluster_number])
+#     # Remove the labels from the features
+#     # axis 1 refers to the columns
+#     value_imp = value_imp.drop('%s'%cluster_number, axis = 1)
+#     # Saving feature names for later use
+#     feature_list = list(value_imp.columns)
+#     # Convert to numpy array
+#     value_imp = np.array(value_imp)
+#
+#     # Using Skicit-learn to split data into training and testing sets
+#     from sklearn.model_selection import train_test_split
+#     # Split the data into training and testing sets
+#     train_features, test_features, train_labels, test_labels = train_test_split(value_imp, labels, test_size = 0.25, random_state = 42)
+#
+#     # # # The baseline predictions are the historical averages
+#     # baseline_preds = test_features[:, feature_list.index('rando')]
+#     # # # # Baseline errors, and display average baseline error
+#     # baseline_errors = abs(baseline_preds - test_labels)
+#     # print('Average baseline error: ', round(np.mean(baseline_errors), 3))
+#
+#     # Instantiate model with 1000 decision trees
+#     # rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
+#     rf = make_pipeline(StandardScaler(), RandomForestClassifier(n_estimators = 5000, random_state = 42, n_jobs = -1, max_features = 184, max_depth = 5))
+#     # Train the model on training data
+#     print ("Training Random Forest on %s features for %s..."%(number_of_features, cluster_number))
+#     t = time.time()
+#     rf.fit(train_features, train_labels);
+#     elapsed_rf = time.time() - t
+#     print("Random Forest elapsed time (in sec): %s" %elapsed_rf)
+#
+#     # cross validation
+#     print ("Cross-validation...")
+#     t = time.time()
+#     scores = cross_val_score(rf, train_features, train_labels, cv=10)
+#     elapsed_rf = time.time() - t
+#     print("CV elapsed time (in sec): %s" %elapsed_rf)
+#     scores
+#     print('Mean CV Accuracy: %.3f (%.3f)' % (np.mean(scores), np.std(scores)))
+#
+#     # # accuracy score
+#     # predictions=rf.predict(test_features)
+#     # print("Accuracy:", accuracy_score(test_features, predictions))
+#
+#     # # Calculate mean absolute percentage error (MAPE)
+#     # mape = 100 * (errors / test_labels)
+#     # # Calculate and display accuracy
+#     # accuracy = 100 - np.mean(mape)
+#     # print('Accuracy:', round(accuracy, 2), '%.')
+#
+#     # # Use the forest's predict method on the test data
+#     predictions = rf.predict(test_features)
+#     # # # Calculate the absolute errors
+#     # errors = abs(predictions - test_labels)
+#     # # # Print out the mean absolute error (mae)
+#     # print('Mean Absolute Error:', round(np.mean(errors), 3), 'degrees.')
+#     # print("Accuracy on test data: {:.2f}".format(rf.score(test_features, test_labels)))
+#
+#     # View the classification report for test data and predictions
+#     print(confusion_matrix(test_labels,predictions))
+#     print(accuracy_score(test_labels, predictions))
+#     print(classification_report(test_labels, predictions))
+#
+#     # Get numerical feature importances
+#     importances = list(rf.steps[1][1].feature_importances_)
+#     # List of tuples with variable and importance
+#     feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(feature_list, importances)]
+#     # Sort the feature importances by most important first
+#     feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse = True)
+#     cluster_features = pd.DataFrame(feature_importances, columns = {'feature': '0','importance': '1'})
+#     cluster_features_50 = cluster_features['importance'].quantile(0.5)
+#     cluster_features = cluster_features[cluster_features['importance'] > cluster_features_50]
+#
+#     # Print out the feature and importances
+#     [print('Variable: {:20} Importance: {}'.format(*pair)) for pair in feature_importances];
+#     print(cluster_features)
+#
+#     # Import matplotlib for plotting and use magic command for Jupyter Notebooks
+#     # Set the style
+#     # plt.style.use('fivethirtyeight')
+#     fig = plt.figure(figsize = (100,8))
+#
+#     # list of x locations for plotting
+#     x_values = list(range(len(importances)))
+#     # Make a bar chart
+#     plt.bar(x_values, importances, orientation = 'vertical')
+#     # Tick labels for x axis
+#     plt.xticks(x_values, feature_list, rotation='vertical', fontsize = 8)
+#     # Axis labels and title
+#     plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances %s'%cluster_number);
+#
+#     print("Saving Variable Importances for %s as figure..."%cluster_number)
+#     plt.savefig(os.path.join(dir,'figs', 'randomforest_clustermean_%s.png'%cluster_number), bbox_inches='tight', dpi=300)
+#     plt.close()
 
 ## save
 # df_dummies_all.to_csv(os.path.join(dir,'feature_extraction','dummies_data.csv'), index=True, encoding='utf-8')

@@ -10,6 +10,7 @@ import sys
 import time
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+import seaborn as sns
 from sklearn.impute import SimpleImputer
 
 # np.set_printoptions(threshold=sys.maxsize)
@@ -56,21 +57,30 @@ df_group_2 = df_sans.drop(['cluster_0','cluster_1','cluster_3','cluster_4'], axi
 df_group_3 = df_sans.drop(['cluster_0','cluster_1','cluster_2','cluster_4'], axis=1)
 df_group_4 = df_sans.drop(['cluster_0','cluster_1','cluster_2','cluster_3'], axis=1)
 
+
+### creaky
+df_group_0 = df_group_0[['percent_creak','cluster_0']]
+df_group_1 = df_group_1[['percent_creak','F0_mean','F0_std','F0_range','cluster_1']]
+df_group_2 = df_group_2[['percent_creak','cluster_2']]
+df_group_3 = df_group_3[['percent_creak','cluster_3']]
+df_group_4 = df_group_4[['percent_creak','spectral_S_cog','spectral_S_skew','F0_mean','cluster_4']]
+
+
 ###### BASELINE #######
 # Labels are the values we want to predict
-labels = np.array(df_group_0['cluster_0'])
+labels = np.array(df_group_4['cluster_4'])
 # Remove the labels from the features
 # axis 1 refers to the columns
-df_group_0 = df_group_0.drop('cluster_0', axis = 1)
+df_group_4 = df_group_4.drop('cluster_4', axis = 1)
 # Saving feature names for later use
-feature_list = list(df_group_0.columns)
+feature_list = list(df_group_4.columns)
 # Convert to numpy array
-df_group_0 = np.array(df_group_0)
+# df_group_0 = np.array(df_group_0)
 
 # Using Skicit-learn to split data into training and testing sets
 from sklearn.model_selection import train_test_split
 # Split the data into training and testing sets
-Xtrain, Xtest, ytrain, ytest = train_test_split(df_group_0, labels, test_size = 0.25, random_state = 42)
+Xtrain, Xtest, ytrain, ytest = train_test_split(df_group_4, labels, test_size = 0.75, random_state = 42)
 
 ## logistic regressions
 # defining the dependent and independent variables
@@ -80,9 +90,20 @@ Xtrain, Xtest, ytrain, ytest = train_test_split(df_group_0, labels, test_size = 
 # building the model and fitting the data
 # loading the training dataset
 # df = pd.read_csv('logit_train1.csv', index_col = 0)
-log_reg = sm.Logit(ytrain, Xtrain).fit()
 
-print(log_reg.summary())
+## check variable correlations
+# fig, axes = plt.subplots()
+# fig.set_size_inches(200,200)
+# sns.clustermap(Xtrain)
+# plt.savefig(os.path.join(dir,'figs', 'logit_cluster_corr.png'), bbox_inches='tight', dpi=300)
+# plt.close()
+
+# plt.show()
+
+log_reg = sm.Logit(ytrain, Xtrain)
+result = log_reg.fit(maxiter=200, skip_hessian=True)
+
+print(result.summary())
 
 # loading the testing dataset
 # df = pd.read_csv('logit_test1.csv', index_col = 0)
