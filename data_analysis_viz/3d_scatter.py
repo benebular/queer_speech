@@ -14,7 +14,7 @@ import string
 
 dir = '/Users/bcl/Documents/GitHub/queer_speech'
 os.chdir(dir)
-ratings_fname = os.path.join(dir,'feature_extraction/queer_data.csv')
+ratings_fname = os.path.join(dir,'data_analysis_viz/queer_data.csv')
 ratings = pd.read_csv(ratings_fname)
 ratings = ratings.drop('Unnamed: 0', axis=1) # might need to change column name when it imports in, there's a random addition at the beginning
 
@@ -24,7 +24,18 @@ participants = pd.Series(range(len(ratings.groupby('Participant').count()))) + 1
 print(participants)
 
 
-## rating for visualization
+## rating for visualization of 5 clusters
+# ratings['Condition'] = ratings['Condition'].astype('category')
+# ratings['WAV'] = ratings['WAV'].astype('category')
+# ratings_avg = ratings.groupby(['WAV', 'Condition'], as_index=False)[['Rating_z_score','kmeans_5_cluster']].mean()
+# # clusters = ratings.groupby(['WAV', 'Condition'], as_index=False)['kmeans_5_cluster'].mean()
+# ratings_avg_pivot = ratings_avg.pivot(index = 'WAV', columns = 'Condition', values = ['Rating_z_score','kmeans_5_cluster'])
+# ratings_avg_pivot = pd.DataFrame(ratings_avg_pivot.values, columns = ['gender_id','sexual_orientation','voice_id','cluster','delete1','delete2'], index=ratings_avg_pivot.index)
+# ratings_avg_pivot = ratings_avg_pivot.drop(['delete1','delete2'], axis = 1)
+# ratings_avg_pivot['cluster'] = ratings_avg_pivot['cluster'].astype('int64')
+# print(ratings_avg_pivot)
+
+## rating for visualization of 3 clusters
 ratings['Condition'] = ratings['Condition'].astype('category')
 ratings['WAV'] = ratings['WAV'].astype('category')
 ratings_avg = ratings.groupby(['WAV', 'Condition'], as_index=False)[['Rating_z_score','kmeans_5_cluster']].mean()
@@ -34,6 +45,7 @@ ratings_avg_pivot = pd.DataFrame(ratings_avg_pivot.values, columns = ['gender_id
 ratings_avg_pivot = ratings_avg_pivot.drop(['delete1','delete2'], axis = 1)
 ratings_avg_pivot['cluster'] = ratings_avg_pivot['cluster'].astype('int64')
 print(ratings_avg_pivot)
+
 
 # clusters_avg_pivot = clusters.pivot(index = 'WAV', columns = 'Condition', values = 'kmeans_5_cluster')
 # clusters_avg_pivot = clusters_avg_pivot.drop(['sexual_orientation','voice_id'], axis=1)
@@ -52,11 +64,11 @@ print(ratings_avg_pivot)
 # colors['cluster'] = [0,1,2,3,4]
 # labels = ratings_avg_pivot.groupby(['cluster'], as_index=False)[['gender_id','sexual_orientation','voice_id']].mean()
 
-colors = pd.DataFrame({"color": ['#648fff','#785ef0','#dc267f','#fe6100','#ffb000']})
+colors = pd.DataFrame({"color": ['#FFB000','#785EF0','#648FFF','#FE6100','#DC267F']})
 colors['cluster'] = [0,1,2,3,4]
 ratings_avg_pivot = pd.merge(ratings_avg_pivot, colors, on = 'cluster', how = "outer")
-
-## plot averages
+#
+# ## plot averages for 5 clusters
 fig = plt.figure(figsize = (10,7))
 ax = plt.axes(projection='3d')
 # for i, txt in enumerate(categories): # plots ewach point in red and then plots a text from a separate list to label the dots
@@ -76,40 +88,68 @@ ax.legend([scatter1_proxy, scatter5_proxy, scatter3_proxy, scatter4_proxy, scatt
 # plt.legend()
 plt.show()
 
+# colors = pd.DataFrame({"color": ['#648FFF','#DC267F','#FE6100','#FFB000']})
+# colors['cluster'] = [0,1,2,3]
+# ratings_avg_pivot = pd.merge(ratings_avg_pivot, colors, on = 'cluster', how = "outer")
+#
+# ## plot averages for 4 clusters
+# fig = plt.figure(figsize = (10,7))
+# ax = plt.axes(projection='3d')
+# ax.scatter3D(ratings_avg_pivot['gender_id'], ratings_avg_pivot['sexual_orientation'], ratings_avg_pivot['voice_id'], alpha=0.8, s=50, facecolor=ratings_avg_pivot['color'], depthshade=True) # just the scatter, no text
+# plt.title('Gender Identity, Sexual Orientation, and Voice Identity Ratings (Avg)', fontweight='bold')
+# ax.set_xlabel('Gender ID', fontweight='bold')
+# ax.set_ylabel('PSO', fontweight='bold')
+# ax.set_zlabel('Voice (Masc-N-Femme)', fontweight='bold')
+# # scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][0], marker = 'o')
+# # scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][1], marker = 'o')
+# # scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][2], marker = 'o')
+# # scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][3], marker = 'o')
+# # scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][4], marker = 'o')
+# # ax.legend([scatter1_proxy, scatter5_proxy, scatter3_proxy, scatter4_proxy, scatter2_proxy], ['straight men','queer men','queer NB men and women','queer women','straight women'], numpoints = 1, loc = 'lower right')
+# # plt.legend()
+# plt.show()
+
+
+# colors = pd.DataFrame({"color": ['#648FFF','#DC267F','#FFB000']})
+# colors['cluster'] = [0,1,2]
+# ratings_avg_pivot = pd.merge(ratings_avg_pivot, colors, on = 'cluster', how = "outer")
+#
+# ## plot averages for 3 clusters
+# fig = plt.figure(figsize = (10,7))
+# ax = plt.axes(projection='3d')
+# ax.scatter3D(ratings_avg_pivot['gender_id'], ratings_avg_pivot['sexual_orientation'], ratings_avg_pivot['voice_id'], alpha=0.8, s=50, facecolor=ratings_avg_pivot['color'], depthshade=True) # just the scatter, no text
+# plt.title('Gender Identity, Sexual Orientation, and Voice Identity Ratings (Avg)', fontweight='bold')
+# ax.set_xlabel('Gender ID', fontweight='bold')
+# ax.set_ylabel('PSO', fontweight='bold')
+# ax.set_zlabel('Voice (Masc-N-Femme)', fontweight='bold')
+# # scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][0], marker = 'o')
+# # scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][1], marker = 'o')
+# # scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][2], marker = 'o')
+# # scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][3], marker = 'o')
+# # scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][4], marker = 'o')
+# # ax.legend([scatter1_proxy, scatter5_proxy, scatter3_proxy, scatter4_proxy, scatter2_proxy], ['straight men','queer men','queer NB men and women','queer women','straight women'], numpoints = 1, loc = 'lower right')
+# # plt.legend()
+# plt.show()
+
+
 ## plot averages
-fig = plt.figure(figsize = (10,7))
-ax = plt.axes(projection='3d')
-labels = [0,1,2,3,5]
-for l in labels:
-    for i in range(len(ratings_avg_pivot)):
-        ax.scatter(xs = ratings_avg_pivot['gender_id'][i], ys = ratings_avg_pivot['sexual_orientation'][i], zs = ratings_avg_pivot['voice_id'][i], label = l, facecolor = ratings_avg_pivot['color'][i])
-plt.title('Gender Identity, Sexual Orientation, and Voice Identity Ratings (Avg)', fontweight='bold')
-ax.set_xlabel('Gender ID', fontweight='bold')
-ax.set_ylabel('PSO', fontweight='bold')
-ax.set_zlabel('Voice (Masc-N-Femme)', fontweight='bold')
-scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][0], marker = 'o')
-scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][1], marker = 'o')
-scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][2], marker = 'o')
-scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][3], marker = 'o')
-scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][4], marker = 'o')
-ax.legend([scatter1_proxy, scatter5_proxy, scatter3_proxy, scatter4_proxy, scatter2_proxy], ['straight men','queer men','queer NB men and women','queer women','straight women'], numpoints = 1, loc = 'lower right')
-plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# fig = plt.figure(figsize = (10,7))
+# ax = plt.axes(projection='3d')
+# labels = [0,1,2,3,4]
+# for l in labels:
+#     for i in range(len(ratings_avg_pivot)):
+#         ax.scatter(xs = ratings_avg_pivot['gender_id'][i], ys = ratings_avg_pivot['sexual_orientation'][i], zs = ratings_avg_pivot['voice_id'][i], label = l, facecolor = ratings_avg_pivot['color'][i])
+# plt.title('Gender Identity, Sexual Orientation, and Voice Identity Ratings (Avg)', fontweight='bold')
+# ax.set_xlabel('Gender ID', fontweight='bold')
+# ax.set_ylabel('PSO', fontweight='bold')
+# ax.set_zlabel('Voice (Masc-N-Femme)', fontweight='bold')
+# scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][0], marker = 'o')
+# scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][1], marker = 'o')
+# scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][2], marker = 'o')
+# scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][3], marker = 'o')
+# scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color'][4], marker = 'o')
+# ax.legend([scatter1_proxy, scatter5_proxy, scatter3_proxy, scatter4_proxy, scatter2_proxy], ['straight men','queer men','queer NB men and women','queer women','straight women'], numpoints = 1, loc = 'lower right')
+# plt.show()
 
 
 # plot individual ratings
