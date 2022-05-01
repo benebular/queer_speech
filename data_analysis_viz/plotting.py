@@ -338,8 +338,43 @@ for cluster, value in cluster_dict.items():
     plt.savefig(os.path.join(dir,'figs', 'heatmap_important_features_PC_corr_%s.png'%cluster), bbox_inches='tight', dpi=300)
     plt.close()
 
-### cluster identity flags ###
+### specific feature heatmaps ###
+feature_list = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist','IH_sF2_mean_dist','IH_sF3_mean_dist','IH_sF4_mean_dist',
+                'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF1_mean_third', 'AY_sF1_mean_third', 'AY_sF1_mean_third',
+                'vowel_avg_dur', 'percent_creak', 'spectral_S_duration','spectral_S_cog','spectral_S_skew']
 
+features = feature_list
+components = list(corr_df['PC'])
+
+corr_specific = corr_best[features]
+
+corr_df_array = np.round(np.array(corr_specific), 2)
+
+fig, ax = plt.subplots(figsize = (100,8))
+im = ax.imshow(corr_df_array, cmap='viridis', interpolation='nearest')
+
+ax.set_xticks(np.arange(len(features)), labels=features)
+ax.set_yticks(np.arange(len(components)), labels=components)
+
+# Rotate the tick labels and set their alignment.
+plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+         rotation_mode="anchor")
+
+# Loop over data dimensions and create text annotations.
+for i in range(len(components)):
+    for j in range(len(features)):
+        text = ax.text(j, i, corr_df_array[i, j],
+                       ha="center", va="center", color="w")
+
+ax.set_title('Correlation between Specific Features and PCs')
+# ax.legend()
+# fig.tight_layout()
+plt.colorbar(im)
+plt.savefig(os.path.join(dir,'figs', 'heatmap_grand_corr_specific.png'), bbox_inches='tight', dpi=300)
+plt.close()
+
+
+### cluster identity flags ###
 condition_means = ratings_all.pivot_table(index='kmeans_5_cluster', columns = 'Condition', values = 'Rating_z_score')
 
 fig, ax = plt.subplots(figsize = (20,8))
@@ -383,6 +418,9 @@ ax.set_title('QM', fontsize=40)
 
 plt.savefig(os.path.join(dir,'figs', 'QM_flag.png'), bbox_inches='tight', dpi=300)
 plt.close()
+
+
+
 
 #### proximity ###############################
 # social

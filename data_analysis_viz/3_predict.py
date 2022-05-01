@@ -71,24 +71,55 @@ df_group_2 = df_sans.drop(['cluster_0','cluster_1','cluster_3','cluster_4'], axi
 df_group_3 = df_sans.drop(['cluster_0','cluster_1','cluster_2','cluster_4'], axis=1)
 df_group_4 = df_sans.drop(['cluster_0','cluster_1','cluster_2','cluster_3'], axis=1)
 
-# slicing to groups of acoustic data based on clusters
-df_group_0 = df_group_0[['percent_creak','cluster_0']]
-df_group_1 = df_group_1[['percent_creak','F0_mean','F0_std','F0_range','cluster_1']]
-df_group_2 = df_group_2[['percent_creak','cluster_2']]
-df_group_3 = df_group_3[['percent_creak','cluster_3']]
-df_group_4 = df_group_4[['percent_creak','spectral_S_cog','spectral_S_skew','cluster_4']]
-
-
-
-
 ### linear regression ###
 
-mod = smf.ols(formula='percent_creak ~ C(kmeans_5_cluster)', data=df_imp)
+## grand ##
+feature_list = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist','IH_sF2_mean_dist','IH_sF3_mean_dist','IH_sF4_mean_dist',
+                'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF1_mean_third', 'AY_sF1_mean_third', 'AY_sF1_mean_third',
+                'vowel_avg_dur', 'percent_creak', 'spectral_S_duration','spectral_S_cog','spectral_S_skew']
+model_list=[]
 
-res = mod.fit()
+for feature in feature_list: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
+    # concatenate strings with '_'
+    model_string = feature + " ~ " + "C(kmeans_5_cluster)"
+    # append to list
+    model_list.append(model_string)
 
-print(res.summary())
+for model in model_list:
+            mod = smf.ols(formula=model, data=df_imp)
+            res = mod.fit()
+            print(res.summary())
 
+res.params
+res.bse
+pes.pvalues
+
+group_dict = {'sm': df_group_2, 'qm': df_group_0, 'qn': df_group_4, 'qw': df_group_3, 'sw': df_group_1}
+for group, df in group_dict.items():
+    for model in model_list:
+        mod = smf.ols(formula=model, data=df)
+        res = mod.fit()
+        print(res.summary())
+
+## cluster ##
+for group, df in group_list.items():
+    for feature in feature_list:
+
+        mod = smf.ols(formula='percent_creak ~ C(kmeans_5_cluster)', data=df_imp)
+
+        res = mod.fit()
+
+        print(res.summary())
+
+## PCs ##
+pc_list = ['principal component 1', 'principal component 2',
+       'principal component 3', 'principal component 4',
+       'principal component 5', 'principal component 6',
+       'principal component 7', 'principal component 8',
+       'principal component 9', 'principal component 10']
+
+for pc in pc_list:
+    for feature in feature_list:
 
 
 
