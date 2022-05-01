@@ -261,8 +261,8 @@ corr_df_array = np.round(np.array(corr_best), 2)
 fig, ax = plt.subplots(figsize = (100,8))
 im = ax.imshow(corr_df_array, cmap='viridis', interpolation='nearest')
 
-ax.set_xticks(np.arange(len(features)), labels=features)
-ax.set_yticks(np.arange(len(components)), labels=components)
+ax.set_xticks(np.arange(len(features)), labels=features, fontsize=20)
+ax.set_yticks(np.arange(len(components)), labels=components, fontsize=20)
 
 # Rotate the tick labels and set their alignment.
 plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
@@ -274,9 +274,10 @@ for i in range(len(components)):
         text = ax.text(j, i, corr_df_array[i, j],
                        ha="center", va="center", color="w")
 
-ax.set_title('Correlation between Important Features and PCs')
+ax.set_title('Correlation between Important Features and PCs for Grand Features', fontsize=28)
 # ax.legend()
 # fig.tight_layout()
+
 plt.colorbar(im)
 plt.savefig(os.path.join(dir,'figs', 'heatmap_important_features_PC_corr.png'), bbox_inches='tight', dpi=300)
 plt.close()
@@ -318,8 +319,8 @@ for cluster, value in cluster_dict.items():
     fig, ax = plt.subplots(figsize = (100,8))
     im = ax.imshow(corr_df_array, cmap='viridis', interpolation='nearest')
 
-    ax.set_xticks(np.arange(len(features)), labels=features)
-    ax.set_yticks(np.arange(len(components)), labels=components)
+    ax.set_xticks(np.arange(len(features)), labels=features, fontsize=20)
+    ax.set_yticks(np.arange(len(components)), labels=components, fontsize=20)
 
     # Rotate the tick labels and set their alignment.
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
@@ -331,7 +332,16 @@ for cluster, value in cluster_dict.items():
             text = ax.text(j, i, corr_df_array[i, j],
                            ha="center", va="center", color="w")
 
-    ax.set_title('Correlation between Important Features and PCs')
+    if cluster == 'cluster_0':
+        ax.set_title('Correlation between Important Features and PCs for QM', fontsize=28)
+    if cluster == 'cluster_1':
+        ax.set_title('Correlation between Important Features and PCs for SW', fontsize=28)
+    if cluster == 'cluster_2':
+        ax.set_title('Correlation between Important Features and PCs for SM', fontsize=28)
+    if cluster == 'cluster_3':
+        ax.set_title('Correlation between Important Features and PCs for QW', fontsize=28)
+    if cluster == 'cluster_4':
+        ax.set_title('Correlation between Important Features and PCs for QN', fontsize=28)
     # ax.legend()
     # fig.tight_layout()
     plt.colorbar(im)
@@ -340,21 +350,21 @@ for cluster, value in cluster_dict.items():
 
 ### specific feature heatmaps ###
 feature_list = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist','IH_sF2_mean_dist','IH_sF3_mean_dist','IH_sF4_mean_dist',
-                'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF1_mean_third', 'AY_sF1_mean_third', 'AY_sF1_mean_third',
+                'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF2_mean_third', 'AY_sF3_mean_third', 'AY_sF4_mean_third',
                 'vowel_avg_dur', 'percent_creak', 'spectral_S_duration','spectral_S_cog','spectral_S_skew']
 
 features = feature_list
 components = list(corr_df['PC'])
 
-corr_specific = corr_best[features]
+corr_specific = corr_df[features]
 
 corr_df_array = np.round(np.array(corr_specific), 2)
 
 fig, ax = plt.subplots(figsize = (100,8))
 im = ax.imshow(corr_df_array, cmap='viridis', interpolation='nearest')
 
-ax.set_xticks(np.arange(len(features)), labels=features)
-ax.set_yticks(np.arange(len(components)), labels=components)
+ax.set_xticks(np.arange(len(features)), labels=features, fontsize=20)
+ax.set_yticks(np.arange(len(components)), labels=components, fontsize=20)
 
 # Rotate the tick labels and set their alignment.
 plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
@@ -366,12 +376,84 @@ for i in range(len(components)):
         text = ax.text(j, i, corr_df_array[i, j],
                        ha="center", va="center", color="w")
 
-ax.set_title('Correlation between Specific Features and PCs')
+ax.set_title('Correlation between Specific Features and PCs for Grand Features', fontsize=28)
 # ax.legend()
 # fig.tight_layout()
 plt.colorbar(im)
 plt.savefig(os.path.join(dir,'figs', 'heatmap_grand_corr_specific.png'), bbox_inches='tight', dpi=300)
 plt.close()
+
+### cluster heatmaps ###
+
+cluster0_ablated_df = cluster_ablated_df[cluster_ablated_df['kind'] == 'cluster_0']
+cluster1_ablated_df = cluster_ablated_df[cluster_ablated_df['kind'] == 'cluster_1']
+cluster2_ablated_df = cluster_ablated_df[cluster_ablated_df['kind'] == 'cluster_2']
+cluster3_ablated_df = cluster_ablated_df[cluster_ablated_df['kind'] == 'cluster_3']
+cluster4_ablated_df = cluster_ablated_df[cluster_ablated_df['kind'] == 'cluster_4']
+
+cluster_dict  = {'cluster_0':cluster0_ablated_df,'cluster_1':cluster1_ablated_df,'cluster_2':cluster2_ablated_df,'cluster_3':cluster3_ablated_df,'cluster_4':cluster4_ablated_df}
+# loop_number = loop_number + 1
+
+feature_list = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist','IH_sF2_mean_dist','IH_sF3_mean_dist','IH_sF4_mean_dist',
+                'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF2_mean_third', 'AY_sF3_mean_third', 'AY_sF4_mean_third',
+                'vowel_avg_dur', 'percent_creak', 'spectral_S_duration','spectral_S_cog','spectral_S_skew']
+
+features = feature_list
+
+for cluster, value in cluster_dict.items():
+
+    ablated_reduced = value[value['accuracy'] == 1]
+    best_features_list = feature_list # using the specified feature list from above
+    if cluster == 'cluster_0':
+        corr_best = cluster0_corr_df[best_features_list]
+    if cluster == 'cluster_1':
+        corr_best = cluster1_corr_df[best_features_list]
+    if cluster == 'cluster_2':
+        corr_best = cluster2_corr_df[best_features_list]
+    if cluster == 'cluster_3':
+        corr_best = cluster3_corr_df[best_features_list]
+    if cluster == 'cluster_4':
+        corr_best = cluster4_corr_df[best_features_list]
+
+    # important_features = ['PC','percent_creak','F0_mean','spectral_S_cog','spectral_S_skew','F0_10','F0_90','F0_std','rando']
+    # corr_df = corr_df[important_features]
+
+    features = list(corr_best.columns)
+    components = list(corr_df['PC'])
+
+    corr_df_array = np.round(np.array(corr_best), 2)
+
+    fig, ax = plt.subplots(figsize = (100,8))
+    im = ax.imshow(corr_df_array, cmap='viridis', interpolation='nearest')
+
+    ax.set_xticks(np.arange(len(features)), labels=features, fontsize=20)
+    ax.set_yticks(np.arange(len(components)), labels=components, fontsize=20)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+             rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(components)):
+        for j in range(len(features)):
+            text = ax.text(j, i, corr_df_array[i, j],
+                           ha="center", va="center", color="w")
+    if cluster == 'cluster_0':
+        ax.set_title('Correlation between Specific Features and PCs for QM', fontsize=28)
+    if cluster == 'cluster_1':
+        ax.set_title('Correlation between Specific Features and PCs for SW', fontsize=28)
+    if cluster == 'cluster_2':
+        ax.set_title('Correlation between Specific Features and PCs for SM', fontsize=28)
+    if cluster == 'cluster_3':
+        ax.set_title('Correlation between Specific Features and PCs for QW', fontsize=28)
+    if cluster == 'cluster_4':
+        ax.set_title('Correlation between Specific Features and PCs for QN', fontsize=28)
+    # ax.legend()
+    # fig.tight_layout()
+    plt.colorbar(im)
+    plt.savefig(os.path.join(dir,'figs', 'heatmap_%s_corr_specific.png'%cluster), bbox_inches='tight', dpi=300)
+    plt.close()
+
 
 
 ### cluster identity flags ###
