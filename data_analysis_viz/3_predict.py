@@ -90,26 +90,26 @@ for model in model_list:
             res = mod.fit()
             print(res.summary())
 
-res.params
-res.bse
-pes.pvalues
+# res.params
+# res.bse
+# pes.pvalues
 
 group_dict = {'sm': df_group_2, 'qm': df_group_0, 'qn': df_group_4, 'qw': df_group_3, 'sw': df_group_1}
-for group, df in group_dict.items():
-    for model in model_list:
-        mod = smf.ols(formula=model, data=df)
-        res = mod.fit()
-        print(res.summary())
-
+cluster_list = ['cluster_0','cluster_1','cluster_2','cluster_3','cluster_4']
 ## cluster ##
-for group, df in group_list.items():
-    for feature in feature_list:
+for feature in feature_list: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
+    for group, df in group_dict.items():
+        for cluster in cluster_list:
+            model_list=[]
+            if cluster in list(df.columns):
+                model_string = feature + " ~ " + "C(%s)"%cluster
+                # append to list
+                model_list.append(model_string)
+            for model in model_list:
+               mod = smf.ols(formula=model, data=df)
+               res = mod.fit()
+               print(res.summary())
 
-        mod = smf.ols(formula='percent_creak ~ C(kmeans_5_cluster)', data=df_imp)
-
-        res = mod.fit()
-
-        print(res.summary())
 
 ## PCs ##
 pc_list = ['principal component 1', 'principal component 2',
