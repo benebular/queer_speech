@@ -475,6 +475,62 @@ data = ratings_all
 pca = pca.drop('kmeans_5_cluster', axis=1)
 data = pd.concat([data, pca], axis=1)
 
+data_genderid = data[data['Condition']=='gender_id']
+data_sexualorientation = data[data['Condition']=='sexual_orientation']
+data_voiceid = data[data['Condition']=='voice_id']
+
+data_genderid_avg_rating = data_genderid.groupby('WAV', as_index=False)['Rating_z_score'].mean()
+data_genderid_avg_feature = data_genderid.groupby('WAV', as_index=False)['F0_mean'].mean()
+data_genderid_avg_pc = data_genderid.groupby('WAV', as_index=False)['principal component 2'].mean()
+data_genderid_feature = pd.merge(data_genderid_avg_rating, data_genderid_avg_feature, on='WAV')
+data_genderid_feature = pd.merge(data_genderid_feature, data_genderid_avg_pc, on='WAV')
+
+colors = pd.DataFrame({"colors": ['#785EF0','#DC267F']})
+colors['color_code'] = [0,1]
+
+fig, ax = plt.subplots()
+fig.set_size_inches(16,6)
+fig.suptitle("PC2", fontsize=20, fontweight='bold')
+
+# sns.regplot(data=data_genderid_feature, x='Rating_z_score', y='F0_mean', scatter_kws={'facecolors':colors['colors'][0], 'edgecolors': None}, line_kws={"color": "k"}) # #648FFF d55e00
+sns.regplot(data=data_genderid_feature, x='Rating_z_score', y='principal component 2', scatter_kws={'facecolors':colors['colors'][1], 'edgecolors': None}, line_kws={"color": "k"}) # #648FFF d55e00
+# scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['colors'][0], marker = '^')
+scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['colors'][1], marker = 'p')
+ax.legend([scatter2_proxy], ['PC2'], numpoints = 1, loc = 'upper left')
+# props = dict(boxstyle='round', facecolor='w', alpha=0.5)
+# ax.text(0.05, 0.70, 'Pearson r = 0.7, p < 0.05', transform=ax.transAxes, fontsize=10,
+#         verticalalignment='top', bbox=props)
+ax.set_xlabel('Gender Identity Rating (-: Male, +: Female)')
+ax.set_ylabel('Eigenvalues')
+
+plt.show()
+
+
+
+fig, axes = plt.subplots(1, 3)
+fig.subplots_adjust(hspace=0.5)
+fig.set_size_inches(16, 6)
+fig.suptitle("(Avg) %s by Rating, %s Tokens, %s Participants"%(feature, feature_number, number_participants), fontsize=20, fontweight='bold')
+fig.subplots_adjust( top = 0.85 )
+
+axes[0].set_title('Gender Identity')
+axes[0].set_xlim(-1.5,1.5)
+sns.regplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[0], scatter_kws={'facecolors':gender_id_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #648FFF d55e00
+sns.regplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[0], scatter_kws={'facecolors':gender_id_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #648FFF d55e00
+axes[0].set_xlabel('Rating (-: Male, +: Female)')
+axes[0].set_ylabel('Avg %s'%feature)
+
+axes[1].set_title('Sexual Orientation')
+axes[1].set_xlim(-1.5,1.5)
+sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[1], scatter_kws={'facecolors':sexual_orientation_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #785EF0 0072b2
+axes[1].set_xlabel('Rating (-: Homo, +: Het)')
+axes[1].set_ylabel('')
+
+axes[2].set_title('Voice Identity')
+axes[2].set_xlim(-1.5,1.5)
+sns.regplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2], scatter_kws={'facecolors':voice_id_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #DC267F 009e73
+axes[2].set_xlabel('Rating (-: Masc, +: Femme)')
+axes[2].set_ylabel('')
 
 
 
