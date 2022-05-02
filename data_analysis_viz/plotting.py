@@ -472,6 +472,9 @@ pca4 = pd.read_csv(pca4_fname)
 
 data = ratings_all
 
+pca = pca.drop('kmeans_5_cluster', axis=1)
+data = pd.concat([data, pca], axis=1)
+
 
 
 
