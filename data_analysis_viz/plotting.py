@@ -455,6 +455,26 @@ for cluster, value in cluster_dict.items():
     plt.close()
 
 
+### PC  + FEATURE ###
+pca_fname = os.path.join(dir, 'data_analysis_viz','principal_components.csv')
+pca0_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_0.csv')
+pca1_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_1.csv')
+pca2_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_2.csv')
+pca3_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_3.csv')
+pca4_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_4.csv')
+
+pca = pd.read_csv(pca_fname)
+pca0 = pd.read_csv(pca0_fname)
+pca1 = pd.read_csv(pca1_fname)
+pca2 = pd.read_csv(pca2_fname)
+pca3 = pd.read_csv(pca3_fname)
+pca4 = pd.read_csv(pca4_fname)
+
+data = ratings_all
+
+
+
+
 
 ### cluster identity flags ###
 condition_means = ratings_all.pivot_table(index='kmeans_5_cluster', columns = 'Condition', values = 'Rating_z_score')

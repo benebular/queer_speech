@@ -489,7 +489,7 @@ for type in type_list:
                 # Axis labels and title
                 plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances');
 
-                plt.savefig(os.path.join(dir,'figs', 'ablation','randomforest_grandmean_raw_all_features.png'%i), bbox_inches='tight', dpi=300)
+                plt.savefig(os.path.join(dir,'figs', 'ablation','randomforest_grandmean_raw_all_features.png'), bbox_inches='tight', dpi=300)
                 plt.close()
 
                 print ("Saving data as grand_feature_importances.csv")
@@ -601,7 +601,7 @@ for type in type_list:
                     plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances %s'%cluster_number);
 
                     print("Saving Variable Importances for %s as figure..."%cluster_number)
-                    plt.savefig(os.path.join(dir,'figs', 'ablation', 'randomforest_%s_raw_all_features_ablated.png'%(cluster_number,i)), bbox_inches='tight', dpi=300)
+                    plt.savefig(os.path.join(dir,'figs', 'ablation', 'randomforest_%s_raw_all_features_ablated.png'%cluster_number), bbox_inches='tight', dpi=300)
                     plt.close()
 
                     print ("Saving data as cluster_feature_importances.csv")
@@ -1112,6 +1112,33 @@ for type in type_list:
             # plt.savefig(os.path.join(dir,'figs', 'ablation', 'randomforest_grandmean_PCA_%s_components.png'%i), bbox_inches='tight', dpi=300)
             # plt.close()
 
+            if i == 0:
+                ### correlation ###
+                components_list = principalDf.columns
+                df_pc = principalDf
+                features_corr = features[:368]
+                pc_corr_r_all = pd.DataFrame(components_list, columns={'PC'})
+                pc_corr_p_all = pd.DataFrame(components_list, columns={'PC'})
+                for feature in features_corr:
+                    corr_list_r = []
+                    corr_list_p = []
+                    for pc in components_list:
+                        pc_correlation_r = stats.pearsonr(data[feature], df_pc[pc])[0]
+                        pc_correlation_p = stats.pearsonr(data[feature], df_pc[pc])[1]
+                        corr_list_r.append(pc_correlation_r)
+                        corr_list_p.append(pc_correlation_p)
+                    single_feature_corr_r = pd.DataFrame(corr_list_r, columns={feature})
+                    single_feature_corr_p = pd.DataFrame(corr_list_p, columns={feature})
+                    pc_corr_r_all = pd.concat([pc_corr_r_all, single_feature_corr_r], axis=1)
+                    pc_corr_p_all = pd.concat([pc_corr_p_all, single_feature_corr_p], axis=1)
+
+                print ("Saving data as grand_corr_r.csv")
+                pc_corr_r_all.to_csv(os.path.join(dir,'data_analysis_viz','grand_corr_r.csv'), index=True, encoding='utf-8')
+
+                print ("Saving data as grand_corr_p.csv")
+                pc_corr_p_all.to_csv(os.path.join(dir,'data_analysis_viz','grand_corr_p.csv'), index=True, encoding='utf-8')
+
+
             ## principal component reduction ##
             # save accuracy and number of features on original RF
             print ('Appending grand values...')
@@ -1152,22 +1179,6 @@ for type in type_list:
 
                 print ("Saving data as grand_reduced_df.csv")
                 grand_reduced_df.to_csv(os.path.join(dir,'data_analysis_viz','grand_reduced_df.csv'), index=True, encoding='utf-8')
-
-        ### correlation ###
-        components_list = principalDf.columns
-        df_pc = principalDf
-        features_corr = features[:368]
-        pc_corr_all = pd.DataFrame(components_list, columns={'PC'})
-        for feature in features_corr:
-            corr_list = []
-            for pc in components_list:
-                pc_correlation = data[feature].corr(df_pc[pc])
-                corr_list.append(pc_correlation)
-            single_feature_corr = pd.DataFrame(corr_list, columns={feature})
-            pc_corr_all = pd.concat([pc_corr_all, single_feature_corr], axis=1)
-
-        print ("Saving data as pc_corr_all.csv")
-        pc_corr_all.to_csv(os.path.join(dir,'data_analysis_viz','grand_corr.csv'), index=True, encoding='utf-8')
 
 
         ######### CLUSTERS ########
@@ -1304,18 +1315,26 @@ for type in type_list:
                     components_list = principalDf.columns
                     df_pc = principalDf
                     features_corr = features[:368]
-                    pc_corr_clusters = pd.DataFrame(components_list, columns={'PC'})
+                    pc_corr_r_clusters = pd.DataFrame(components_list, columns={'PC'})
+                    pc_corr_p_clusters = pd.DataFrame(components_list, columns={'PC'})
                     for feature in features_corr:
-                        corr_list = []
+                        corr_list_r = []
+                        corr_list_p = []
                         for pc in components_list:
-                            pc_correlation = data[feature].corr(df_pc[pc])
-                            corr_list.append(pc_correlation)
-                        single_feature_corr = pd.DataFrame(corr_list, columns={feature})
-                        pc_corr_clusters = pd.concat([pc_corr_clusters, single_feature_corr], axis=1)
+                            pc_correlation_r = stats.pearsonr(data[feature], df_pc[pc])[0]
+                            pc_correlation_p = stats.pearsonr(data[feature], df_pc[pc])[1]
+                            corr_list_r.append(pc_correlation_r)
+                            corr_list_p.append(pc_correlation_p)
+                        single_feature_corr_r = pd.DataFrame(corr_list_r, columns={feature})
+                        single_feature_corr_p = pd.DataFrame(corr_list_p, columns={feature})
+                        pc_corr_r_clusters = pd.concat([pc_corr_r_clusters, single_feature_corr_r], axis=1)
+                        pc_corr_p_clusters = pd.concat([pc_corr_p_clusters, single_feature_corr_p], axis=1)
 
-                    print ("Saving data as pc_corr_all.csv")
-                    pc_corr_clusters.to_csv(os.path.join(dir,'data_analysis_viz','cluster_corr_%s.csv'%cluster_number), index=True, encoding='utf-8')
+                    print ("Saving data as cluster_corr_r.csv")
+                    pc_corr_r_clusters.to_csv(os.path.join(dir,'data_analysis_viz','cluster_corr_r_%s.csv'%cluster_number), index=True, encoding='utf-8')
 
+                    print ("Saving data as cluster_corr_p.csv")
+                    pc_corr_p_clusters.to_csv(os.path.join(dir,'data_analysis_viz','cluster_corr_p_%s.csv'%cluster_number), index=True, encoding='utf-8')
 
                 print ('Appending grand values...')
                 PCA_cluster_accuracy_list.append(accuracy_score(test_labels, predictions))
