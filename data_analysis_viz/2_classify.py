@@ -39,7 +39,7 @@ data_orig = data
 random_state = 42
 
 # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-#     print(grand_features)
+#     print(gender_id.columns)
 
 # fill creak nans with 0
 data['percent_creak'] = data['percent_creak'].fillna(0)
@@ -191,11 +191,17 @@ PCA_cluster_n_features_list = []
 PCA_cluster_df_kind_list = []
 PCA_cluster_removed_features_list = []
 
+df_temp = df[['Rating','Rating_z_score','kmeans_4_cluster','kmeans_3_cluster','3_rando_classes','4_rando_classes','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
+                'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
+                'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
+                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start']]
+
 
 df = df.drop(['Rating','Rating_z_score','kmeans_4_cluster','kmeans_3_cluster','3_rando_classes','4_rando_classes','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
                 'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
                 'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
                 'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start'], axis=1)
+
 # feature_importances_all = pd.DataFrame({'feature':list(df.columns)})
 
 ## impute for the cross validation, random forest needs values in each, below we are creating one large df with imputed column means from teh entire set, and then 5 cluster groups with the gran imputed means
@@ -1013,7 +1019,7 @@ for type in type_list:
         principalComponents = pca.fit_transform(x)
         pc_columns = []
         for j in range(len(principalComponents[1])):
-            pc_string = 'principal component' + " " + str(j + 1)
+            pc_string = 'Principal Component' + " " + str(j + 1)
             pc_columns.append(pc_string)
         # principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2'])
         principalDf = pd.DataFrame(data = principalComponents, columns = pc_columns)
@@ -1115,7 +1121,7 @@ for type in type_list:
             if i == 0:
                 ### correlation ###
                 components_list = principalDf.columns
-                df_pc = principalDf
+                df_pc = finalDf
                 features_corr = features[:368]
                 pc_corr_r_all = pd.DataFrame(components_list, columns={'PC'})
                 pc_corr_p_all = pd.DataFrame(components_list, columns={'PC'})
@@ -1132,11 +1138,62 @@ for type in type_list:
                     pc_corr_r_all = pd.concat([pc_corr_r_all, single_feature_corr_r], axis=1)
                     pc_corr_p_all = pd.concat([pc_corr_p_all, single_feature_corr_p], axis=1)
 
-                print ("Saving data as grand_corr_r.csv")
+                print ("Saving data as grand_corr_r.csv and others...")
                 pc_corr_r_all.to_csv(os.path.join(dir,'data_analysis_viz','grand_corr_r.csv'), index=True, encoding='utf-8')
-
-                print ("Saving data as grand_corr_p.csv")
+                print ("Saving data as grand_corr_p.csv and others...")
                 pc_corr_p_all.to_csv(os.path.join(dir,'data_analysis_viz','grand_corr_p.csv'), index=True, encoding='utf-8')
+
+                ## subsets ##
+                data_corr_subsets = pd.concat([data, df_temp], axis=1)
+                data_corr_subsets = pd.concat([data_corr_subsets, df_pc], axis=1)
+                gender_id = data_corr_subsets[data_corr_subsets['Condition']=='gender_id']
+                sexual_orientation = data_corr_subsets[data_corr_subsets['Condition']=='sexual_orientation']
+                voice_id = data_corr_subsets[data_corr_subsets['Condition']=='voice_id']
+
+                pc_corr_r_all = pd.DataFrame(components_list, columns={'PC'})
+                pc_corr_p_all = pd.DataFrame(components_list, columns={'PC'})
+                condition_dict = {'gender_id': gender_id, 'sexual_orientation': sexual_orientation, 'voice_id': voice_id}
+                for condition, df in condition_dict.items():
+                    for feature in features_corr:
+                        corr_list_r = []
+                        corr_list_p = []
+                        for pc in components_list:
+                            pc_correlation_r = stats.pearsonr(df[feature], df[pc])[0]
+                            pc_correlation_p = stats.pearsonr(df[feature], df[pc])[1]
+                            corr_list_r.append(pc_correlation_r)
+                            corr_list_p.append(pc_correlation_p)
+                        single_feature_corr_r = pd.DataFrame(corr_list_r, columns={feature})
+                        single_feature_corr_p = pd.DataFrame(corr_list_p, columns={feature})
+                        pc_corr_r_all = pd.concat([pc_corr_r_all, single_feature_corr_r], axis=1)
+                        pc_corr_p_all = pd.concat([pc_corr_p_all, single_feature_corr_p], axis=1)
+                    pc_corr_r_all.to_csv(os.path.join(dir,'data_analysis_viz','pc_corr_r_%s.csv'%condition), index=True, encoding='utf-8')
+                    pc_corr_p_all.to_csv(os.path.join(dir,'data_analysis_viz','pc_corr_p_%s.csv'%condition), index=True, encoding='utf-8')
+
+
+
+
+                # specific_features_to_plot = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist', 'IH_sF2_mean_dist', 'IH_sF3_mean_dist', 'IH_sF4_mean_dist',
+                #                     'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF2_mean_third', 'AY_sF3_mean_third', 'AY_sF4_mean_third',
+                #                     'vowel_avg_dur','percent_creak','spectral_S_cog','spectral_S_duration','spectral_S_skew']
+                #
+                # corr_r = pd.DataFrame({'split':['all','gender_id','sexual_orientation','voice_id']})
+                # corr_p = pd.DataFrame({'split':['all','gender_id','sexual_orientation','voice_id']})
+                # for feature in specific_features_to_plot:
+                #     corr_list_r = []
+                #     corr_list_p = []
+                #     for condition, df in condition_dict.items():
+                #         for pc in components_list:
+                #             pc_correlation_r = stats.pearsonr(df[pc], df[feature])[0]
+                #             pc_correlation_p = stats.pearsonr(df[pc], df[feature])[1]
+                #             corr_list_r.append(pc_correlation_r)
+                #             corr_list_p.append(pc_correlation_p)
+                #         single_feature_corr_r = pd.DataFrame(corr_list_r, columns={'%s'%(feature)})
+                #         single_feature_corr_p = pd.DataFrame(corr_list_p, columns={'%s'%(feature)})
+                #         corr_r = pd.concat([corr_r, single_feature_corr_r], axis=1)
+                #         corr_p = pd.concat([corr_p, single_feature_corr_r], axis=1)
+                #     corr_r.to_csv(os.path.join(dir,'data_analysis_viz','pc_corr_r_%s.csv'%condition), index=True, encoding='utf-8')
+                #     corr_p.to_csv(os.path.join(dir,'data_analysis_viz','pc_corr_r_%s.csv'%condition), index=True, encoding='utf-8')
+
 
 
             ## principal component reduction ##
@@ -1373,6 +1430,7 @@ for type in type_list:
 
                     print ("Saving data as cluster_reduced_df.csv")
                     cluster_reduced_df.to_csv(os.path.join(dir,'data_analysis_viz','cluster_reduced_df.csv'), index=True, encoding='utf-8')
+
 
 elapsed_total_time = (time.time() - total_start_time)/60
 print("Total elapsed time (in min): %s" %elapsed_total_time)

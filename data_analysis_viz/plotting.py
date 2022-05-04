@@ -9,6 +9,7 @@ import ptitprince as pt
 import os
 import os.path as op
 import sys
+import scipy.stats as stats
 import matplotlib
 import matplotlib.pyplot as plt
 np.set_printoptions(threshold=sys.maxsize)
@@ -123,25 +124,48 @@ features_to_plot = ['F0_mean','F0_range','F0_std','spectral_S_duration','spectra
 
 features_to_plot = features_to_plot + vowel_spectral_names + diph_spectral_names
 
+cluster_color_dict = {'kmeans_3_cluster':'color_3_cluster', 'kmeans_4_cluster':'color_4_cluster', 'kmeans_5_cluster':'color_5_cluster'}
+
 for feature in features_to_plot:
-    for color in cluster_colors:
+    for cluster, color in cluster_color_dict.items():
         gender_id_avg_rating = gender_id.groupby('WAV', as_index=False)['Rating_z_score'].mean()
         gender_id_avg_feature = gender_id.groupby('WAV', as_index=False)[feature].mean()
+        gender_id_cluster = gender_id.groupby('WAV', as_index=False)[cluster].mean()
+
         gender_id_color = gender_id[['WAV',color]].drop_duplicates().reset_index().drop(columns='index')
         gender_id_feature = pd.merge(gender_id_avg_rating, gender_id_avg_feature, on='WAV')
         gender_id_feature = pd.merge(gender_id_feature, gender_id_color, on='WAV').dropna()
+        gender_id_feature = pd.merge(gender_id_feature, gender_id_cluster, on='WAV')
+
 
         sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating_z_score'].mean()
         sexual_orientation_avg_feature = sexual_orientation.groupby('WAV', as_index=False)[feature].mean()
+        sexual_orientation_cluster = sexual_orientation.groupby('WAV', as_index=False)[cluster].mean()
+
         sexual_orientation_color = sexual_orientation[['WAV',color]].drop_duplicates().reset_index().drop(columns='index')
         sexual_orientation_feature = pd.merge(sexual_orientation_avg_rating, sexual_orientation_avg_feature, on='WAV')
         sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_color, on='WAV').dropna()
+        sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_cluster, on='WAV')
+
 
         voice_id_rating = voice_id.groupby('WAV', as_index=False)['Rating_z_score'].mean()
         voice_id_avg_feature = voice_id.groupby('WAV', as_index=False)[feature].mean()
+        voice_id_cluster = voice_id.groupby('WAV', as_index=False)[cluster].mean()
+
         voice_id_color = voice_id[['WAV',color]].drop_duplicates().reset_index().drop(columns='index')
         voice_id_feature = pd.merge(voice_id_rating, voice_id_avg_feature, on='WAV')
         voice_id_feature = pd.merge(voice_id_feature, voice_id_color, on='WAV').dropna()
+        voice_id_feature = pd.merge(voice_id_feature, voice_id_cluster, on='WAV')
+
+        if cluster == 'kmeans_3_cluster':
+            color_dict = {0:'#785EF0', 1:'#DC267F', 2:'#648FFF'}
+            markers_dict = {0: "P", 1: "o", 2: "v"}
+        if cluster == 'kmeans_4_cluster':
+            color_dict = {0:'#DC267F', 1:'#785EF0', 2:'#648FFF', 3:'#FFB000'}
+            markers_dict = {0: "o", 1: "P", 2: "v", 3: "D"}
+        if cluster == 'kmeans_5_cluster':
+            color_dict = {0:'#FFB000', 1:'#785EF0', 2:'#648FFF', 3:'#FE6100', 4:'#DC267F'}
+            markers_dict = {0: "D", 1: "P", 2: "v", 3: "H", 4: "o"}
 
         # assert gender_id_feature[feature].nunique() == sexual_orientation_feature[feature].nunique() == voice_id_feature[feature].nunique()
         feature_number = gender_id_feature[feature].nunique()
@@ -154,29 +178,34 @@ for feature in features_to_plot:
 
         axes[0].set_title('Gender Identity')
         axes[0].set_xlim(-1.5,1.5)
-        sns.regplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[0], scatter_kws={'facecolors':gender_id_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #648FFF d55e00
+        sns.scatterplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[0], hue = gender_id_feature[cluster], style = gender_id_feature[cluster], palette = color_dict, markers=markers_dict)
+        sns.regplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[0], scatter = False, line_kws={"color": "k"}) # #648FFF d55e00
         axes[0].set_xlabel('Rating (-: Male, +: Female)')
         axes[0].set_ylabel('Avg %s'%feature)
 
         axes[1].set_title('Sexual Orientation')
         axes[1].set_xlim(-1.5,1.5)
-        sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[1], scatter_kws={'facecolors':sexual_orientation_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #785EF0 0072b2
+        sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[1], hue = sexual_orientation_feature[cluster], style = sexual_orientation_feature[cluster], palette = color_dict,  markers=markers_dict)
+        sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[1], scatter = False, line_kws={"color": "k"}) # #785EF0 0072b2
         axes[1].set_xlabel('Rating (-: Homo, +: Het)')
         axes[1].set_ylabel('')
 
         axes[2].set_title('Voice Identity')
         axes[2].set_xlim(-1.5,1.5)
-        sns.regplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2], scatter_kws={'facecolors':voice_id_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #DC267F 009e73
+        sns.scatterplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2], hue = voice_id_feature[cluster], style = voice_id_feature[cluster], palette = color_dict,  markers=markers_dict)
+        sns.regplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2], scatter = False, line_kws={"color": "k"}) # #DC267F 009e73
         axes[2].set_xlabel('Rating (-: Masc, +: Femme)')
         axes[2].set_ylabel('')
 
         if color == 'color_3_cluster':
             colors = pd.DataFrame({"color_3_cluster": ['#785EF0','#DC267F','#648FFF']})
             colors['kmeans_3_cluster'] = [0,1,2]
-            scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][0], marker = '^')
-            scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][1], marker = 'p')
-            scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][2], marker = '+')
-            axes[0].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['sm','qn','sw'], numpoints = 1, loc = 'upper left')
+            scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][0], marker = 'P') #^
+            scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][1], marker = 'o') #p
+            scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][2], marker = 'v') #+
+            axes[0].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QN','SW'], numpoints = 1, loc = 'upper left')
+            axes[1].get_legend().remove()
+            axes[2].get_legend().remove()
 
             # plt.show()
             plt.savefig(os.path.join(dir,'figs', '3_cluster', '%s_avgbycondition_3_clusters.png'%feature), bbox_inches='tight', dpi=300)
@@ -185,11 +214,14 @@ for feature in features_to_plot:
         if color == 'color_4_cluster':
             colors = pd.DataFrame({"color_4_cluster": ['#DC267F','#785EF0','#648FFF','#FFB000']})
             colors['kmeans_4_cluster'] = [0,1,2,3]
-            scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][0], marker = 'p')
-            scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][1], marker = '^')
-            scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][2], marker = '+')
-            scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][3], marker = 'h')
-            axes[0].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['sm','qm','qn','sw'], numpoints = 1, loc = 'upper left')
+            scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][0], marker = 'o')
+            scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][1], marker = 'P')
+            scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][2], marker = 'v')
+            scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][3], marker = 'D')
+            axes[0].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QN','SW'], numpoints = 1, loc = 'upper left')
+            axes[1].get_legend().remove()
+            axes[2].get_legend().remove()
+
 
             # plt.show()
             plt.savefig(os.path.join(dir,'figs', '4_cluster', '%s_avgbycondition_4_clusters.png'%feature), bbox_inches='tight', dpi=300)
@@ -199,26 +231,495 @@ for feature in features_to_plot:
         if color == 'color_5_cluster':
             colors = pd.DataFrame({"color_5_cluster": ['#FFB000','#785EF0','#648FFF','#FE6100','#DC267F']})
             colors['kmeans_5_cluster'] = [0,1,2,3,4]
-            scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][0], marker = 'h')
-            scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][1], marker = '^')
-            scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][2], marker = '+')
-            scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][3], marker = 'o')
-            scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][4], marker = 'p')
-            axes[0].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['sm','qm','qn','qw','sw'], numpoints = 1, loc = 'upper left')
+            scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][0], marker = 'D')
+            scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][1], marker = 'P')
+            scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][2], marker = 'v')
+            scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][3], marker = 'H')
+            scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][4], marker = 'o')
+            axes[0].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QN','QW','SW'], numpoints = 1, loc = 'upper left')
+            axes[1].get_legend().remove()
+            axes[2].get_legend().remove()
+
 
             # plt.show()
             plt.savefig(os.path.join(dir,'figs', '5_cluster', '%s_avgbycondition_5_clusters.png'%feature), bbox_inches='tight', dpi=300)
             plt.close()
 
+
+
+### PC  + FEATURE ###
+pca_fname = os.path.join(dir, 'data_analysis_viz','principal_components.csv')
+pca0_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_0.csv')
+pca1_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_1.csv')
+pca2_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_2.csv')
+pca3_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_3.csv')
+pca4_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_4.csv')
+corr_fname = os.path.join(dir, 'data_analysis_viz','grand_corr_r.csv')
+corr_gender_id_fname = os.path.join(dir, 'data_analysis_viz','pc_corr_r_gender_id.csv')
+corr_sexual_orientation_fname = os.path.join(dir, 'data_analysis_viz','pc_corr_r_sexual_orientation.csv')
+corr_voice_id_fname = os.path.join(dir, 'data_analysis_viz','pc_corr_r_voice_id.csv')
+corr_p_gender_id_fname = os.path.join(dir, 'data_analysis_viz','pc_corr_p_gender_id.csv')
+corr_p_sexual_orientation_fname = os.path.join(dir, 'data_analysis_viz','pc_corr_p_sexual_orientation.csv')
+corr_p_voice_id_fname = os.path.join(dir, 'data_analysis_viz','pc_corr_p_voice_id.csv')
+grand_ablated_df_fname = os.path.join(dir, 'data_analysis_viz', 'grand_ablated_df.csv')
+
+pca = pd.read_csv(pca_fname)
+pca0 = pd.read_csv(pca0_fname)
+pca1 = pd.read_csv(pca1_fname)
+pca2 = pd.read_csv(pca2_fname)
+pca3 = pd.read_csv(pca3_fname)
+pca4 = pd.read_csv(pca4_fname)
+corr_df = pd.read_csv(corr_fname)
+corr_df = corr_df.drop('Unnamed: 0', axis=1) # might need to change column name when it imports in, there's a random addition at the beginning
+corr_gender_id = pd.read_csv(corr_gender_id_fname)
+corr_gender_id = corr_gender_id.drop('Unnamed: 0', axis=1) # might need to change column name when it imports in, there's a random addition at the beginning
+corr_sexual_orientation = pd.read_csv(corr_sexual_orientation_fname)
+corr_sexual_orientation = corr_sexual_orientation.drop('Unnamed: 0', axis=1) # might need to change column name when it imports in, there's a random addition at the beginning
+corr_voice_id = pd.read_csv(corr_voice_id_fname)
+corr_voice_id = corr_voice_id.drop('Unnamed: 0', axis=1) # might need to change column name when it imports in, there's a random addition at the beginning
+
+corr_p_gender_id = pd.read_csv(corr_p_gender_id_fname)
+corr_p_gender_id = corr_p_gender_id.drop('Unnamed: 0', axis=1) # might need to change column name when it imports in, there's a random addition at the beginning
+corr_p_sexual_orientation = pd.read_csv(corr_p_sexual_orientation_fname)
+corr_p_sexual_orientation = corr_p_sexual_orientation.drop('Unnamed: 0', axis=1) # might need to change column name when it imports in, there's a random addition at the beginning
+corr_p_voice_id = pd.read_csv(corr_p_voice_id_fname)
+corr_p_voice_id = corr_p_voice_id.drop('Unnamed: 0', axis=1) # might need to change column name when it imports in, there's a random addition at the beginning
+
+
+
+# grand_ablated_df = pd.read_csv(grand_ablated_df_fname)
+# grand_ablated_df = grand_ablated_df.drop('Unnamed: 0', axis=1) # might need to change column name when it imports in, there's a random addition at the beginning
+
+### feature by condition correlations ###
+ratings_temp = ratings_all[['Rating','kmeans_4_cluster','kmeans_3_cluster','3_rando_classes','4_rando_classes','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
+                'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
+                'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
+                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start']]
+
+ratings_nums = ratings_all.drop(['Rating','kmeans_4_cluster','kmeans_3_cluster','3_rando_classes','4_rando_classes','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
+                'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
+                'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
+                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start'], axis=1)
+
+## impute for the cross validation, random forest needs values in each, below we are creating one large df with imputed column means from teh entire set, and then 5 cluster groups with the gran imputed means
+from sklearn.impute import SimpleImputer
+imp = SimpleImputer(missing_values=np.nan, strategy='mean')
+imp = imp.fit(ratings_nums)
+ratings_imp = imp.transform(ratings_nums) # this is the big df
+ratings_imp = pd.DataFrame(ratings_imp, columns = ratings_nums.columns)
+
+ratings_all = pd.concat([ratings_imp, ratings_temp], axis=1)
+gender_id = ratings_all[ratings_all['Condition']=='gender_id']
+sexual_orientation = ratings_all[ratings_all['Condition']=='sexual_orientation']
+voice_id = ratings_all[ratings_all['Condition']=='voice_id']
+
+condition_dict = {'all': ratings_all, 'gender_id': gender_id, 'sexual_orientation': sexual_orientation, 'voice_id': voice_id}
+
+specific_features_to_plot = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist', 'IH_sF2_mean_dist', 'IH_sF3_mean_dist', 'IH_sF4_mean_dist',
+                    'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF2_mean_third', 'AY_sF3_mean_third', 'AY_sF4_mean_third',
+                    'vowel_avg_dur','percent_creak','spectral_S_cog','spectral_S_duration','spectral_S_skew']
+
+
+corr_r = pd.DataFrame({'split':['all','gender_id','sexual_orientation','voice_id']})
+corr_p = pd.DataFrame({'split':['all','gender_id','sexual_orientation','voice_id']})
+for feature in specific_features_to_plot:
+    corr_list_r = []
+    corr_list_p = []
+    for condition, df in condition_dict.items():
+        pc_correlation_r = stats.pearsonr(df['Rating_z_score'], df[feature])[0]
+        pc_correlation_p = stats.pearsonr(df['Rating_z_score'], df[feature])[1]
+        corr_list_r.append(pc_correlation_r)
+        corr_list_p.append(pc_correlation_p)
+    single_feature_corr_r = pd.DataFrame(corr_list_r, columns={'%s'%(feature)})
+    single_feature_corr_p = pd.DataFrame(corr_list_p, columns={'%s'%(feature)})
+    corr_r = pd.concat([corr_r, single_feature_corr_r], axis=1)
+    corr_p = pd.concat([corr_p, single_feature_corr_p], axis=1)
+
+corr_r.to_csv(os.path.join(dir,'data_analysis_viz','grand_corr_r_raw_features.csv'), index=True, encoding='utf-8')
+corr_p.to_csv(os.path.join(dir,'data_analysis_viz','grand_corr_p_raw_features.csv'), index=True, encoding='utf-8')
+
+
+specific_features_to_plot = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist', 'IH_sF2_mean_dist', 'IH_sF3_mean_dist', 'IH_sF4_mean_dist',
+                    'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF2_mean_third', 'AY_sF3_mean_third', 'AY_sF4_mean_third',
+                    'vowel_avg_dur','percent_creak','spectral_S_cog','spectral_S_duration','spectral_S_skew']
+
+pc_list = ['Principal Component 1', 'Principal Component 2',
+       'Principal Component 3', 'Principal Component 4',
+       'Principal Component 5', 'Principal Component 6',
+       'Principal Component 7', 'Principal Component 8',
+       'Principal Component 9', 'Principal Component 10']
+
+corr_best = corr_df[specific_features_to_plot]
+components = corr_df['PC']
+corr_best = pd.concat([components,corr_best], axis=1)
+
+## r values
+corr_best_gender_id = corr_gender_id[specific_features_to_plot]
+components = corr_gender_id['PC']
+corr_best_gender_id = pd.concat([components,corr_best_gender_id], axis=1)
+
+corr_best_sexual_orientation = corr_sexual_orientation[specific_features_to_plot]
+components = corr_sexual_orientation['PC']
+corr_best_sexual_orientation = pd.concat([components,corr_best_sexual_orientation], axis=1)
+
+corr_best_voice_id = corr_voice_id[specific_features_to_plot]
+components = corr_voice_id['PC']
+corr_best_voice_id = pd.concat([components,corr_best_voice_id], axis=1)
+
+## p values
+corr_best_gender_id_p = corr_p_gender_id[specific_features_to_plot]
+components = corr_p_gender_id['PC']
+corr_best_gender_id_p = pd.concat([components,corr_best_gender_id_p], axis=1)
+
+corr_best_sexual_orientation_p = corr_p_sexual_orientation[specific_features_to_plot]
+components = corr_p_sexual_orientation['PC']
+corr_best_sexual_orientation_p = pd.concat([components,corr_best_sexual_orientation_p], axis=1)
+
+corr_best_voice_id_p = corr_p_voice_id[specific_features_to_plot]
+components = corr_p_voice_id['PC']
+corr_best_voice_id_p = pd.concat([components,corr_best_voice_id_p], axis=1)
+
+
+
+data = ratings_all
+
+pca = pca.drop('kmeans_5_cluster', axis=1)
+data = pd.concat([data, pca], axis=1)
+
+gender_id = data[data['Condition']=='gender_id']
+sexual_orientation = data[data['Condition']=='sexual_orientation']
+voice_id = data[data['Condition']=='voice_id']
+
+cluster_color_dict = {'kmeans_3_cluster':'color_3_cluster', 'kmeans_4_cluster':'color_4_cluster', 'kmeans_5_cluster':'color_5_cluster'}
+
+for pc in pc_list:
+    for feature in specific_features_to_plot:
+        for cluster, color in cluster_color_dict.items():
+            data_avg_rating = data.groupby('WAV', as_index=False)['Rating_z_score'].mean()
+            data_avg_feature = data.groupby('WAV', as_index=False)[feature].mean()
+            data_cluster = data.groupby('WAV', as_index=False)[cluster].mean()
+            data_pc = data.groupby('WAV', as_index=False)[pc].mean()
+
+            data_feature = pd.merge(data_avg_rating, data_avg_feature, on='WAV')
+            data_feature = pd.merge(data_feature, data_cluster, on='WAV')
+            data_feature = pd.merge(data_feature, data_pc, on='WAV')
+
+
+            gender_id_avg_rating = gender_id.groupby('WAV', as_index=False)['Rating_z_score'].mean()
+            gender_id_avg_feature = gender_id.groupby('WAV', as_index=False)[feature].mean()
+            gender_id_cluster = gender_id.groupby('WAV', as_index=False)[cluster].mean()
+            gender_id_pc = gender_id.groupby('WAV', as_index=False)[pc].mean()
+
+            gender_id_color = gender_id[['WAV',color]].drop_duplicates().reset_index().drop(columns='index')
+            gender_id_feature = pd.merge(gender_id_avg_rating, gender_id_avg_feature, on='WAV')
+            gender_id_feature = pd.merge(gender_id_feature, gender_id_color, on='WAV').dropna()
+            gender_id_feature = pd.merge(gender_id_feature, gender_id_cluster, on='WAV')
+            gender_id_feature = pd.merge(gender_id_feature, gender_id_pc, on='WAV')
+
+
+            sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating_z_score'].mean()
+            sexual_orientation_avg_feature = sexual_orientation.groupby('WAV', as_index=False)[feature].mean()
+            sexual_orientation_cluster = sexual_orientation.groupby('WAV', as_index=False)[cluster].mean()
+            sexual_orientation_pc = sexual_orientation.groupby('WAV', as_index=False)[pc].mean()
+
+            sexual_orientation_color = sexual_orientation[['WAV',color]].drop_duplicates().reset_index().drop(columns='index')
+            sexual_orientation_feature = pd.merge(sexual_orientation_avg_rating, sexual_orientation_avg_feature, on='WAV')
+            sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_color, on='WAV').dropna()
+            sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_cluster, on='WAV')
+            sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_pc, on='WAV')
+
+
+            voice_id_rating = voice_id.groupby('WAV', as_index=False)['Rating_z_score'].mean()
+            voice_id_avg_feature = voice_id.groupby('WAV', as_index=False)[feature].mean()
+            voice_id_cluster = voice_id.groupby('WAV', as_index=False)[cluster].mean()
+            voice_id_pc = voice_id.groupby('WAV', as_index=False)[pc].mean()
+
+            voice_id_color = voice_id[['WAV',color]].drop_duplicates().reset_index().drop(columns='index')
+            voice_id_feature = pd.merge(voice_id_rating, voice_id_avg_feature, on='WAV')
+            voice_id_feature = pd.merge(voice_id_feature, voice_id_color, on='WAV').dropna()
+            voice_id_feature = pd.merge(voice_id_feature, voice_id_cluster, on='WAV')
+            voice_id_feature = pd.merge(voice_id_feature, voice_id_pc, on='WAV')
+
+            if cluster == 'kmeans_3_cluster':
+                color_dict = {0:'#785EF0', 1:'#DC267F', 2:'#648FFF'}
+                markers_dict = {0: "P", 1: "o", 2: "v"}
+            if cluster == 'kmeans_4_cluster':
+                color_dict = {0:'#DC267F', 1:'#785EF0', 2:'#648FFF', 3:'#FFB000'}
+                markers_dict = {0: "o", 1: "P", 2: "v", 3: "D"}
+            if cluster == 'kmeans_5_cluster':
+                color_dict = {0:'#FFB000', 1:'#785EF0', 2:'#648FFF', 3:'#FE6100', 4:'#DC267F'}
+                markers_dict = {0: "D", 1: "P", 2: "v", 3: "H", 4: "o"}
+
+            # assert gender_id_feature[feature].nunique() == sexual_orientation_feature[feature].nunique() == voice_id_feature[feature].nunique()
+            feature_number = gender_id_feature[feature].nunique()
+
+            ## correlation value for PC and F0 across whole data set
+            r_value = corr_best.loc[corr_best['PC'] == pc][feature]
+            r_fig = np.round(r_value.values[0], 2)
+
+            ## correlation value for PC and F0 by condition
+            r_value_gender_id_pc = corr_best_gender_id.loc[corr_best_gender_id['PC'] == pc][feature]
+            r_fig_gender_id_pc = np.round(r_value_gender_id_pc.values[0], 2)
+
+            r_value_sexual_orientation_pc = corr_best_sexual_orientation.loc[corr_best_sexual_orientation['PC'] == pc][feature]
+            r_fig_sexual_orientation_pc = np.round(r_value_sexual_orientation_pc.values[0], 2)
+
+            r_value_voice_id_pc = corr_best_voice_id.loc[corr_best_voice_id['PC'] == pc][feature]
+            r_fig_voice_id_pc = np.round(r_value_voice_id_pc.values[0], 2)
+
+            ## p values
+            p_value_gender_id_pc = corr_best_gender_id_p.loc[corr_best_gender_id_p['PC'] == pc][feature]
+            p_fig_gender_id_pc_temp = np.round(p_value_gender_id_pc.values[0], 2)
+            if p_fig_gender_id_pc_temp < 0.05:
+                p_fig_gender_id_pc = 'p < 0.05'
+            if p_fig_gender_id_pc_temp > 0.05:
+                p_fig_gender_id_pc = 'n.s.'
+
+            p_value_sexual_orientation_pc = corr_best_sexual_orientation_p.loc[corr_best_sexual_orientation_p['PC'] == pc][feature]
+            p_fig_sexual_orientation_pc_temp = np.round(p_value_sexual_orientation_pc.values[0], 2)
+            if p_fig_sexual_orientation_pc_temp < 0.05:
+                p_fig_sexual_orientation_pc = 'p < 0.05'
+            if p_fig_sexual_orientation_pc_temp > 0.05:
+                p_fig_sexual_orientation_pc = 'n.s.'
+
+            p_value_voice_id_pc = corr_best_voice_id_p.loc[corr_best_voice_id_p['PC'] == pc][feature]
+            p_fig_voice_id_pc_temp = np.round(p_value_voice_id_pc.values[0], 2)
+            if p_fig_voice_id_pc_temp < 0.05:
+                p_fig_voice_id_pc = 'p < 0.05'
+            if p_fig_voice_id_pc_temp > 0.05:
+                p_fig_voice_id_pc = 'n.s.'
+
+
+            ## correlation value for raw feature by condition
+            r_value_gender_id = corr_r.loc[corr_r['split'] == 'gender_id'][feature]
+            r_fig_gender_id = np.round(r_value_gender_id.values[0], 2)
+
+            r_value_sexual_orientation = corr_r.loc[corr_r['split'] == 'sexual_orientation'][feature]
+            r_fig_sexual_orientation = np.round(r_value_sexual_orientation.values[0], 2)
+
+            r_value_voice_id = corr_r.loc[corr_r['split'] == 'voice_id'][feature]
+            r_fig_voice_id = np.round(r_value_voice_id.values[0], 2)
+
+            ## p values
+            p_value_gender_id = corr_p.loc[corr_p['split'] == 'gender_id'][feature]
+            p_fig_gender_id_temp = np.round(p_value_gender_id.values[0], 2)
+            if p_fig_gender_id_temp < 0.05:
+                p_fig_gender_id = 'p < 0.05'
+            if p_fig_gender_id_temp > 0.05:
+                p_fig_gender_id = 'n.s.'
+
+            p_value_sexual_orientation = corr_p.loc[corr_p['split'] == 'sexual_orientation'][feature]
+            p_fig_sexual_orientation_temp = np.round(p_value_sexual_orientation.values[0], 2)
+            if p_fig_sexual_orientation_temp < 0.05:
+                p_fig_sexual_orientation = 'p < 0.05'
+            if p_fig_sexual_orientation_temp > 0.05:
+                p_fig_sexual_orientation = 'n.s.'
+
+            p_value_voice_id = corr_p.loc[corr_p['split'] == 'voice_id'][feature]
+            p_fig_voice_id_temp = np.round(p_value_voice_id.values[0], 2)
+            if p_fig_voice_id_temp < 0.05:
+                p_fig_voice_id = 'p < 0.05'
+            if p_fig_voice_id_temp > 0.05:
+                p_fig_voice_id = 'n.s.'
+
+            props = dict(boxstyle='round', facecolor='w')
+
+            sns.set()
+            fig, axes = plt.subplots(3, 3, figsize = (22,11))
+            fig.subplots_adjust(hspace=0.5)
+            fig.suptitle("Correlation between %s, %s, and Participant Ratings"%(pc, feature), fontsize=20, fontweight='bold')
+            fig.subplots_adjust(top = 0.85)
+            axes[0, 0].axis('off')
+            axes[0, 2].axis('off')
+
+            ### pcs
+            axes[0,1].set_title('All Conditions')
+            axes[0,1].set_xlim(-1.5,1.5)
+            # sns.scatterplot(data=gender_id_feature, x='Rating_z_score', y=pc, ax=axes[0,0])
+            sns.regplot(data=data_feature, x='Rating_z_score', y=pc, ax=axes[0,1], scatter_kws={"color": "green", 's': 35, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #648FFF d55e00
+            axes[0,1].text(0.60, 0.95, 'Pearson r = %s, p < 0.05'%r_fig, transform=axes[0,1].transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+            axes[0,1].set_xlabel('Rating')
+            axes[0,1].set_ylabel('Dimensionless')
+
+            axes[1,0].set_title('Gender Identity')
+            axes[1,0].set_xlim(-1.5,1.5)
+            # sns.scatterplot(data=gender_id_feature, x='Rating_z_score', y=pc, ax=axes[0,0])
+            sns.regplot(data=gender_id_feature, x='Rating_z_score', y=pc, ax=axes[1,0], scatter_kws={"color": "green", 's': 35, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #648FFF d55e00
+            axes[1,0].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_gender_id_pc, p_fig_gender_id_pc), transform=axes[1,0].transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+            axes[1,0].set_xlabel('Rating (-: Male, +: Female)')
+            axes[1,0].set_ylabel('Dimensionless')
+
+            axes[1,1].set_title('Sexual Orientation')
+            axes[1,1].set_xlim(-1.5,1.5)
+            # sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y=pc, ax=axes[0,1])
+            sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=pc, ax=axes[1,1], scatter_kws={"color": "green", 's': 35, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #785EF0 0072b2
+            axes[1,1].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_sexual_orientation_pc, p_fig_sexual_orientation_pc), transform=axes[1,1].transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+            axes[1,1].set_xlabel('Rating (-: Homo, +: Het)')
+            axes[1,1].set_ylabel('')
+
+            axes[1,2].set_title('Voice Identity')
+            axes[1,2].set_xlim(-1.5,1.5)
+            # sns.scatterplot(data=voice_id_feature, x='Rating_z_score', y=pc, ax=axes[0,2])
+            sns.regplot(data=voice_id_feature, x='Rating_z_score', y=pc, ax=axes[1,2], scatter_kws={"color": "green", 's': 35, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #DC267F 009e73
+            axes[1,2].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_voice_id_pc, p_fig_voice_id_pc), transform=axes[1,2].transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+            axes[1,2].set_xlabel('Rating (-: Masc, +: Femme)')
+            axes[1,2].set_ylabel('')
+
+            ### individual features
+            axes[2,0].set_title('Gender Identity')
+            axes[2,0].set_xlim(-1.5,1.5)
+            sns.scatterplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[2,0], hue = gender_id_feature[cluster], style = gender_id_feature[cluster], palette = color_dict, markers=markers_dict, s=35)
+            sns.regplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[2,0], scatter=False, line_kws={"color": "k"}) # #648FFF d55e00
+            axes[2,0].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_gender_id, p_fig_gender_id), transform=axes[2,0].transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+            axes[2,0].set_xlabel('Rating (-: Male, +: Female)')
+            axes[2,0].set_ylabel('Avg %s'%feature)
+
+            axes[2,1].set_title('Sexual Orientation')
+            axes[2,1].set_xlim(-1.5,1.5)
+            sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[2,1], hue = sexual_orientation_feature[cluster], style = sexual_orientation_feature[cluster], palette = color_dict, markers=markers_dict, s=35)
+            sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[2,1], scatter=False, line_kws={"color": "k"}) # #785EF0 0072b2
+            axes[2,1].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_sexual_orientation, p_fig_sexual_orientation), transform=axes[2,1].transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+            axes[2,1].set_xlabel('Rating (-: Homo, +: Het)')
+            axes[2,1].set_ylabel('')
+
+            axes[2,2].set_title('Voice Identity')
+            axes[2,2].set_xlim(-1.5,1.5)
+            sns.scatterplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2,2], hue = voice_id_feature[cluster], style = voice_id_feature[cluster], palette = color_dict, markers=markers_dict, s=35)
+            sns.regplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2,2], scatter=False, line_kws={"color": "k"}) # #DC267F 009e73
+            axes[2,2].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_voice_id, p_fig_voice_id), transform=axes[2,2].transAxes, fontsize=10,
+                    verticalalignment='top', bbox=props)
+            axes[2,2].set_xlabel('Rating (-: Masc, +: Femme)')
+            axes[2,2].set_ylabel('')
+
+            if color == 'color_3_cluster':
+                colors = pd.DataFrame({"color_3_cluster": ['#785EF0','#DC267F','#648FFF']})
+                colors['kmeans_3_cluster'] = [0,1,2]
+                scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][0], marker = 'P') #^
+                scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][1], marker = 'o') #p
+                scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][2], marker = 'v') #+
+                axes[2,0].get_legend().remove()
+                axes[2,1].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QN','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
+                axes[2,2].get_legend().remove()
+
+                # plt.show()
+                plt.savefig(os.path.join(dir,'figs', '3_cluster', 'pc_corr', '%s_avgbycondition_3_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
+                plt.close()
+
+            if color == 'color_4_cluster':
+                colors = pd.DataFrame({"color_4_cluster": ['#DC267F','#785EF0','#648FFF','#FFB000']})
+                colors['kmeans_4_cluster'] = [0,1,2,3]
+                scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][0], marker = 'o')
+                scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][1], marker = 'P')
+                scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][2], marker = 'v')
+                scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][3], marker = 'D')
+                axes[2,0].get_legend().remove()
+                axes[2,1].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QN','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
+                axes[2,2].get_legend().remove()
+
+
+                # plt.show()
+                plt.savefig(os.path.join(dir,'figs', '4_cluster', 'pc_corr', '%s_avgbycondition_4_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
+                plt.close()
+
+
+            if color == 'color_5_cluster':
+                colors = pd.DataFrame({"color_5_cluster": ['#FFB000','#785EF0','#648FFF','#FE6100','#DC267F']})
+                colors['kmeans_5_cluster'] = [0,1,2,3,4]
+                scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][0], marker = 'D')
+                scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][1], marker = 'P')
+                scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][2], marker = 'v')
+                scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][3], marker = 'H')
+                scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][4], marker = 'o')
+                axes[2,0].get_legend().remove()
+                axes[2,1].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QN','QW','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
+                axes[2,2].get_legend().remove()
+
+
+                # plt.show()
+                plt.savefig(os.path.join(dir,'figs', '5_cluster', 'pc_corr', '%s_avgbycondition_5_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
+                plt.close()
+
+
+### cluster identity flags ###
+condition_means = ratings_all.pivot_table(index='kmeans_5_cluster', columns = 'Condition', values = 'Rating_z_score')
+n_per_cluster = ratings_all.groupby(['kmeans_5_cluster'], as_index=False)['WAV'].nunique()
+
+# year = [2014, 2015, 2016, 2017, 2018, 2019]
+PG_condition = ['PG']
+PS_condition = ['PS']
+PV_condition = ['PV']
+# issues_addressed = [10, 14, 0, 10, 15, 15]
+# issues_pending = [5, 10, 50, 2, 0, 10]
+
+cluster_list = {0:'#FFB000', 1:'#785EF0', 2:'#648FFF', 3:'#FE6100', 4:'#DC267F'}
+for cluster, color in cluster_list.items():
+
+    PG = condition_means['gender_id'][cluster]
+    PS = condition_means['sexual_orientation'][cluster]
+    PV = condition_means['voice_id'][cluster]
+
+    labels_left = ['more man-like','same gender','more masculine-sounding']
+    labels_right = ['more woman-like','opposite gender','more feminine-sounding']
+    labels_center = ['nb', 'any gender','neither']
+
+    fig, ax = plt.subplots(figsize = (20,8))
+    b1 = plt.barh(PG_condition, PG, color=color)
+    b2 = plt.barh(PS_condition, PS, color=color)
+    b3 = plt.barh(PV_condition, PV, color=color)
+    for bar, label_right, label_left, label_center in zip(ax.patches, labels_right, labels_left, labels_center):
+        ax.text(0.8, bar.get_y()+bar.get_height()/2, label_right, color = 'black', ha = 'left', va = 'center', fontsize = 30)
+        ax.text(-1.4, bar.get_y()+bar.get_height()/2, label_left, color = 'black', ha = 'left', va = 'center', fontsize = 30)
+        ax.text(-0.1, bar.get_y()+bar.get_height()/2, label_center, color = 'black', ha = 'left', va = 'center', fontsize = 30)
+
+    # plt.axvline(x=0, linestyle='--', color='lightgray')
+    # plt.legend([b1], ["Completed", "Pending"], title="Issues", loc="upper right")
+    ax.set_xlim([-1.5,1.5])
+    ax.set_xticks(np.arange(-1.5, 2, step=0.5))
+    ax.set_xlabel('Rating (standardized)',fontsize=30)
+    ax.set_ylabel('Condition',fontsize=30)
+    ax.tick_params(axis='both', which='major', labelsize=30)
+    ax.tick_params(axis='both', which='minor', labelsize=30)
+    ax.set_facecolor("white")
+    if cluster == 0:
+        ax.set_title('QM', fontsize=40)
+        plt.savefig(os.path.join(dir,'figs', 'QM_flag.png'), bbox_inches='tight', dpi=300)
+        plt.close()
+    if cluster == 1:
+        ax.set_title('SW', fontsize=40)
+        plt.savefig(os.path.join(dir,'figs', 'SW_flag.png'), bbox_inches='tight', dpi=300)
+        plt.close()
+
+    if cluster == 2:
+        ax.set_title('SM', fontsize=40)
+        plt.savefig(os.path.join(dir,'figs', 'SM_flag.png'), bbox_inches='tight', dpi=300)
+        plt.close()
+
+    if cluster == 3:
+        ax.set_title('QW', fontsize=40)
+        plt.savefig(os.path.join(dir,'figs', 'QW_flag.png'), bbox_inches='tight', dpi=300)
+        plt.close()
+
+    if cluster == 4:
+        ax.set_title('QN', fontsize=40)
+        plt.savefig(os.path.join(dir,'figs', 'QN_flag.png'), bbox_inches='tight', dpi=300)
+        plt.close()
+
+
 ### heatmap ###
-corr_fname = os.path.join(dir, 'data_analysis_viz','grand_corr.csv')
+corr_fname = os.path.join(dir, 'data_analysis_viz','grand_corr_r.csv')
 grand_ablated_df_fname = os.path.join(dir, 'data_analysis_viz', 'grand_ablated_df.csv')
 cluster_ablated_df_fname = os.path.join(dir, 'data_analysis_viz', 'cluster_ablated_df.csv')
-corr_cluster0_fname = os.path.join(dir, 'data_analysis_viz','cluster_corr_cluster_0.csv')
-corr_cluster1_fname = os.path.join(dir, 'data_analysis_viz','cluster_corr_cluster_1.csv')
-corr_cluster2_fname = os.path.join(dir, 'data_analysis_viz','cluster_corr_cluster_2.csv')
-corr_cluster3_fname = os.path.join(dir, 'data_analysis_viz','cluster_corr_cluster_3.csv')
-corr_cluster4_fname = os.path.join(dir, 'data_analysis_viz','cluster_corr_cluster_4.csv')
+corr_cluster0_fname = os.path.join(dir, 'data_analysis_viz','cluster_corr_r_cluster_0.csv')
+corr_cluster1_fname = os.path.join(dir, 'data_analysis_viz','cluster_corr_r_cluster_1.csv')
+corr_cluster2_fname = os.path.join(dir, 'data_analysis_viz','cluster_corr_r_cluster_2.csv')
+corr_cluster3_fname = os.path.join(dir, 'data_analysis_viz','cluster_corr_r_cluster_3.csv')
+corr_cluster4_fname = os.path.join(dir, 'data_analysis_viz','cluster_corr_r_cluster_4.csv')
 
 corr_df = pd.read_csv(corr_fname)
 corr_df = corr_df.drop('Unnamed: 0', axis=1) # might need to change column name when it imports in, there's a random addition at the beginning
@@ -453,134 +954,6 @@ for cluster, value in cluster_dict.items():
     plt.colorbar(im)
     plt.savefig(os.path.join(dir,'figs', 'heatmap_%s_corr_specific.png'%cluster), bbox_inches='tight', dpi=300)
     plt.close()
-
-
-### PC  + FEATURE ###
-pca_fname = os.path.join(dir, 'data_analysis_viz','principal_components.csv')
-pca0_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_0.csv')
-pca1_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_1.csv')
-pca2_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_2.csv')
-pca3_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_3.csv')
-pca4_fname = os.path.join(dir, 'data_analysis_viz','principal_components_cluster_4.csv')
-
-pca = pd.read_csv(pca_fname)
-pca0 = pd.read_csv(pca0_fname)
-pca1 = pd.read_csv(pca1_fname)
-pca2 = pd.read_csv(pca2_fname)
-pca3 = pd.read_csv(pca3_fname)
-pca4 = pd.read_csv(pca4_fname)
-
-data = ratings_all
-
-pca = pca.drop('kmeans_5_cluster', axis=1)
-data = pd.concat([data, pca], axis=1)
-
-data_genderid = data[data['Condition']=='gender_id']
-data_sexualorientation = data[data['Condition']=='sexual_orientation']
-data_voiceid = data[data['Condition']=='voice_id']
-
-data_genderid_avg_rating = data_genderid.groupby('WAV', as_index=False)['Rating_z_score'].mean()
-data_genderid_avg_feature = data_genderid.groupby('WAV', as_index=False)['F0_mean'].mean()
-data_genderid_avg_pc = data_genderid.groupby('WAV', as_index=False)['principal component 2'].mean()
-data_genderid_feature = pd.merge(data_genderid_avg_rating, data_genderid_avg_feature, on='WAV')
-data_genderid_feature = pd.merge(data_genderid_feature, data_genderid_avg_pc, on='WAV')
-
-colors = pd.DataFrame({"colors": ['#785EF0','#DC267F']})
-colors['color_code'] = [0,1]
-
-fig, ax = plt.subplots()
-fig.set_size_inches(16,6)
-fig.suptitle("PC2", fontsize=20, fontweight='bold')
-
-# sns.regplot(data=data_genderid_feature, x='Rating_z_score', y='F0_mean', scatter_kws={'facecolors':colors['colors'][0], 'edgecolors': None}, line_kws={"color": "k"}) # #648FFF d55e00
-sns.regplot(data=data_genderid_feature, x='Rating_z_score', y='principal component 2', scatter_kws={'facecolors':colors['colors'][1], 'edgecolors': None}, line_kws={"color": "k"}) # #648FFF d55e00
-# scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['colors'][0], marker = '^')
-scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['colors'][1], marker = 'p')
-ax.legend([scatter2_proxy], ['PC2'], numpoints = 1, loc = 'upper left')
-# props = dict(boxstyle='round', facecolor='w', alpha=0.5)
-# ax.text(0.05, 0.70, 'Pearson r = 0.7, p < 0.05', transform=ax.transAxes, fontsize=10,
-#         verticalalignment='top', bbox=props)
-ax.set_xlabel('Gender Identity Rating (-: Male, +: Female)')
-ax.set_ylabel('Eigenvalues')
-
-plt.show()
-
-
-
-fig, axes = plt.subplots(1, 3)
-fig.subplots_adjust(hspace=0.5)
-fig.set_size_inches(16, 6)
-fig.suptitle("(Avg) %s by Rating, %s Tokens, %s Participants"%(feature, feature_number, number_participants), fontsize=20, fontweight='bold')
-fig.subplots_adjust( top = 0.85 )
-
-axes[0].set_title('Gender Identity')
-axes[0].set_xlim(-1.5,1.5)
-sns.regplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[0], scatter_kws={'facecolors':gender_id_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #648FFF d55e00
-sns.regplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[0], scatter_kws={'facecolors':gender_id_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #648FFF d55e00
-axes[0].set_xlabel('Rating (-: Male, +: Female)')
-axes[0].set_ylabel('Avg %s'%feature)
-
-axes[1].set_title('Sexual Orientation')
-axes[1].set_xlim(-1.5,1.5)
-sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[1], scatter_kws={'facecolors':sexual_orientation_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #785EF0 0072b2
-axes[1].set_xlabel('Rating (-: Homo, +: Het)')
-axes[1].set_ylabel('')
-
-axes[2].set_title('Voice Identity')
-axes[2].set_xlim(-1.5,1.5)
-sns.regplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2], scatter_kws={'facecolors':voice_id_feature[color], 'edgecolors': None}, line_kws={"color": "k"}) # #DC267F 009e73
-axes[2].set_xlabel('Rating (-: Masc, +: Femme)')
-axes[2].set_ylabel('')
-
-
-
-
-### cluster identity flags ###
-condition_means = ratings_all.pivot_table(index='kmeans_5_cluster', columns = 'Condition', values = 'Rating_z_score')
-
-fig, ax = plt.subplots(figsize = (20,8))
-
-# year = [2014, 2015, 2016, 2017, 2018, 2019]
-PG_condition = ['PG']
-PS_condition = ['PS']
-PV_condition = ['PV']
-# issues_addressed = [10, 14, 0, 10, 15, 15]
-# issues_pending = [5, 10, 50, 2, 0, 10]
-
-PG = condition_means['gender_id'][0]
-PS = condition_means['sexual_orientation'][0]
-PV = condition_means['voice_id'][0]
-
-labels_left = ['more man-like','more homosexual','more masculine-sounding']
-labels_right = ['more woman-like','more heterosexual','more feminine-sounding']
-labels_center = ['nb', 'any gender','neither']
-
-
-b1 = plt.barh(PG_condition, PG, color='#FFB000')
-b2 = plt.barh(PS_condition, PS, color='#FFB000')
-b3 = plt.barh(PV_condition, PV, color='#FFB000')
-for bar, label_right, label_left, label_center in zip(ax.patches, labels_right, labels_left, labels_center):
-    ax.text(0.8, bar.get_y()+bar.get_height()/2, label_right, color = 'black', ha = 'left', va = 'center', fontsize = 20)
-    ax.text(-1.4, bar.get_y()+bar.get_height()/2, label_left, color = 'black', ha = 'left', va = 'center', fontsize = 20)
-    ax.text(-0.1, bar.get_y()+bar.get_height()/2, label_center, color = 'black', ha = 'left', va = 'center', fontsize = 20)
-
-
-plt.axvline(x=0, linestyle='--', color='lightgray')
-
-
-# plt.legend([b1], ["Completed", "Pending"], title="Issues", loc="upper right")
-ax.set_xlim([-1.5,1.5])
-ax.set_xticks(np.arange(-1.5, 2, step=0.5))
-ax.set_xlabel('Rating (standardized)',fontsize=40)
-ax.set_ylabel('Condition',fontsize=40)
-ax.tick_params(axis='both', which='major', labelsize=40)
-ax.tick_params(axis='both', which='minor', labelsize=40)
-ax.set_title('QM', fontsize=40)
-
-plt.savefig(os.path.join(dir,'figs', 'QM_flag.png'), bbox_inches='tight', dpi=300)
-plt.close()
-
-
 
 
 #### proximity ###############################

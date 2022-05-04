@@ -118,12 +118,6 @@ pc_list = ['principal component 1', 'principal component 2',
        'principal component 7', 'principal component 8',
        'principal component 9', 'principal component 10']
 
-for pc in pc_list:
-    for feature in feature_list:
-
-
-
-
 # X = df_imp[['kmeans_5_cluster']]
 # Y = df_imp['percent_creak']
 #
