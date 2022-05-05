@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
-dir = '/Users/bcl/Documents/GitHub/queer_speech'
+dir = '/Users/bcl/GitHub/queer_speech'
 fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs'
 os.chdir(dir)
 ratings_fname = os.path.join(dir, 'data_analysis_viz','queer_data.csv')
@@ -204,7 +204,7 @@ for feature in features_to_plot:
             scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][0], marker = 'P') #^
             scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][1], marker = 'o') #p
             scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][2], marker = 'v') #+
-            axes[0].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QN','SW'], numpoints = 1, loc = 'upper left')
+            axes[0].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QE','SW'], numpoints = 1, loc = 'upper left')
             axes[1].get_legend().remove()
             axes[2].get_legend().remove()
 
@@ -219,7 +219,7 @@ for feature in features_to_plot:
             scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][1], marker = 'P')
             scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][2], marker = 'v')
             scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][3], marker = 'D')
-            axes[0].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QN','SW'], numpoints = 1, loc = 'upper left')
+            axes[0].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QE','SW'], numpoints = 1, loc = 'upper left')
             axes[1].get_legend().remove()
             axes[2].get_legend().remove()
 
@@ -237,7 +237,7 @@ for feature in features_to_plot:
             scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][2], marker = 'v')
             scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][3], marker = 'H')
             scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][4], marker = 'o')
-            axes[0].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QN','QW','SW'], numpoints = 1, loc = 'upper left')
+            axes[0].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QE','QW','SW'], numpoints = 1, loc = 'upper left')
             axes[1].get_legend().remove()
             axes[2].get_legend().remove()
 
@@ -605,11 +605,11 @@ for pc in pc_list:
                 scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][1], marker = 'o') #p
                 scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][2], marker = 'v') #+
                 axes[2,0].get_legend().remove()
-                axes[2,1].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QN','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
+                axes[2,1].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QE','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
                 axes[2,2].get_legend().remove()
 
                 # plt.show()
-                plt.savefig(os.path.join(fig_dir, '3_cluster', 'pc_corr', '%s_avgbycondition_3_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
+                plt.savefig(os.path.join(fig_dir, '3_cluster', 'pc_corr', '%s_avgbycondition_3_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=300)
                 plt.close()
 
             if color == 'color_4_cluster':
@@ -620,12 +620,12 @@ for pc in pc_list:
                 scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][2], marker = 'v')
                 scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][3], marker = 'D')
                 axes[2,0].get_legend().remove()
-                axes[2,1].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QN','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
+                axes[2,1].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QE','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
                 axes[2,2].get_legend().remove()
 
 
                 # plt.show()
-                plt.savefig(os.path.join(fig_dir, '4_cluster', 'pc_corr', '%s_avgbycondition_4_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
+                plt.savefig(os.path.join(fig_dir, '4_cluster', 'pc_corr', '%s_avgbycondition_4_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=300)
                 plt.close()
 
 
@@ -638,12 +638,12 @@ for pc in pc_list:
                 scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][3], marker = 'H')
                 scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][4], marker = 'o')
                 axes[2,0].get_legend().remove()
-                axes[2,1].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QN','QW','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
+                axes[2,1].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QE','QW','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
                 axes[2,2].get_legend().remove()
 
 
                 # plt.show()
-                plt.savefig(os.path.join(fig_dir, '5_cluster', 'pc_corr', '%s_avgbycondition_5_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
+                plt.savefig(os.path.join(fig_dir, '5_cluster', 'pc_corr', '%s_avgbycondition_5_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=300)
                 plt.close()
 
 
@@ -707,8 +707,8 @@ for cluster, color in cluster_list.items():
         plt.close()
 
     if cluster == 4:
-        ax.set_title('QN', fontsize=40)
-        plt.savefig(os.path.join(fig_dir, 'QN_flag.png'), bbox_inches='tight', dpi=300)
+        ax.set_title('QE', fontsize=40)
+        plt.savefig(os.path.join(fig_dir, 'QE_flag.png'), bbox_inches='tight', dpi=300)
         plt.close()
 
 
@@ -843,7 +843,7 @@ for cluster, value in cluster_dict.items():
     if cluster == 'cluster_3':
         ax.set_title('Correlation between Important Features and PCs for QW', fontsize=28)
     if cluster == 'cluster_4':
-        ax.set_title('Correlation between Important Features and PCs for QN', fontsize=28)
+        ax.set_title('Correlation between Important Features and PCs for QE', fontsize=28)
     # ax.legend()
     # fig.tight_layout()
     plt.colorbar(im)
@@ -949,7 +949,7 @@ for cluster, value in cluster_dict.items():
     if cluster == 'cluster_3':
         ax.set_title('Correlation between Specific Features and PCs for QW', fontsize=28)
     if cluster == 'cluster_4':
-        ax.set_title('Correlation between Specific Features and PCs for QN', fontsize=28)
+        ax.set_title('Correlation between Specific Features and PCs for QE', fontsize=28)
     # ax.legend()
     # fig.tight_layout()
     plt.colorbar(im)

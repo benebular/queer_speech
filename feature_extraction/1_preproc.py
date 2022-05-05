@@ -16,7 +16,7 @@ import scipy.stats as stats
 np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
-dir = '/Users/bcl/Documents/GitHub/queer_speech'
+dir = '/Users/bcl/GitHub/queer_speech'
 os.chdir(dir)
 vs_fname = os.path.join(dir,'feature_extraction','vs_ms_output.csv')
 matches_fname = os.path.join(dir, 'qualtrics_data/mark1_jan28/','matches_queer_speech.csv')
@@ -169,7 +169,7 @@ for val in formant_labels:
 
 ## split diphthongs in thirds, take mean, min, max formants for F1, F2, F3, F4 on first and third
 print ("Getting diphthong thirds...")
-# WAV_list = np.array(new_names)
+WAV_list = np.array(new_names)
 WAV_list = np.unique(WAV_list).tolist()
 for diph in diph_list:
     temp_list = pd.DataFrame()
@@ -180,7 +180,7 @@ for diph in diph_list:
         if diph in diph_pivot_mean[diph_pivot_mean['WAV'] == WAV]['Label'].to_list():
             # print (diph)
             diph_pivot = diph_pivot.get_group((WAV,diph))
-            diph_pivot_split = np.array_split(diph_pivot, 3)
+            diph_pivot_split = np.array_split(diph_pivot, 3, axis=0)
 
             ## first
             diph_split_first = diph_pivot_split[0]
@@ -315,7 +315,7 @@ ratings_all['rando'] = np.random.rand(len(ratings_all), 1)
 ratings_all['rando_baseline_z_score'] = stats.zscore(np.round(np.random.uniform(1.0,8.0,len(ratings_all)), 1), axis=0)
 
 ### EXPORT ###
-dir = '/Users/bcl/Documents/GitHub/queer_speech'
+dir = '/Users/bcl/GitHub/queer_speech'
 sc_WAV_count = ratings_all['WAV'].nunique()
 print("Sanity check: There are %s unique WAV files in ratings_all."%sc_WAV_count)
 sc_participant_count = ratings_all['Participant'].nunique()

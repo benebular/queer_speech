@@ -28,7 +28,7 @@ from sklearn.inspection import permutation_importance
 # np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
-dir = '/Users/bcl/Documents/GitHub/queer_speech'
+dir = '/Users/bcl/GitHub/queer_speech'
 fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs'
 os.chdir(dir)
 ratings_features_fname = os.path.join(dir, 'feature_extraction', 'ratings_features_all.csv')
@@ -500,7 +500,7 @@ for type in type_list:
                 plt.close()
 
                 print ("Saving data as grand_feature_importances.csv")
-                grand_features.to_csv(os.path.join(fig_dir,'data_analysis_viz','grand_feature_importances.csv'), index=True, encoding='utf-8')
+                grand_features.to_csv(os.path.join(dir,'data_analysis_viz','grand_feature_importances.csv'), index=True, encoding='utf-8')
 
             # feature_importances_all = pd.merge(feature_importances_all, grand_features, on = 'feature', how = 'outer')
 
@@ -1170,6 +1170,26 @@ for type in type_list:
                     pc_corr_r_all.to_csv(os.path.join(dir,'data_analysis_viz','pc_corr_r_%s.csv'%condition), index=True, encoding='utf-8')
                     pc_corr_p_all.to_csv(os.path.join(dir,'data_analysis_viz','pc_corr_p_%s.csv'%condition), index=True, encoding='utf-8')
 
+                fig = plt.figure(figsize = (100,8))
+
+                # grand_features_list = grand_features['feature'].to_list()
+
+                # list of x locations for plotting
+                x_values = list(range(len(importances)))
+                # Make a bar chart
+                plt.bar(x_values, importances, orientation = 'vertical')
+                # Tick labels for x axis
+                plt.xticks(x_values, feature_list, rotation='vertical', fontsize = 8)
+                # Axis labels and title
+                plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances');
+
+                plt.savefig(os.path.join(fig_dir, 'ablation','randomforest_grandmean_pca_all.png'), bbox_inches='tight', dpi=300)
+                plt.close()
+
+                print ("Saving data as grand_feature_importances_pc.csv")
+                grand_PCA.to_csv(os.path.join(dir,'data_analysis_viz','grand_feature_importances_pc.csv'), index=True, encoding='utf-8')
+
+
             ## principal component reduction ##
             # save accuracy and number of features on original RF
             print ('Appending grand values...')
@@ -1215,195 +1235,195 @@ for type in type_list:
         ######### CLUSTERS ########
         ### clusters using grand mean, no additional imputing needed
         # feature_importances_all = grand_features
-        cluster_dict  = {'df_group_0':df_group_0,'df_group_1':df_group_1,'df_group_2':df_group_2,'df_group_3':df_group_3,'df_group_4':df_group_4}
-        for cluster, value in cluster_dict.items():
-            cluster_number = 'cluster_' + cluster[-1:]
-
-            ## PCA
-            data = value
-
-            features = list(data.columns)
-            feature_number = len(features)
-
-            # Separating out the features
-            x = data.loc[:, features].values
-            # Separating out the target
-            y = data.loc[:,[cluster_number]].values
-            # Standardizing the features
-            x = StandardScaler().fit_transform(x)
-
-            pca = PCA(n_components=10, random_state=random_state)
-            print("Fitting PCA on %s..."%cluster_number)
-            principalComponents = pca.fit_transform(x)
-            pc_columns = []
-            for j in range(len(principalComponents[1])):
-                pc_string = 'principal component' + " " + str(j + 1)
-                pc_columns.append(pc_string)
-            # principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2'])
-            principalDf = pd.DataFrame(data = principalComponents, columns = pc_columns)
-
-            finalDf = pd.concat([principalDf, data[cluster_number]], axis=1)
-
-            print ("Saving data as principal_components.csv")
-            finalDf.to_csv(os.path.join(dir,'data_analysis_viz','principal_components_%s.csv'%cluster_number), index=True, encoding='utf-8')
-
-            exp_var_cluster = pd.DataFrame({"explained_variance": pca.explained_variance_ratio_})
-            print ("Saving data as pca_explained_variance_%s.csv"%cluster_number)
-            exp_var_cluster.to_csv(os.path.join(dir,'data_analysis_viz','pca_explained_variance_%s.csv'%cluster_number), index=True, encoding='utf-8')
-
-
-            for i in range(0,10):
-                ###### BASELINE #######
-                # Labels are the values we want to predict
-                labels = np.array(finalDf[cluster_number])
-                # Remove the labels from the features
-                # axis 1 refers to the columns
-                finalDf_array = finalDf.drop('%s'%cluster_number, axis = 1)
-                number_of_features = len(finalDf.columns)
-                # Saving feature names for later use
-                feature_list = list(finalDf_array.columns)
-                # Convert to numpy array
-                finalDf_array = np.array(finalDf_array)
-
-                # Using Skicit-learn to split data into training and testing sets
-                from sklearn.model_selection import train_test_split
-                # Split the data into training and testing sets
-                train_features, test_features, train_labels, test_labels = train_test_split(finalDf_array, labels, test_size = test_size, random_state = random_state)
-
-                # Instantiate model with 1000 decision trees
-                # rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
-                rf = make_pipeline(StandardScaler(), RandomForestClassifier(n_estimators = n_estimators, random_state = random_state, n_jobs = n_jobs))
-                # Train the model on training data
-                print ("Training Random Forest on %s PCs for %s..."%(i, cluster_number))
-                t = time.time()
-                rf.fit(train_features, train_labels);
-                elapsed_rf = time.time() - t
-                print("Random Forest elapsed time (in sec): %s" %elapsed_rf)
-
-                # cross validation
-                print ("Cross-validation...")
-                t = time.time()
-                scores = cross_val_score(rf, train_features, train_labels, cv=cv)
-                elapsed_rf = time.time() - t
-                print("CV elapsed time (in sec): %s" %elapsed_rf)
-                scores
-                print('Mean CV Accuracy: %.3f (%.3f)' % (np.mean(scores), np.std(scores)))
-
-                # # Use the forest's predict method on the test data
-                predictions = rf.predict(test_features)
-
-                # View the classification report for test data and predictions
-                print("Accuracy on test data..")
-                print(accuracy_score(test_labels, predictions))
-                print("Confusion matrix on test data..")
-                print(confusion_matrix(test_labels,predictions))
-                print("Classification report on test data...")
-                print(classification_report(test_labels, predictions))
-
-                # Get numerical feature importances
-                importances = list(rf.steps[1][1].feature_importances_)
-                # List of tuples with variable and importance
-                feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(feature_list, importances)]
-                # Sort the feature importances by most important first
-                feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse = True)
-                cluster_PCA = pd.DataFrame(feature_importances, columns = {'component': '0','importance_%s'%cluster_number: '1'})
-                # cluster_PCA_50 = cluster_PCA['importance_%s'%cluster_number].quantile(0.5)
-                # cluster_PCA_50 = cluster_PCA[cluster_PCA['importance_%s'%cluster_number] > cluster_PCA_50]
-
-                # Print out the feature and importances
-                # [print('Variable: {:20} Importance: {}'.format(*pair)) for pair in feature_importances];
-                # print(cluster_PCA)
-
-                # Import matplotlib for plotting and use magic command for Jupyter Notebooks
-                # Set the style
-                # plt.style.use('fivethirtyeight')
-                # fig = plt.figure(figsize = (100,8))
-                #
-                # # list of x locations for plotting
-                # x_values = list(range(len(importances)))
-                # # Make a bar chart
-                # plt.bar(x_values, importances, orientation = 'vertical')
-                # # Tick labels for x axis
-                # plt.xticks(x_values, feature_list, rotation='vertical', fontsize = 8)
-                # # Axis labels and title
-                # plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances %s'%cluster_number);
-                #
-                # print("Saving Variable Importances for %s as figure..."%cluster_number)
-                # plt.savefig(os.path.join(dir,'figs', 'ablation', 'randomforest_grandmean_%s_PCA_%s_components.png'%(cluster_number,i)), bbox_inches='tight', dpi=300)
-                # plt.close()
-
-                # x = np.cumsum(pca.explained_variance_ratio_)
-                # plt.plot(x)
-                # plt.xlabel('Number of components')
-                # plt.ylabel('Explained variance (%)')
-                # plt.savefig(os.path.join(dir,'figs', '%s_PCA.png'%cluster_number), bbox_inches='tight', dpi=300)
-                # plt.close()
-
-                # feature_importances_PCA_all = pd.merge(feature_importances_all, cluster_features, on = 'feature', how = 'outer')
-
-                if i == 0:
-                    ### correlation ###
-                    components_list = principalDf.columns
-                    df_pc = principalDf
-                    features_corr = features[:368]
-                    pc_corr_r_clusters = pd.DataFrame(components_list, columns={'PC'})
-                    pc_corr_p_clusters = pd.DataFrame(components_list, columns={'PC'})
-                    for feature in features_corr:
-                        corr_list_r = []
-                        corr_list_p = []
-                        for pc in components_list:
-                            pc_correlation_r = stats.pearsonr(data[feature], df_pc[pc])[0]
-                            pc_correlation_p = stats.pearsonr(data[feature], df_pc[pc])[1]
-                            corr_list_r.append(pc_correlation_r)
-                            corr_list_p.append(pc_correlation_p)
-                        single_feature_corr_r = pd.DataFrame(corr_list_r, columns={feature})
-                        single_feature_corr_p = pd.DataFrame(corr_list_p, columns={feature})
-                        pc_corr_r_clusters = pd.concat([pc_corr_r_clusters, single_feature_corr_r], axis=1)
-                        pc_corr_p_clusters = pd.concat([pc_corr_p_clusters, single_feature_corr_p], axis=1)
-
-                    print ("Saving data as cluster_corr_r.csv")
-                    pc_corr_r_clusters.to_csv(os.path.join(dir,'data_analysis_viz','cluster_corr_r_%s.csv'%cluster_number), index=True, encoding='utf-8')
-
-                    print ("Saving data as cluster_corr_p.csv")
-                    pc_corr_p_clusters.to_csv(os.path.join(dir,'data_analysis_viz','cluster_corr_p_%s.csv'%cluster_number), index=True, encoding='utf-8')
-
-                print ('Appending grand values...')
-                PCA_cluster_accuracy_list.append(accuracy_score(test_labels, predictions))
-                PCA_cluster_n_features_list.append(len(cluster_PCA['component']))
-                PCA_cluster_df_kind_list.append(cluster_number)
-                # print(PCA_cluster_accuracy_list)
-                # print(PCA_cluster_n_features_list)
-                # print(PCA_cluster_df_kind_list)
-                # find the min of the features
-                idx_max_feature = cluster_PCA[['importance_%s'%cluster_number]].idxmax()[0]
-                max_feature = cluster_PCA.iloc[idx_max_feature][0]
-                PCA_cluster_removed_features_list.append(max_feature)
-                print ('Appending max PC: %s'%max_feature)
-                # # remove min
-                print('Dropping maximum principal component: %s...'%max_feature)
-                finalDf = finalDf.drop(max_feature, axis=1)
-                # do the RF again
-                # save accuracy and number of features
-                # repeat til 1 feature left
-                # plot x number of features and y accuracy
-
-                if i == 9:
-                    cluster_reduced_df = pd.DataFrame({'accuracy': PCA_cluster_accuracy_list, 'n_components': PCA_cluster_n_features_list, 'kind': PCA_cluster_df_kind_list, 'removed_feature': PCA_cluster_removed_features_list})
-
-                    fig = plt.figure(figsize = (100,8))
-                    plt.title('Model Accuracy by Principal Component Reduction (Elbow Plot)')
-                    plt.plot(cluster_reduced_df['n_components'], cluster_reduced_df['accuracy'])
-                    plt.bar(cluster_reduced_df['n_components'], cluster_reduced_df['accuracy'])
-                    plt.xlabel('Number of Principal Components (PCs)')
-                    plt.ylabel('Model Accuracy')
-                    # plt.show()
-
-                    print("Saving feature ablation for Variable Importances for all clusters as figure...")
-                    plt.savefig(os.path.join(fig_dir, 'ablation', 'randomforest_PCA_reduction_cluster_%s.png'%number_of_features), bbox_inches='tight', dpi=300)
-                    plt.close()
-
-                    print ("Saving data as cluster_reduced_df.csv")
-                    cluster_reduced_df.to_csv(os.path.join(dir,'data_analysis_viz','cluster_reduced_df.csv'), index=True, encoding='utf-8')
+        # cluster_dict  = {'df_group_0':df_group_0,'df_group_1':df_group_1,'df_group_2':df_group_2,'df_group_3':df_group_3,'df_group_4':df_group_4}
+        # for cluster, value in cluster_dict.items():
+        #     cluster_number = 'cluster_' + cluster[-1:]
+        #
+        #     ## PCA
+        #     data = value
+        #
+        #     features = list(data.columns)
+        #     feature_number = len(features)
+        #
+        #     # Separating out the features
+        #     x = data.loc[:, features].values
+        #     # Separating out the target
+        #     y = data.loc[:,[cluster_number]].values
+        #     # Standardizing the features
+        #     x = StandardScaler().fit_transform(x)
+        #
+        #     pca = PCA(n_components=10, random_state=random_state)
+        #     print("Fitting PCA on %s..."%cluster_number)
+        #     principalComponents = pca.fit_transform(x)
+        #     pc_columns = []
+        #     for j in range(len(principalComponents[1])):
+        #         pc_string = 'principal component' + " " + str(j + 1)
+        #         pc_columns.append(pc_string)
+        #     # principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2'])
+        #     principalDf = pd.DataFrame(data = principalComponents, columns = pc_columns)
+        #
+        #     finalDf = pd.concat([principalDf, data[cluster_number]], axis=1)
+        #
+        #     print ("Saving data as principal_components.csv")
+        #     finalDf.to_csv(os.path.join(dir,'data_analysis_viz','principal_components_%s.csv'%cluster_number), index=True, encoding='utf-8')
+        #
+        #     exp_var_cluster = pd.DataFrame({"explained_variance": pca.explained_variance_ratio_})
+        #     print ("Saving data as pca_explained_variance_%s.csv"%cluster_number)
+        #     exp_var_cluster.to_csv(os.path.join(dir,'data_analysis_viz','pca_explained_variance_%s.csv'%cluster_number), index=True, encoding='utf-8')
+        #
+        #
+        #     for i in range(0,10):
+        #         ###### BASELINE #######
+        #         # Labels are the values we want to predict
+        #         labels = np.array(finalDf[cluster_number])
+        #         # Remove the labels from the features
+        #         # axis 1 refers to the columns
+        #         finalDf_array = finalDf.drop('%s'%cluster_number, axis = 1)
+        #         number_of_features = len(finalDf.columns)
+        #         # Saving feature names for later use
+        #         feature_list = list(finalDf_array.columns)
+        #         # Convert to numpy array
+        #         finalDf_array = np.array(finalDf_array)
+        #
+        #         # Using Skicit-learn to split data into training and testing sets
+        #         from sklearn.model_selection import train_test_split
+        #         # Split the data into training and testing sets
+        #         train_features, test_features, train_labels, test_labels = train_test_split(finalDf_array, labels, test_size = test_size, random_state = random_state)
+        #
+        #         # Instantiate model with 1000 decision trees
+        #         # rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
+        #         rf = make_pipeline(StandardScaler(), RandomForestClassifier(n_estimators = n_estimators, random_state = random_state, n_jobs = n_jobs))
+        #         # Train the model on training data
+        #         print ("Training Random Forest on %s PCs for %s..."%(i, cluster_number))
+        #         t = time.time()
+        #         rf.fit(train_features, train_labels);
+        #         elapsed_rf = time.time() - t
+        #         print("Random Forest elapsed time (in sec): %s" %elapsed_rf)
+        #
+        #         # cross validation
+        #         print ("Cross-validation...")
+        #         t = time.time()
+        #         scores = cross_val_score(rf, train_features, train_labels, cv=cv)
+        #         elapsed_rf = time.time() - t
+        #         print("CV elapsed time (in sec): %s" %elapsed_rf)
+        #         scores
+        #         print('Mean CV Accuracy: %.3f (%.3f)' % (np.mean(scores), np.std(scores)))
+        #
+        #         # # Use the forest's predict method on the test data
+        #         predictions = rf.predict(test_features)
+        #
+        #         # View the classification report for test data and predictions
+        #         print("Accuracy on test data..")
+        #         print(accuracy_score(test_labels, predictions))
+        #         print("Confusion matrix on test data..")
+        #         print(confusion_matrix(test_labels,predictions))
+        #         print("Classification report on test data...")
+        #         print(classification_report(test_labels, predictions))
+        #
+        #         # Get numerical feature importances
+        #         importances = list(rf.steps[1][1].feature_importances_)
+        #         # List of tuples with variable and importance
+        #         feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(feature_list, importances)]
+        #         # Sort the feature importances by most important first
+        #         feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse = True)
+        #         cluster_PCA = pd.DataFrame(feature_importances, columns = {'component': '0','importance_%s'%cluster_number: '1'})
+        #         # cluster_PCA_50 = cluster_PCA['importance_%s'%cluster_number].quantile(0.5)
+        #         # cluster_PCA_50 = cluster_PCA[cluster_PCA['importance_%s'%cluster_number] > cluster_PCA_50]
+        #
+        #         # Print out the feature and importances
+        #         # [print('Variable: {:20} Importance: {}'.format(*pair)) for pair in feature_importances];
+        #         # print(cluster_PCA)
+        #
+        #         # Import matplotlib for plotting and use magic command for Jupyter Notebooks
+        #         # Set the style
+        #         # plt.style.use('fivethirtyeight')
+        #         # fig = plt.figure(figsize = (100,8))
+        #         #
+        #         # # list of x locations for plotting
+        #         # x_values = list(range(len(importances)))
+        #         # # Make a bar chart
+        #         # plt.bar(x_values, importances, orientation = 'vertical')
+        #         # # Tick labels for x axis
+        #         # plt.xticks(x_values, feature_list, rotation='vertical', fontsize = 8)
+        #         # # Axis labels and title
+        #         # plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances %s'%cluster_number);
+        #         #
+        #         # print("Saving Variable Importances for %s as figure..."%cluster_number)
+        #         # plt.savefig(os.path.join(dir,'figs', 'ablation', 'randomforest_grandmean_%s_PCA_%s_components.png'%(cluster_number,i)), bbox_inches='tight', dpi=300)
+        #         # plt.close()
+        #
+        #         # x = np.cumsum(pca.explained_variance_ratio_)
+        #         # plt.plot(x)
+        #         # plt.xlabel('Number of components')
+        #         # plt.ylabel('Explained variance (%)')
+        #         # plt.savefig(os.path.join(dir,'figs', '%s_PCA.png'%cluster_number), bbox_inches='tight', dpi=300)
+        #         # plt.close()
+        #
+        #         # feature_importances_PCA_all = pd.merge(feature_importances_all, cluster_features, on = 'feature', how = 'outer')
+        #
+        #         if i == 0:
+        #             ### correlation ###
+        #             components_list = principalDf.columns
+        #             df_pc = principalDf
+        #             features_corr = features[:368]
+        #             pc_corr_r_clusters = pd.DataFrame(components_list, columns={'PC'})
+        #             pc_corr_p_clusters = pd.DataFrame(components_list, columns={'PC'})
+        #             for feature in features_corr:
+        #                 corr_list_r = []
+        #                 corr_list_p = []
+        #                 for pc in components_list:
+        #                     pc_correlation_r = stats.pearsonr(data[feature], df_pc[pc])[0]
+        #                     pc_correlation_p = stats.pearsonr(data[feature], df_pc[pc])[1]
+        #                     corr_list_r.append(pc_correlation_r)
+        #                     corr_list_p.append(pc_correlation_p)
+        #                 single_feature_corr_r = pd.DataFrame(corr_list_r, columns={feature})
+        #                 single_feature_corr_p = pd.DataFrame(corr_list_p, columns={feature})
+        #                 pc_corr_r_clusters = pd.concat([pc_corr_r_clusters, single_feature_corr_r], axis=1)
+        #                 pc_corr_p_clusters = pd.concat([pc_corr_p_clusters, single_feature_corr_p], axis=1)
+        #
+        #             print ("Saving data as cluster_corr_r.csv")
+        #             pc_corr_r_clusters.to_csv(os.path.join(dir,'data_analysis_viz','cluster_corr_r_%s.csv'%cluster_number), index=True, encoding='utf-8')
+        #
+        #             print ("Saving data as cluster_corr_p.csv")
+        #             pc_corr_p_clusters.to_csv(os.path.join(dir,'data_analysis_viz','cluster_corr_p_%s.csv'%cluster_number), index=True, encoding='utf-8')
+        #
+        #         print ('Appending grand values...')
+        #         PCA_cluster_accuracy_list.append(accuracy_score(test_labels, predictions))
+        #         PCA_cluster_n_features_list.append(len(cluster_PCA['component']))
+        #         PCA_cluster_df_kind_list.append(cluster_number)
+        #         # print(PCA_cluster_accuracy_list)
+        #         # print(PCA_cluster_n_features_list)
+        #         # print(PCA_cluster_df_kind_list)
+        #         # find the min of the features
+        #         idx_max_feature = cluster_PCA[['importance_%s'%cluster_number]].idxmax()[0]
+        #         max_feature = cluster_PCA.iloc[idx_max_feature][0]
+        #         PCA_cluster_removed_features_list.append(max_feature)
+        #         print ('Appending max PC: %s'%max_feature)
+        #         # # remove min
+        #         print('Dropping maximum principal component: %s...'%max_feature)
+        #         finalDf = finalDf.drop(max_feature, axis=1)
+        #         # do the RF again
+        #         # save accuracy and number of features
+        #         # repeat til 1 feature left
+        #         # plot x number of features and y accuracy
+        #
+        #         if i == 9:
+        #             cluster_reduced_df = pd.DataFrame({'accuracy': PCA_cluster_accuracy_list, 'n_components': PCA_cluster_n_features_list, 'kind': PCA_cluster_df_kind_list, 'removed_feature': PCA_cluster_removed_features_list})
+        #
+        #             fig = plt.figure(figsize = (100,8))
+        #             plt.title('Model Accuracy by Principal Component Reduction (Elbow Plot)')
+        #             plt.plot(cluster_reduced_df['n_components'], cluster_reduced_df['accuracy'])
+        #             plt.bar(cluster_reduced_df['n_components'], cluster_reduced_df['accuracy'])
+        #             plt.xlabel('Number of Principal Components (PCs)')
+        #             plt.ylabel('Model Accuracy')
+        #             # plt.show()
+        #
+        #             print("Saving feature ablation for Variable Importances for all clusters as figure...")
+        #             plt.savefig(os.path.join(fig_dir, 'ablation', 'randomforest_PCA_reduction_cluster_%s.png'%number_of_features), bbox_inches='tight', dpi=300)
+        #             plt.close()
+        #
+        #             print ("Saving data as cluster_reduced_df.csv")
+        #             cluster_reduced_df.to_csv(os.path.join(dir,'data_analysis_viz','cluster_reduced_df.csv'), index=True, encoding='utf-8')
 
 
 elapsed_total_time = (time.time() - total_start_time)/60
