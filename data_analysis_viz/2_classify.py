@@ -29,6 +29,7 @@ from sklearn.inspection import permutation_importance
 
 # set up directory and read in csv
 dir = '/Users/bcl/Documents/GitHub/queer_speech'
+fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs'
 os.chdir(dir)
 ratings_features_fname = os.path.join(dir, 'feature_extraction', 'ratings_features_all.csv')
 data = pd.read_csv(ratings_features_fname)
@@ -72,7 +73,7 @@ plt.plot(K, distortions, 'bx-')
 plt.xlabel('k')
 plt.ylabel('Distortion')
 plt.title('The Elbow Method showing the optimal clusters')
-plt.savefig(os.path.join(dir,'figs', 'kmeans_cluster_elbow.png'), bbox_inches='tight', dpi=300)
+plt.savefig(os.path.join(fig_dir, 'kmeans_cluster_elbow.png'), bbox_inches='tight', dpi=300)
 plt.close()
 
 # Define the model for 3 clusters
@@ -310,7 +311,7 @@ for type in type_list:
         # Axis labels and title
         plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances');
 
-        plt.savefig(os.path.join(dir,'figs', 'randomforest_grandmean_rando.png'), bbox_inches='tight', dpi=300)
+        plt.savefig(os.path.join(fig_dir, 'randomforest_grandmean_rando.png'), bbox_inches='tight', dpi=300)
         plt.close()
 
         ######### CLUSTERS ########
@@ -393,7 +394,7 @@ for type in type_list:
             plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances %s'%cluster_number);
 
             print("Saving Variable Importances for %s as figure..."%cluster_number)
-            plt.savefig(os.path.join(dir,'figs', 'randomforest_grandmean_%s_rando.png'%cluster_number), bbox_inches='tight', dpi=300)
+            plt.savefig(os.path.join(fig_dir, 'randomforest_grandmean_%s_rando.png'%cluster_number), bbox_inches='tight', dpi=300)
             plt.close()
 
     if type == 'raw_ablation':
@@ -495,11 +496,11 @@ for type in type_list:
                 # Axis labels and title
                 plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances');
 
-                plt.savefig(os.path.join(dir,'figs', 'ablation','randomforest_grandmean_raw_all_features.png'), bbox_inches='tight', dpi=300)
+                plt.savefig(os.path.join(fig_dir, 'ablation','randomforest_grandmean_raw_all_features.png'), bbox_inches='tight', dpi=300)
                 plt.close()
 
                 print ("Saving data as grand_feature_importances.csv")
-                grand_features.to_csv(os.path.join(dir,'data_analysis_viz','grand_feature_importances.csv'), index=True, encoding='utf-8')
+                grand_features.to_csv(os.path.join(fig_dir,'data_analysis_viz','grand_feature_importances.csv'), index=True, encoding='utf-8')
 
             # feature_importances_all = pd.merge(feature_importances_all, grand_features, on = 'feature', how = 'outer')
 
@@ -607,7 +608,7 @@ for type in type_list:
                     plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances %s'%cluster_number);
 
                     print("Saving Variable Importances for %s as figure..."%cluster_number)
-                    plt.savefig(os.path.join(dir,'figs', 'ablation', 'randomforest_%s_raw_all_features_ablated.png'%cluster_number), bbox_inches='tight', dpi=300)
+                    plt.savefig(os.path.join(fig_dir, 'ablation', 'randomforest_%s_raw_all_features_ablated.png'%cluster_number), bbox_inches='tight', dpi=300)
                     plt.close()
 
                     print ("Saving data as cluster_feature_importances.csv")
@@ -649,7 +650,7 @@ for type in type_list:
                     # plt.show()
 
                     print("Saving feature ablation for Variable Importances for %s as figure..."%cluster_number)
-                    plt.savefig(os.path.join(dir,'figs', 'ablation', 'randomforest_feature_ablation_%s.png'%cluster_number), bbox_inches='tight', dpi=300)
+                    plt.savefig(os.path.join(fig_dir, 'ablation', 'randomforest_feature_ablation_%s.png'%cluster_number), bbox_inches='tight', dpi=300)
                     plt.close()
 
                     print ("Saving data as cluster_ablated_df.csv")
@@ -672,7 +673,7 @@ for type in type_list:
                 # plt.show()
 
                 print("Saving feature ablation for Variable Importances for all clusters as figure...")
-                plt.savefig(os.path.join(dir,'figs', 'ablation', 'randomforest_feature_ablation_all.png'), bbox_inches='tight', dpi=300)
+                plt.savefig(os.path.join(fig_dir, 'ablation', 'randomforest_feature_ablation_all.png'), bbox_inches='tight', dpi=300)
                 plt.close()
 
                 print ("Saving data as grand_ablated_df.csv")
@@ -955,7 +956,7 @@ for type in type_list:
                     # plt.show()
 
                     print("Saving single features for Variable Importances for %s as figure..."%cluster_number)
-                    plt.savefig(os.path.join(dir,'figs', 'randomforest_byfeature_%s.png'%cluster_number), bbox_inches='tight', dpi=300)
+                    plt.savefig(os.path.join(fig_dir, 'randomforest_byfeature_%s.png'%cluster_number), bbox_inches='tight', dpi=300)
                     plt.close()
 
                     print ("Saving data as cluster_byfeature_df.csv")
@@ -979,7 +980,7 @@ for type in type_list:
                 # plt.show()
 
                 print("Saving single features for Variable Importances for all clusters as figure...")
-                plt.savefig(os.path.join(dir,'figs', 'randomforest_byfeature_all.png'), bbox_inches='tight', dpi=300)
+                plt.savefig(os.path.join(fig_dir, 'randomforest_byfeature_all.png'), bbox_inches='tight', dpi=300)
                 plt.close()
 
                 print ("Saving data as grand_byfeature_df.csv")
@@ -1029,7 +1030,7 @@ for type in type_list:
         print ("Saving data as principal_components.csv")
         finalDf.to_csv(os.path.join(dir,'data_analysis_viz','principal_components.csv'), index=True, encoding='utf-8')
 
-        exp_var_all = pd.DataFrame({"explained_variance": pca.explained_variance_})
+        exp_var_all = pd.DataFrame({"explained_variance": pca.explained_variance_ratio_})
         print ("Saving data as pca_explained_variance_all.csv")
         exp_var_all.to_csv(os.path.join(dir,'data_analysis_viz','pca_explained_variance_all.csv'), index=True, encoding='utf-8')
 
@@ -1169,33 +1170,6 @@ for type in type_list:
                     pc_corr_r_all.to_csv(os.path.join(dir,'data_analysis_viz','pc_corr_r_%s.csv'%condition), index=True, encoding='utf-8')
                     pc_corr_p_all.to_csv(os.path.join(dir,'data_analysis_viz','pc_corr_p_%s.csv'%condition), index=True, encoding='utf-8')
 
-
-
-
-                # specific_features_to_plot = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist', 'IH_sF2_mean_dist', 'IH_sF3_mean_dist', 'IH_sF4_mean_dist',
-                #                     'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF2_mean_third', 'AY_sF3_mean_third', 'AY_sF4_mean_third',
-                #                     'vowel_avg_dur','percent_creak','spectral_S_cog','spectral_S_duration','spectral_S_skew']
-                #
-                # corr_r = pd.DataFrame({'split':['all','gender_id','sexual_orientation','voice_id']})
-                # corr_p = pd.DataFrame({'split':['all','gender_id','sexual_orientation','voice_id']})
-                # for feature in specific_features_to_plot:
-                #     corr_list_r = []
-                #     corr_list_p = []
-                #     for condition, df in condition_dict.items():
-                #         for pc in components_list:
-                #             pc_correlation_r = stats.pearsonr(df[pc], df[feature])[0]
-                #             pc_correlation_p = stats.pearsonr(df[pc], df[feature])[1]
-                #             corr_list_r.append(pc_correlation_r)
-                #             corr_list_p.append(pc_correlation_p)
-                #         single_feature_corr_r = pd.DataFrame(corr_list_r, columns={'%s'%(feature)})
-                #         single_feature_corr_p = pd.DataFrame(corr_list_p, columns={'%s'%(feature)})
-                #         corr_r = pd.concat([corr_r, single_feature_corr_r], axis=1)
-                #         corr_p = pd.concat([corr_p, single_feature_corr_r], axis=1)
-                #     corr_r.to_csv(os.path.join(dir,'data_analysis_viz','pc_corr_r_%s.csv'%condition), index=True, encoding='utf-8')
-                #     corr_p.to_csv(os.path.join(dir,'data_analysis_viz','pc_corr_r_%s.csv'%condition), index=True, encoding='utf-8')
-
-
-
             ## principal component reduction ##
             # save accuracy and number of features on original RF
             print ('Appending grand values...')
@@ -1231,7 +1205,7 @@ for type in type_list:
                 # plt.show()
 
                 print("Saving feature ablation for Variable Importances for all clusters as figure...")
-                plt.savefig(os.path.join(dir,'figs', 'ablation', 'randomforest_PCA_reduction_all_%s.png'%number_of_features), bbox_inches='tight', dpi=300)
+                plt.savefig(os.path.join(fig_dir, 'ablation', 'randomforest_PCA_reduction_all_%s.png'%number_of_features), bbox_inches='tight', dpi=300)
                 plt.close()
 
                 print ("Saving data as grand_reduced_df.csv")
@@ -1273,7 +1247,7 @@ for type in type_list:
             print ("Saving data as principal_components.csv")
             finalDf.to_csv(os.path.join(dir,'data_analysis_viz','principal_components_%s.csv'%cluster_number), index=True, encoding='utf-8')
 
-            exp_var_cluster = pd.DataFrame({"explained_variance": pca.explained_variance_})
+            exp_var_cluster = pd.DataFrame({"explained_variance": pca.explained_variance_ratio_})
             print ("Saving data as pca_explained_variance_%s.csv"%cluster_number)
             exp_var_cluster.to_csv(os.path.join(dir,'data_analysis_viz','pca_explained_variance_%s.csv'%cluster_number), index=True, encoding='utf-8')
 
@@ -1425,7 +1399,7 @@ for type in type_list:
                     # plt.show()
 
                     print("Saving feature ablation for Variable Importances for all clusters as figure...")
-                    plt.savefig(os.path.join(dir,'figs', 'ablation', 'randomforest_PCA_reduction_cluster_%s.png'%number_of_features), bbox_inches='tight', dpi=300)
+                    plt.savefig(os.path.join(fig_dir, 'ablation', 'randomforest_PCA_reduction_cluster_%s.png'%number_of_features), bbox_inches='tight', dpi=300)
                     plt.close()
 
                     print ("Saving data as cluster_reduced_df.csv")
@@ -1434,6 +1408,15 @@ for type in type_list:
 
 elapsed_total_time = (time.time() - total_start_time)/60
 print("Total elapsed time (in min): %s" %elapsed_total_time)
+
+specific_features_to_plot = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist', 'IH_sF2_mean_dist', 'IH_sF3_mean_dist', 'IH_sF4_mean_dist',
+                    'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF2_mean_third', 'AY_sF3_mean_third', 'AY_sF4_mean_third',
+                    'vowel_avg_dur','percent_creak','spectral_S_cog','spectral_S_duration','spectral_S_skew']
+
+
+df_specific = df_orig.groupby('kmeans_5_cluster', as_index=False)[specific_features_to_plot].mean()
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+    print(df_specific)
 
 
 ################################ GRAVEYARD ####################################

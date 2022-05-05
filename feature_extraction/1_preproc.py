@@ -169,7 +169,7 @@ for val in formant_labels:
 
 ## split diphthongs in thirds, take mean, min, max formants for F1, F2, F3, F4 on first and third
 print ("Getting diphthong thirds...")
-WAV_list = np.array(new_names)
+# WAV_list = np.array(new_names)
 WAV_list = np.unique(WAV_list).tolist()
 for diph in diph_list:
     temp_list = pd.DataFrame()

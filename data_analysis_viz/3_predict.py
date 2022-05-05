@@ -19,7 +19,7 @@ from sklearn.impute import SimpleImputer
 # set up directory and read in csv
 dir = '/Users/bcl/Documents/GitHub/queer_speech'
 os.chdir(dir)
-corr_fname = os.path.join(dir, 'data_analysis_viz', 'grand_corr.csv')
+corr_fname = os.path.join(dir, 'data_analysis_viz', 'grand_corr_r.csv')
 grand_ablated_df_fname = os.path.join(dir, 'data_analysis_viz', 'grand_ablated_df.csv')
 data_fname = os.path.join(dir, 'data_analysis_viz', 'queer_data.csv')
 
@@ -112,11 +112,14 @@ for feature in feature_list: # loop for making a list of the vowel spectral feat
 
 
 ## PCs ##
-pc_list = ['principal component 1', 'principal component 2',
-       'principal component 3', 'principal component 4',
-       'principal component 5', 'principal component 6',
-       'principal component 7', 'principal component 8',
-       'principal component 9', 'principal component 10']
+pca_fname = os.path.join(dir, 'data_analysis_viz','principal_components.csv')
+pca = pd.read_csv(pca_fname)
+
+pc_list = ['Principal Component 1', 'Principal Component 2',
+       'Principal Component 3', 'Principal Component 4',
+       'Principal Component 5', 'Principal Component 6',
+       'Principal Component 7', 'Principal Component 8',
+       'Principal Component 9', 'Principal Component 10']
 
 # X = df_imp[['kmeans_5_cluster']]
 # Y = df_imp['percent_creak']

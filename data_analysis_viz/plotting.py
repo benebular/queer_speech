@@ -16,6 +16,7 @@ np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
 dir = '/Users/bcl/Documents/GitHub/queer_speech'
+fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs'
 os.chdir(dir)
 ratings_fname = os.path.join(dir, 'data_analysis_viz','queer_data.csv')
 ratings_all = pd.read_csv(ratings_fname)
@@ -53,7 +54,7 @@ pt.RainCloud(x = dx, y = dy, data = plot_F0, palette = pal, bw = sigma,
 
 plt.title("10th percentile; Average F0; 90th percentile, by speaker (across entire utterance), %s Participants"%number_participants)
 # plt.show()
-plt.savefig(os.path.join(dir,'figs', 'F0_raincloud.png'), bbox_inches='tight', dpi=300)
+plt.savefig(os.path.join(fig_dir, 'F0_raincloud.png'), bbox_inches='tight', dpi=300)
 plt.close()
 
 ##### regression indiv loop over all features ########
@@ -208,7 +209,7 @@ for feature in features_to_plot:
             axes[2].get_legend().remove()
 
             # plt.show()
-            plt.savefig(os.path.join(dir,'figs', '3_cluster', '%s_avgbycondition_3_clusters.png'%feature), bbox_inches='tight', dpi=300)
+            plt.savefig(os.path.join(fig_dir, '3_cluster', '%s_avgbycondition_3_clusters.png'%feature), bbox_inches='tight', dpi=300)
             plt.close()
 
         if color == 'color_4_cluster':
@@ -224,7 +225,7 @@ for feature in features_to_plot:
 
 
             # plt.show()
-            plt.savefig(os.path.join(dir,'figs', '4_cluster', '%s_avgbycondition_4_clusters.png'%feature), bbox_inches='tight', dpi=300)
+            plt.savefig(os.path.join(fig_dir, '4_cluster', '%s_avgbycondition_4_clusters.png'%feature), bbox_inches='tight', dpi=300)
             plt.close()
 
 
@@ -242,7 +243,7 @@ for feature in features_to_plot:
 
 
             # plt.show()
-            plt.savefig(os.path.join(dir,'figs', '5_cluster', '%s_avgbycondition_5_clusters.png'%feature), bbox_inches='tight', dpi=300)
+            plt.savefig(os.path.join(fig_dir, '5_cluster', '%s_avgbycondition_5_clusters.png'%feature), bbox_inches='tight', dpi=300)
             plt.close()
 
 
@@ -608,7 +609,7 @@ for pc in pc_list:
                 axes[2,2].get_legend().remove()
 
                 # plt.show()
-                plt.savefig(os.path.join(dir,'figs', '3_cluster', 'pc_corr', '%s_avgbycondition_3_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
+                plt.savefig(os.path.join(fig_dir, '3_cluster', 'pc_corr', '%s_avgbycondition_3_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
                 plt.close()
 
             if color == 'color_4_cluster':
@@ -624,7 +625,7 @@ for pc in pc_list:
 
 
                 # plt.show()
-                plt.savefig(os.path.join(dir,'figs', '4_cluster', 'pc_corr', '%s_avgbycondition_4_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
+                plt.savefig(os.path.join(fig_dir, '4_cluster', 'pc_corr', '%s_avgbycondition_4_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
                 plt.close()
 
 
@@ -642,7 +643,7 @@ for pc in pc_list:
 
 
                 # plt.show()
-                plt.savefig(os.path.join(dir,'figs', '5_cluster', 'pc_corr', '%s_avgbycondition_5_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
+                plt.savefig(os.path.join(fig_dir, '5_cluster', 'pc_corr', '%s_avgbycondition_5_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=400)
                 plt.close()
 
 
@@ -688,26 +689,26 @@ for cluster, color in cluster_list.items():
     ax.set_facecolor("white")
     if cluster == 0:
         ax.set_title('QM', fontsize=40)
-        plt.savefig(os.path.join(dir,'figs', 'QM_flag.png'), bbox_inches='tight', dpi=300)
+        plt.savefig(os.path.join(fig_dir, 'QM_flag.png'), bbox_inches='tight', dpi=300)
         plt.close()
     if cluster == 1:
         ax.set_title('SW', fontsize=40)
-        plt.savefig(os.path.join(dir,'figs', 'SW_flag.png'), bbox_inches='tight', dpi=300)
+        plt.savefig(os.path.join(fig_dir, 'SW_flag.png'), bbox_inches='tight', dpi=300)
         plt.close()
 
     if cluster == 2:
         ax.set_title('SM', fontsize=40)
-        plt.savefig(os.path.join(dir,'figs', 'SM_flag.png'), bbox_inches='tight', dpi=300)
+        plt.savefig(os.path.join(fig_dir, 'SM_flag.png'), bbox_inches='tight', dpi=300)
         plt.close()
 
     if cluster == 3:
         ax.set_title('QW', fontsize=40)
-        plt.savefig(os.path.join(dir,'figs', 'QW_flag.png'), bbox_inches='tight', dpi=300)
+        plt.savefig(os.path.join(fig_dir, 'QW_flag.png'), bbox_inches='tight', dpi=300)
         plt.close()
 
     if cluster == 4:
         ax.set_title('QN', fontsize=40)
-        plt.savefig(os.path.join(dir,'figs', 'QN_flag.png'), bbox_inches='tight', dpi=300)
+        plt.savefig(os.path.join(fig_dir, 'QN_flag.png'), bbox_inches='tight', dpi=300)
         plt.close()
 
 
@@ -780,7 +781,7 @@ ax.set_title('Correlation between Important Features and PCs for Grand Features'
 # fig.tight_layout()
 
 plt.colorbar(im)
-plt.savefig(os.path.join(dir,'figs', 'heatmap_important_features_PC_corr.png'), bbox_inches='tight', dpi=300)
+plt.savefig(os.path.join(fig_dir, 'heatmap_important_features_PC_corr.png'), bbox_inches='tight', dpi=300)
 plt.close()
 # plt.show()
 
@@ -846,7 +847,7 @@ for cluster, value in cluster_dict.items():
     # ax.legend()
     # fig.tight_layout()
     plt.colorbar(im)
-    plt.savefig(os.path.join(dir,'figs', 'heatmap_important_features_PC_corr_%s.png'%cluster), bbox_inches='tight', dpi=300)
+    plt.savefig(os.path.join(fig_dir, 'heatmap_important_features_PC_corr_%s.png'%cluster), bbox_inches='tight', dpi=300)
     plt.close()
 
 ### specific feature heatmaps ###
@@ -881,7 +882,7 @@ ax.set_title('Correlation between Specific Features and PCs for Grand Features',
 # ax.legend()
 # fig.tight_layout()
 plt.colorbar(im)
-plt.savefig(os.path.join(dir,'figs', 'heatmap_grand_corr_specific.png'), bbox_inches='tight', dpi=300)
+plt.savefig(os.path.join(fig_dir, 'heatmap_grand_corr_specific.png'), bbox_inches='tight', dpi=300)
 plt.close()
 
 ### cluster heatmaps ###
@@ -952,7 +953,7 @@ for cluster, value in cluster_dict.items():
     # ax.legend()
     # fig.tight_layout()
     plt.colorbar(im)
-    plt.savefig(os.path.join(dir,'figs', 'heatmap_%s_corr_specific.png'%cluster), bbox_inches='tight', dpi=300)
+    plt.savefig(os.path.join(fig_dir, 'heatmap_%s_corr_specific.png'%cluster), bbox_inches='tight', dpi=300)
     plt.close()
 
 
