@@ -300,7 +300,8 @@ ratings_temp = ratings_all[['Rating','kmeans_4_cluster','kmeans_3_cluster','3_ra
 ratings_nums = ratings_all.drop(['Rating','kmeans_4_cluster','kmeans_3_cluster','3_rando_classes','4_rando_classes','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
                 'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
                 'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
-                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start'], axis=1)
+                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start',
+                'S_avg_dur','Z_avg_dur','F_avg_dur','V_avg_dur','JH_avg_dur','SH_avg_dur'], axis=1)
 
 ## impute for the cross validation, random forest needs values in each, below we are creating one large df with imputed column means from teh entire set, and then 5 cluster groups with the gran imputed means
 from sklearn.impute import SimpleImputer
@@ -648,6 +649,7 @@ for pc in pc_list:
 
 
 ### cluster identity flags ###
+sns.set()
 condition_means = ratings_all.pivot_table(index='kmeans_5_cluster', columns = 'Condition', values = 'Rating_z_score')
 n_per_cluster = ratings_all.groupby(['kmeans_5_cluster'], as_index=False)['WAV'].nunique()
 
@@ -667,7 +669,7 @@ for cluster, color in cluster_list.items():
 
     labels_left = ['more man-like','same gender','more masculine-sounding']
     labels_right = ['more woman-like','opposite gender','more feminine-sounding']
-    labels_center = ['nb', 'any gender','neither']
+    labels_center = ['nb','any gender','neither']
 
     fig, ax = plt.subplots(figsize = (20,8))
     b1 = plt.barh(PG_condition, PG, color=color)

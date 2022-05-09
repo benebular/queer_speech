@@ -17,7 +17,7 @@ from sklearn.impute import SimpleImputer
 # np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
-dir = '/Users/bcl/Documents/GitHub/queer_speech'
+dir = '/Users/bcl/GitHub/queer_speech'
 os.chdir(dir)
 corr_fname = os.path.join(dir, 'data_analysis_viz', 'grand_corr_r.csv')
 grand_ablated_df_fname = os.path.join(dir, 'data_analysis_viz', 'grand_ablated_df.csv')
@@ -48,17 +48,24 @@ corr_best = corr_df[best_features_list]
 # voice_id = data[data['Condition']=='voice_id']
 
 df = data
+df_temp = df[['Rating','Rating_z_score','kmeans_4_cluster','kmeans_3_cluster','3_rando_classes','4_rando_classes','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
+                'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
+                'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
+                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start']]
 # df['rando_baseline_z_score'] = stats.zscore(np.round(np.random.uniform(1.0,8.0,len(df)), 1), axis=0)
 df = df.drop(['Rating','Rating_z_score','kmeans_4_cluster','kmeans_3_cluster','3_rando_classes','4_rando_classes','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
                 'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
                 'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
-                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start'], axis=1)
+                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start',
+                'S_avg_dur','Z_avg_dur','F_avg_dur','V_avg_dur','JH_avg_dur','SH_avg_dur'], axis=1)
 
 ## impute cluster means for each cluster in the loop
 imp = SimpleImputer(missing_values=np.nan, strategy='mean')
 imp = imp.fit(df)
 df_imp = imp.transform(df)
 df_imp = pd.DataFrame(df_imp, columns = df.columns)
+df_imp = pd.concat([df_imp, df_temp], axis=1)
+
 
 # make cluster dfs with imputed grand means
 df_cluster_dummies = pd.get_dummies(df_imp['kmeans_5_cluster'], prefix='cluster')
@@ -71,13 +78,20 @@ df_group_2 = df_sans.drop(['cluster_0','cluster_1','cluster_3','cluster_4'], axi
 df_group_3 = df_sans.drop(['cluster_0','cluster_1','cluster_2','cluster_4'], axis=1)
 df_group_4 = df_sans.drop(['cluster_0','cluster_1','cluster_2','cluster_3'], axis=1)
 
+gender_id = df_imp[df_imp['Condition']=='gender_id']
+sexual_orientation = df_imp[df_imp['Condition']=='sexual_orientation']
+voice_id = df_imp[df_imp['Condition']=='voice_id']
+number_participants = df_imp['Participant'].nunique()
+
 ### linear regression ###
 
 ## grand ##
 feature_list = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist','IH_sF2_mean_dist','IH_sF3_mean_dist','IH_sF4_mean_dist',
-                'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF1_mean_third', 'AY_sF1_mean_third', 'AY_sF1_mean_third',
+                'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF2_mean_third', 'AY_sF3_mean_third', 'AY_sF4_mean_third',
                 'vowel_avg_dur', 'percent_creak', 'spectral_S_duration','spectral_S_cog','spectral_S_skew']
+
 model_list=[]
+condition_dict = {'gender_id': gender_id, 'sexual_orientation': sexual_orientation, 'voice_id':voice_id}
 
 for feature in feature_list: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
     # concatenate strings with '_'
@@ -89,6 +103,29 @@ for model in model_list:
             mod = smf.ols(formula=model, data=df_imp)
             res = mod.fit()
             print(res.summary())
+
+for feature in feature_list: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
+    # concatenate strings with '_'
+    model_string = "Rating_z_score" + " ~ " + feature
+    # append to list
+    model_list.append(model_string)
+
+for condition, df in condition_dict.items():
+    for model in model_list:
+                print(condition)
+                mod = smf.ols(formula=model, data=df)
+                res = mod.fit()
+                print(res.summary())
+
+super_model = 'Rating_z_score ~ F0_mean + IH_sF1_mean+IH_sF2_mean+IH_sF3_mean+IH_sF4_mean+IH_sF1_mean_dist+IH_sF2_mean_dist+IH_sF3_mean_dist+IH_sF4_mean_dist+AY_sF1_mean_first+ AY_sF2_mean_first+ AY_sF3_mean_first+ AY_sF4_mean_first+ AY_sF1_mean_third+ AY_sF2_mean_third+ AY_sF3_mean_third+ AY_sF4_mean_third+vowel_avg_dur+ percent_creak+ spectral_S_duration+spectral_S_cog + spectral_S_skew'
+
+for condition, df in condition_dict.items():
+    print(condition)
+    mod = smf.ols(formula=super_model, data=df)
+    res = mod.fit()
+    print(res.summary())
+
+
 
 # res.params
 # res.bse

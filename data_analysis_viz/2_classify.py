@@ -201,7 +201,8 @@ df_temp = df[['Rating','Rating_z_score','kmeans_4_cluster','kmeans_3_cluster','3
 df = df.drop(['Rating','Rating_z_score','kmeans_4_cluster','kmeans_3_cluster','3_rando_classes','4_rando_classes','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
                 'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
                 'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
-                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start'], axis=1)
+                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start',
+                'S_avg_dur','Z_avg_dur','F_avg_dur','V_avg_dur','JH_avg_dur','SH_avg_dur'], axis=1)
 
 # feature_importances_all = pd.DataFrame({'feature':list(df.columns)})
 
@@ -1428,16 +1429,6 @@ for type in type_list:
 
 elapsed_total_time = (time.time() - total_start_time)/60
 print("Total elapsed time (in min): %s" %elapsed_total_time)
-
-specific_features_to_plot = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean','IH_sF1_mean_dist', 'IH_sF2_mean_dist', 'IH_sF3_mean_dist', 'IH_sF4_mean_dist',
-                    'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF2_mean_third', 'AY_sF3_mean_third', 'AY_sF4_mean_third',
-                    'vowel_avg_dur','percent_creak','spectral_S_cog','spectral_S_duration','spectral_S_skew']
-
-
-df_specific = df_orig.groupby('kmeans_5_cluster', as_index=False)[specific_features_to_plot].mean()
-with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-    print(df_specific)
-
 
 ################################ GRAVEYARD ####################################
 
