@@ -195,14 +195,14 @@ PCA_cluster_removed_features_list = []
 df_temp = df[['Rating','Rating_z_score','kmeans_4_cluster','kmeans_3_cluster','3_rando_classes','4_rando_classes','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
                 'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
                 'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
-                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start']]
+                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start', 'spectral_TH_start', 'spectral_DH_start',]]
 
 
 df = df.drop(['Rating','Rating_z_score','kmeans_4_cluster','kmeans_3_cluster','3_rando_classes','4_rando_classes','participant_gender_id','participant_sexual_orientation','participant_voice_id','participant_cis_trans',
                 'participant_prox_social','participant_prox_affiliation', 'participant_prox_media', 'participant_race','participant_race_hispanic','eng_primary_early','eng_primary_current',
                 'participant_other_langs','participant_race_free_response','participant_gender_pso_free_response', 'participant_age', 'deaf_hoh', 'Participant',
-                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start',
-                'S_avg_dur','Z_avg_dur','F_avg_dur','V_avg_dur','JH_avg_dur','SH_avg_dur'], axis=1)
+                'survey_experience','survey_feedback','Condition','WAV','color_3_cluster','color_4_cluster','color_5_cluster','spectral_S_start','spectral_Z_start','spectral_F_start','spectral_V_start','spectral_JH_start','spectral_SH_start', 'spectral_TH_start', 'spectral_DH_start',
+                'S_avg_dur','Z_avg_dur','F_avg_dur','V_avg_dur','JH_avg_dur','SH_avg_dur','TH_avg_dur','DH_avg_dur'], axis=1)
 
 # feature_importances_all = pd.DataFrame({'feature':list(df.columns)})
 
@@ -638,7 +638,7 @@ for type in type_list:
                     df_group_3 = df_group_3.drop(max_feature, axis=1)
                 if cluster == 'df_group_4':
                     df_group_4 = df_group_4.drop(max_feature, axis=1)
-                if i == 367:
+                if i == 371:
                     ablated_df = pd.DataFrame({'accuracy':cluster_accuracy_list, 'n_features': cluster_n_features_list, 'kind': cluster_df_kind_list, 'removed_feature': cluster_removed_features_list})
 
                     fig = plt.figure(figsize = (100,8))
@@ -661,7 +661,7 @@ for type in type_list:
                 # print ("Saving raw feature importances as feature_importances_all.csv")
                 # df.to_csv(os.path.join(dir,'data_analysis_viz','feature_importances_all.csv'), index=True, encoding='utf-8')
 
-            if i == 367:
+            if i == 371:
                 grand_ablated_df = pd.DataFrame({'accuracy':accuracy_list, 'n_features': n_features_list, 'kind': df_kind_list, 'removed_feature': removed_features_list})
 
                 fig = plt.figure(figsize = (100,8))
@@ -943,7 +943,7 @@ for type in type_list:
                 #     df_group_3 = df_group_3.drop(max_feature, axis=1)
                 # if cluster == 'df_group_4':
                 #     df_group_4 = df_group_4.drop(max_feature, axis=1)
-                if loop_number == 368:
+                if loop_number == 371:
                     ablated_df = pd.DataFrame({'accuracy':cluster_accuracy_list, 'n_features': cluster_n_features_list, 'kind': cluster_df_kind_list, 'feature_name': cluster_one_feature_names_list})
 
                     fig = plt.figure(figsize = (100,8))
@@ -967,7 +967,7 @@ for type in type_list:
                 # print ("Saving raw feature importances as feature_importances_all.csv")
                 # df.to_csv(os.path.join(dir,'data_analysis_viz','feature_importances_all.csv'), index=True, encoding='utf-8')
 
-            if loop_number == 368:
+            if loop_number == 371:
                 grand_ablated_df = pd.DataFrame({'accuracy':accuracy_list, 'n_features': n_features_list, 'kind': df_kind_list, 'feature_name': one_feature_names_list})
 
                 fig = plt.figure(figsize = (100,8))
@@ -1124,7 +1124,7 @@ for type in type_list:
                 ### correlation ###
                 components_list = principalDf.columns
                 df_pc = finalDf
-                features_corr = features[:368]
+                features_corr = features[:361]
                 pc_corr_r_all = pd.DataFrame(components_list, columns={'PC'})
                 pc_corr_p_all = pd.DataFrame(components_list, columns={'PC'})
                 for feature in features_corr:

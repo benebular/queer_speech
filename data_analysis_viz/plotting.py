@@ -121,6 +121,8 @@ features_to_plot = ['F0_mean','F0_range','F0_std','spectral_S_duration','spectra
                                                     'spectral_V_duration','spectral_V_intensity','spectral_V_cog','spectral_V_sdev', 'spectral_V_skew','spectral_V_kurt',
                                                     'spectral_SH_duration','spectral_SH_intensity','spectral_SH_cog','spectral_SH_sdev', 'spectral_SH_skew','spectral_SH_kurt',
                                                     'spectral_JH_duration','spectral_JH_intensity','spectral_JH_cog','spectral_JH_sdev', 'spectral_JH_skew','spectral_JH_kurt',
+                                                    'spectral_TH_duration','spectral_TH_intensity','spectral_TH_cog','spectral_TH_sdev', 'spectral_TH_skew','spectral_TH_kurt',
+                                                    'spectral_DH_duration','spectral_DH_intensity','spectral_DH_cog','spectral_DH_sdev', 'spectral_DH_skew','spectral_DH_kurt',
                                                     'percent_creak','vowel_avg_dur','rando_baseline_z_score']
 
 features_to_plot = features_to_plot + vowel_spectral_names + diph_spectral_names

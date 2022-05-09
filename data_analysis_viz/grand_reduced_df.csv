@@ -1,11 +1,11 @@
 ,accuracy,n_components,kind,removed_component
 0,1.0,10,grand_raw,Principal Component 2
-1,1.0,9,grand_raw,Principal Component 6
-2,1.0,8,grand_raw,Principal Component 3
-3,1.0,7,grand_raw,Principal Component 1
-4,1.0,6,grand_raw,Principal Component 8
-5,1.0,5,grand_raw,Principal Component 9
-6,1.0,4,grand_raw,Principal Component 10
+1,1.0,9,grand_raw,Principal Component 4
+2,1.0,8,grand_raw,Principal Component 6
+3,1.0,7,grand_raw,Principal Component 3
+4,1.0,6,grand_raw,Principal Component 1
+5,1.0,5,grand_raw,Principal Component 10
+6,1.0,4,grand_raw,Principal Component 5
 7,1.0,3,grand_raw,Principal Component 7
-8,1.0,2,grand_raw,Principal Component 4
-9,0.9971628781404888,1,grand_raw,Principal Component 5
+8,1.0,2,grand_raw,Principal Component 9
+9,1.0,1,grand_raw,Principal Component 8

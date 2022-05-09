@@ -27,6 +27,9 @@ spectral_Z_fname = os.path.join(dir,'feature_extraction','logfile_Z.csv')
 spectral_JH_fname = os.path.join(dir,'feature_extraction','logfile_JH.csv')
 spectral_F_fname = os.path.join(dir,'feature_extraction','logfile_F.csv')
 spectral_V_fname = os.path.join(dir,'feature_extraction','logfile_V.csv')
+spectral_TH_fname = os.path.join(dir,'feature_extraction','logfile_TH.csv')
+spectral_DH_fname = os.path.join(dir,'feature_extraction','logfile_DH.csv')
+
 
 vs = pd.read_csv(vs_fname)
 matches = pd.read_csv(matches_fname)
@@ -37,6 +40,8 @@ spectral_Z = pd.read_csv(spectral_Z_fname, header=None)
 spectral_JH = pd.read_csv(spectral_JH_fname, header=None)
 spectral_F = pd.read_csv(spectral_F_fname, header=None)
 spectral_V = pd.read_csv(spectral_V_fname, header=None)
+spectral_TH = pd.read_csv(spectral_TH_fname, header=None)
+spectral_DH = pd.read_csv(spectral_DH_fname, header=None)
 vs.rename(columns = {'Filename':'WAV'}, inplace = True)
 # view all labels in each file
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
@@ -155,7 +160,7 @@ vowel_avg_duration['vowel_avg_dur'] = vowel_avg_duration.mean(axis=1)
 vowel_avg_duration = vowel_avg_duration[['WAV','vowel_avg_dur']]
 ratings_all = pd.merge(ratings_all, vowel_avg_duration, on='WAV')
 
-# mean, min, max formants and bandwidths for individual vowels
+# mean, min, max formants for individual vowels
 formant_labels = ['sF1','sF2','sF3','sF4']
 for val in formant_labels:
     vowels_pivot_mean = vs.pivot_table(index = ['WAV'], columns = 'Label', values = val, aggfunc=np.mean).add_suffix('_%s_mean'%val)
@@ -243,7 +248,7 @@ for vowel in vowel_spectral_names_mean:
 
 ## rename cols in spectral moment dfs
 print ("Extracting fricative spectral moment data...")
-spectral_dfs = [spectral_S,spectral_SH,spectral_Z,spectral_JH,spectral_F,spectral_V]
+spectral_dfs = [spectral_S, spectral_SH, spectral_Z, spectral_JH, spectral_F, spectral_V, spectral_TH, spectral_DH]
 for i in spectral_dfs:
     i.columns = ['WAV','start','duration','intensity','cog','sdev','skew','kurt','delete_me'] # add in colnames
     i['WAV'] = i['WAV'].str.replace(r'\.wav', '') # get rid of .wav suffix # warning about default of regex changing from True to False soon
@@ -265,6 +270,11 @@ spectral_SH = spectral_SH.add_prefix('spectral_SH_')
 spectral_SH = spectral_SH.rename(columns={'spectral_SH_WAV':'WAV'})
 spectral_JH = spectral_JH.add_prefix('spectral_JH_')
 spectral_JH = spectral_JH.rename(columns={'spectral_JH_WAV':'WAV'})
+spectral_TH = spectral_TH.add_prefix('spectral_TH_')
+spectral_TH = spectral_TH.rename(columns={'spectral_TH_WAV':'WAV'})
+spectral_DH = spectral_DH.add_prefix('spectral_DH_')
+spectral_DH = spectral_DH.rename(columns={'spectral_DH_WAV':'WAV'})
+
 
 # average over spectral segments, leaves nans in place for files without a spectral item
 spectral_S = spectral_S.groupby('WAV', as_index=False).mean()
@@ -273,6 +283,9 @@ spectral_F = spectral_F.groupby('WAV', as_index=False).mean()
 spectral_V = spectral_V.groupby('WAV', as_index=False).mean()
 spectral_SH = spectral_SH.groupby('WAV', as_index=False).mean()
 spectral_JH = spectral_JH.groupby('WAV', as_index=False).mean()
+spectral_TH = spectral_TH.groupby('WAV', as_index=False).mean()
+spectral_DH = spectral_DH.groupby('WAV', as_index=False).mean()
+
 
 ratings_all = pd.merge(ratings_all, spectral_S, on='WAV')
 ratings_all = pd.merge(ratings_all, spectral_Z, on='WAV')
@@ -280,7 +293,8 @@ ratings_all = pd.merge(ratings_all, spectral_F, on='WAV')
 ratings_all = pd.merge(ratings_all, spectral_V, on='WAV')
 ratings_all = pd.merge(ratings_all, spectral_SH, on='WAV')
 ratings_all = pd.merge(ratings_all, spectral_JH, on='WAV')
-
+ratings_all = pd.merge(ratings_all, spectral_TH, on='WAV')
+ratings_all = pd.merge(ratings_all, spectral_DH, on='WAV')
 
 
 # creak (Podesva)
