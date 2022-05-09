@@ -246,6 +246,92 @@ for feature in features_to_plot:
             plt.savefig(os.path.join(fig_dir, '5_cluster', '%s_avgbycondition_5_clusters.png'%feature), bbox_inches='tight', dpi=300)
             plt.close()
 
+#### F0 for 3, 4, 5 clusters in same graph  for PS ####
+
+feature= 'F0_mean'
+feature_number = sexual_orientation_feature['F0_mean'].nunique()
+
+sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating_z_score'].mean()
+sexual_orientation_avg_feature = sexual_orientation.groupby('WAV', as_index=False)[feature].mean()
+sexual_orientation_cluster_3 = sexual_orientation.groupby('WAV', as_index=False)['kmeans_3_cluster'].mean()
+sexual_orientation_cluster_4 = sexual_orientation.groupby('WAV', as_index=False)['kmeans_4_cluster'].mean()
+sexual_orientation_cluster_5 = sexual_orientation.groupby('WAV', as_index=False)['kmeans_5_cluster'].mean()
+
+
+sexual_orientation_color_3 = sexual_orientation[['WAV','color_3_cluster']].drop_duplicates().reset_index().drop(columns='index')
+sexual_orientation_color_4 = sexual_orientation[['WAV','color_4_cluster']].drop_duplicates().reset_index().drop(columns='index')
+sexual_orientation_color_5 = sexual_orientation[['WAV','color_5_cluster']].drop_duplicates().reset_index().drop(columns='index')
+
+sexual_orientation_feature = pd.merge(sexual_orientation_avg_rating, sexual_orientation_avg_feature, on='WAV')
+sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_color_3, on='WAV').dropna()
+sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_color_4, on='WAV').dropna()
+sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_color_5, on='WAV').dropna()
+
+sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_cluster_3, on='WAV')
+sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_cluster_4, on='WAV')
+sexual_orientation_feature = pd.merge(sexual_orientation_feature, sexual_orientation_cluster_5, on='WAV')
+
+color_dict_3 = {0:'#785EF0', 1:'#DC267F', 2:'#648FFF'}
+markers_dict_3 = {0: "P", 1: "o", 2: "v"}
+color_dict_4 = {0:'#DC267F', 1:'#785EF0', 2:'#648FFF', 3:'#FFB000'}
+markers_dict_4 = {0: "o", 1: "P", 2: "v", 3: "D"}
+color_dict_5 = {0:'#FFB000', 1:'#785EF0', 2:'#648FFF', 3:'#FE6100', 4:'#DC267F'}
+markers_dict_5 = {0: "D", 1: "P", 2: "v", 3: "H", 4: "o"}
+
+fig, axes = plt.subplots(1, 3)
+fig.subplots_adjust(hspace=0.5)
+fig.set_size_inches(16, 6)
+fig.suptitle("Mean f0 by PS Rating for 3, 4 and 5 Clusters", fontsize=20, fontweight='bold')
+fig.subplots_adjust( top = 0.85 )
+
+axes[0].set_title('Sexual Orientation')
+axes[0].set_xlim(-1.5,1.5)
+sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[0], hue = sexual_orientation_feature['kmeans_3_cluster'], style = sexual_orientation_feature['kmeans_3_cluster'], palette = color_dict_3,  markers=markers_dict_3)
+sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[0], scatter = False, line_kws={"color": "k"}) # #785EF0 0072b2
+axes[0].set_xlabel('Rating (-: Male, +: Female)')
+axes[0].set_ylabel('Mean f0')
+
+axes[1].set_title('Sexual Orientation')
+axes[1].set_xlim(-1.5,1.5)
+sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[1], hue = sexual_orientation_feature['kmeans_4_cluster'], style = sexual_orientation_feature['kmeans_4_cluster'], palette = color_dict_4,  markers=markers_dict_4)
+sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[1], scatter = False, line_kws={"color": "k"}) # #785EF0 0072b2
+axes[1].set_xlabel('Rating (-: Male, +: Female)')
+axes[1].set_ylabel('Mean f0')
+
+axes[2].set_title('Sexual Orientation')
+axes[2].set_xlim(-1.5,1.5)
+sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[2], hue = sexual_orientation_feature['kmeans_5_cluster'], style = sexual_orientation_feature['kmeans_5_cluster'], palette = color_dict_5,  markers=markers_dict_5)
+sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[2], scatter = False, line_kws={"color": "k"}) # #785EF0 0072b2
+axes[2].set_xlabel('Rating (-: Male, +: Female)')
+axes[2].set_ylabel('Mean f0')
+
+colors = pd.DataFrame({"color_3_cluster": ['#785EF0','#DC267F','#648FFF']})
+colors['kmeans_3_cluster'] = [0,1,2]
+scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][0], marker = 'P') #^
+scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][1], marker = 'o') #p
+scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][2], marker = 'v') #+
+axes[0].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QE','SW'], numpoints = 1, loc = 'upper left')
+
+colors = pd.DataFrame({"color_4_cluster": ['#DC267F','#785EF0','#648FFF','#FFB000']})
+colors['kmeans_4_cluster'] = [0,1,2,3]
+scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][0], marker = 'o')
+scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][1], marker = 'P')
+scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][2], marker = 'v')
+scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][3], marker = 'D')
+axes[1].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QE','SW'], numpoints = 1, loc = 'upper left')
+
+colors = pd.DataFrame({"color_5_cluster": ['#FFB000','#785EF0','#648FFF','#FE6100','#DC267F']})
+colors['kmeans_5_cluster'] = [0,1,2,3,4]
+scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][0], marker = 'D')
+scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][1], marker = 'P')
+scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][2], marker = 'v')
+scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][3], marker = 'H')
+scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][4], marker = 'o')
+axes[2].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QE','QW','SW'], numpoints = 1, loc = 'upper left')
+
+        # plt.show()
+plt.savefig(os.path.join(fig_dir, 'F0_cluster_comparison.png'), bbox_inches='tight', dpi=300)
+plt.close()
 
 
 ### PC  + FEATURE ###
@@ -672,9 +758,9 @@ for cluster, color in cluster_list.items():
     labels_center = ['nb','any gender','neither']
 
     fig, ax = plt.subplots(figsize = (20,8))
-    b1 = plt.barh(PG_condition, PG, color=color)
-    b2 = plt.barh(PS_condition, PS, color=color)
     b3 = plt.barh(PV_condition, PV, color=color)
+    b2 = plt.barh(PS_condition, PS, color=color)
+    b1 = plt.barh(PG_condition, PG, color=color)
     for bar, label_right, label_left, label_center in zip(ax.patches, labels_right, labels_left, labels_center):
         ax.text(0.8, bar.get_y()+bar.get_height()/2, label_right, color = 'black', ha = 'left', va = 'center', fontsize = 30)
         ax.text(-1.4, bar.get_y()+bar.get_height()/2, label_left, color = 'black', ha = 'left', va = 'center', fontsize = 30)
