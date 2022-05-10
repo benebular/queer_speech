@@ -742,9 +742,9 @@ condition_means = ratings_all.pivot_table(index='kmeans_5_cluster', columns = 'C
 n_per_cluster = ratings_all.groupby(['kmeans_5_cluster'], as_index=False)['WAV'].nunique()
 
 # year = [2014, 2015, 2016, 2017, 2018, 2019]
-PG_condition = ['PG']
-PS_condition = ['PS']
-PV_condition = ['PV']
+PG_condition = ['PGI']
+PS_condition = ['PSO']
+PV_condition = ['PGV']
 # issues_addressed = [10, 14, 0, 10, 15, 15]
 # issues_pending = [5, 10, 50, 2, 0, 10]
 
