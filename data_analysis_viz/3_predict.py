@@ -93,16 +93,16 @@ feature_list = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean','IH_sF4_mean
 model_list=[]
 condition_dict = {'gender_id': gender_id, 'sexual_orientation': sexual_orientation, 'voice_id':voice_id}
 
-for feature in feature_list: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
-    # concatenate strings with '_'
-    model_string = feature + " ~ " + "C(kmeans_5_cluster)"
-    # append to list
-    model_list.append(model_string)
-
-for model in model_list:
-            mod = smf.ols(formula=model, data=df_imp)
-            res = mod.fit()
-            print(res.summary())
+# for feature in feature_list: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
+#     # concatenate strings with '_'
+#     model_string = feature + " ~ " + "C(kmeans_5_cluster)"
+#     # append to list
+#     model_list.append(model_string)
+#
+# for model in model_list:
+#             mod = smf.ols(formula=model, data=df_imp)
+#             res = mod.fit()
+#             print(res.summary())
 
 for feature in feature_list: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
     # concatenate strings with '_'
@@ -111,52 +111,66 @@ for feature in feature_list: # loop for making a list of the vowel spectral feat
     model_list.append(model_string)
 
 for condition, df in condition_dict.items():
+    coef_list = []
+    t_list = []
+    p_list = []
+    condition_list = []
+    mdl_list = []
     for model in model_list:
-                print(condition)
-                mod = smf.ols(formula=model, data=df)
-                res = mod.fit()
-                print(res.summary())
+        print(condition)
+        mod = smf.ols(formula=model, data=df)
+        res = mod.fit()
+        coef_list.append(res.params[1])
+        t_list.append(res.tvalues[1])
+        p_list.append(res.pvalues[1])
+        condition_list.append(condition)
+        mdl_list.append(model)
+        print(res.summary())
+    effect_size = pd.DataFrame({'coef':coef_list, 'p': p_list, 't':t_list, 'condition': condition_list, 'model':mdl_list})
+    effect_size.to_csv(os.path.join(dir,'data_analysis_viz','effect_sizes_%s.csv'%condition), index=True, encoding='utf-8')
 
-super_model = 'Rating_z_score ~ F0_mean + IH_sF1_mean+IH_sF2_mean+IH_sF3_mean+IH_sF4_mean+IH_sF1_mean_dist+IH_sF2_mean_dist+IH_sF3_mean_dist+IH_sF4_mean_dist+AY_sF1_mean_first+ AY_sF2_mean_first+ AY_sF3_mean_first+ AY_sF4_mean_first+ AY_sF1_mean_third+ AY_sF2_mean_third+ AY_sF3_mean_third+ AY_sF4_mean_third+vowel_avg_dur+ percent_creak+ spectral_S_duration+spectral_S_cog + spectral_S_skew'
 
-for condition, df in condition_dict.items():
-    print(condition)
-    mod = smf.ols(formula=super_model, data=df)
-    res = mod.fit()
-    print(res.summary())
+# super_model = 'Rating_z_score ~ F0_mean + IH_sF1_mean+IH_sF2_mean+IH_sF3_mean+IH_sF4_mean+IH_sF1_mean_dist+IH_sF2_mean_dist+IH_sF3_mean_dist+IH_sF4_mean_dist+AY_sF1_mean_first+ AY_sF2_mean_first+ AY_sF3_mean_first+ AY_sF4_mean_first+ AY_sF1_mean_third+ AY_sF2_mean_third+ AY_sF3_mean_third+ AY_sF4_mean_third+vowel_avg_dur+ percent_creak+ spectral_S_duration+spectral_S_cog + spectral_S_skew'
+#
+# for condition, df in condition_dict.items():
+#     print(condition)
+#     mod = smf.ols(formula=super_model, data=df)
+#     res = mod.fit()
+#     print(res.summary())
 
 
 
 # res.params
 # res.bse
-# pes.pvalues
+# res.tvalues
+# res.pvalues
 
-group_dict = {'sm': df_group_2, 'qm': df_group_0, 'qn': df_group_4, 'qw': df_group_3, 'sw': df_group_1}
-cluster_list = ['cluster_0','cluster_1','cluster_2','cluster_3','cluster_4']
-## cluster ##
-for feature in feature_list: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
-    for group, df in group_dict.items():
-        for cluster in cluster_list:
-            model_list=[]
-            if cluster in list(df.columns):
-                model_string = feature + " ~ " + "C(%s)"%cluster
-                # append to list
-                model_list.append(model_string)
-            for model in model_list:
-               mod = smf.ols(formula=model, data=df)
-               res = mod.fit()
-               print(res.summary())
-
-
-## PCs ##
-pca_fname = os.path.join(dir, 'data_analysis_viz','principal_components.csv')
-pca = pd.read_csv(pca_fname)
-
-pc_list = ['Principal Component 1', 'Principal Component 2',
-       'Principal Component 3', 'Principal Component 4',
-       'Principal Component 5', 'Principal Component 6',
-       'Principal Component 7', 'Principal Component 8',
-       'Principal Component 9', 'Principal Component 10']
+# group_dict = {'sm': df_group_2, 'qm': df_group_0, 'qn': df_group_4, 'qw': df_group_3, 'sw': df_group_1}
+# cluster_list = ['cluster_0','cluster_1','cluster_2','cluster_3','cluster_4']
+# ## cluster ##
+# for feature in feature_list: # loop for making a list of the vowel spectral features for each vowel--matches columns in spreadsheet
+#     for group, df in group_dict.items():
+#         for cluster in cluster_list:
+#             model_list=[]
+#             if cluster in list(df.columns):
+#                 model_string = feature + " ~ " + "C(%s)"%cluster
+#                 # append to list
+#                 model_list.append(model_string)
+#             for model in model_list:
+#                mod = smf.ols(formula=model, data=df)
+#                res = mod.fit()
+#                print(res.summary())
+#
+#
+# ## PCs ##
+# pca_fname = os.path.join(dir, 'data_analysis_viz','principal_components.csv')
+# pca = pd.read_csv(pca_fname)
+#
+# pc_list = ['Principal Component 1', 'Principal Component 2',
+#        'Principal Component 3', 'Principal Component 4',
+#        'Principal Component 5', 'Principal Component 6',
+#        'Principal Component 7', 'Principal Component 8',
+#        'Principal Component 9', 'Principal Component 10']
 
 # X = df_imp[['kmeans_5_cluster']]
 # Y = df_imp['percent_creak']
