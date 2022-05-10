@@ -1124,7 +1124,7 @@ for type in type_list:
                 ### correlation ###
                 components_list = principalDf.columns
                 df_pc = finalDf
-                features_corr = features[:361]
+                features_corr = features[:372]
                 pc_corr_r_all = pd.DataFrame(components_list, columns={'PC'})
                 pc_corr_p_all = pd.DataFrame(components_list, columns={'PC'})
                 for feature in features_corr:
