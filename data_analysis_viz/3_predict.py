@@ -116,6 +116,7 @@ for condition, df in condition_dict.items():
     p_list = []
     condition_list = []
     mdl_list = []
+    feat_list = []
     for model in model_list:
         print(condition)
         mod = smf.ols(formula=model, data=df)
@@ -125,8 +126,9 @@ for condition, df in condition_dict.items():
         p_list.append(res.pvalues[1])
         condition_list.append(condition)
         mdl_list.append(model)
+        feat_list.append(model[17:])
         print(res.summary())
-    effect_size = pd.DataFrame({'coef':coef_list, 'p': p_list, 't':t_list, 'condition': condition_list, 'model':mdl_list})
+    effect_size = pd.DataFrame({'coef':coef_list, 'p': p_list, 't':t_list, 'condition': condition_list, 'model':mdl_list, 'feature':feat_list})
     effect_size.to_csv(os.path.join(dir,'data_analysis_viz','effect_sizes_%s.csv'%condition), index=True, encoding='utf-8')
 
 

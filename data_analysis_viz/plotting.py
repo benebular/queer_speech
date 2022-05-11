@@ -41,6 +41,10 @@ sexual_orientation = ratings_all[ratings_all['Condition']=='sexual_orientation']
 voice_id = ratings_all[ratings_all['Condition']=='voice_id']
 number_participants = ratings_all['Participant'].nunique()
 
+### correlation between PGI and PGV
+stats.pearsonr(gender_id['Rating_z_score'], voice_id['Rating_z_score'])
+
+
 # F0, adding the boxplot with quartiles
 plot_F0_mean = pd.DataFrame({'group':'F0', 'F0': ratings_all['F0_mean']}).drop_duplicates()
 plot_F0_90 = pd.DataFrame({'group':'F0_90', 'F0': ratings_all['F0_90']}).drop_duplicates()
@@ -251,7 +255,7 @@ for feature in features_to_plot:
 #### F0 for 3, 4, 5 clusters in same graph  for PS ####
 
 feature= 'F0_mean'
-feature_number = sexual_orientation_feature['F0_mean'].nunique()
+feature_number = sexual_orientation['F0_mean'].nunique()
 
 sexual_orientation_avg_rating = sexual_orientation.groupby('WAV', as_index=False)['Rating_z_score'].mean()
 sexual_orientation_avg_feature = sexual_orientation.groupby('WAV', as_index=False)[feature].mean()
@@ -286,26 +290,26 @@ fig.set_size_inches(16, 6)
 fig.suptitle("Mean f0 by PS Rating for 3, 4 and 5 Clusters", fontsize=20, fontweight='bold')
 fig.subplots_adjust( top = 0.85 )
 
-axes[0].set_title('Sexual Orientation')
+axes[0].set_title('Sexual Orientation (3 Clusters)')
 axes[0].set_xlim(-1.5,1.5)
 sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[0], hue = sexual_orientation_feature['kmeans_3_cluster'], style = sexual_orientation_feature['kmeans_3_cluster'], palette = color_dict_3,  markers=markers_dict_3)
 sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[0], scatter = False, line_kws={"color": "k"}) # #785EF0 0072b2
-axes[0].set_xlabel('Rating (-: Male, +: Female)')
+axes[0].set_xlabel('Rating (-: Homo, +: Het)')
 axes[0].set_ylabel('Mean f0')
 
-axes[1].set_title('Sexual Orientation')
+axes[1].set_title('Sexual Orientation (4 Clusters)')
 axes[1].set_xlim(-1.5,1.5)
 sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[1], hue = sexual_orientation_feature['kmeans_4_cluster'], style = sexual_orientation_feature['kmeans_4_cluster'], palette = color_dict_4,  markers=markers_dict_4)
 sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[1], scatter = False, line_kws={"color": "k"}) # #785EF0 0072b2
-axes[1].set_xlabel('Rating (-: Male, +: Female)')
-axes[1].set_ylabel('Mean f0')
+axes[1].set_xlabel('Rating (-: Homo, +: Het)')
+axes[1].set_ylabel(' ')
 
-axes[2].set_title('Sexual Orientation')
+axes[2].set_title('Sexual Orientation (5 Clusters)')
 axes[2].set_xlim(-1.5,1.5)
 sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[2], hue = sexual_orientation_feature['kmeans_5_cluster'], style = sexual_orientation_feature['kmeans_5_cluster'], palette = color_dict_5,  markers=markers_dict_5)
 sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y='F0_mean', ax=axes[2], scatter = False, line_kws={"color": "k"}) # #785EF0 0072b2
-axes[2].set_xlabel('Rating (-: Male, +: Female)')
-axes[2].set_ylabel('Mean f0')
+axes[2].set_xlabel('Rating (-: Homo, +: Het)')
+axes[2].set_ylabel(' ')
 
 colors = pd.DataFrame({"color_3_cluster": ['#785EF0','#DC267F','#648FFF']})
 colors['kmeans_3_cluster'] = [0,1,2]
