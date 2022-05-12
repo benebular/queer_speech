@@ -12,6 +12,7 @@ import sys
 import scipy.stats as stats
 import matplotlib
 import matplotlib.pyplot as plt
+import string
 np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
@@ -316,7 +317,7 @@ colors['kmeans_3_cluster'] = [0,1,2]
 scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][0], marker = 'P') #^
 scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][1], marker = 'o') #p
 scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][2], marker = 'v') #+
-axes[0].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QE','SW'], numpoints = 1, loc = 'upper left')
+axes[0].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QE','SW'], numpoints = 1, loc = 'upper left', size = 6)
 
 colors = pd.DataFrame({"color_4_cluster": ['#DC267F','#785EF0','#648FFF','#FFB000']})
 colors['kmeans_4_cluster'] = [0,1,2,3]
@@ -324,7 +325,7 @@ scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['co
 scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][1], marker = 'P')
 scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][2], marker = 'v')
 scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][3], marker = 'D')
-axes[1].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QE','SW'], numpoints = 1, loc = 'upper left')
+axes[1].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QE','SW'], numpoints = 1, loc = 'upper left', size = 6)
 
 colors = pd.DataFrame({"color_5_cluster": ['#FFB000','#785EF0','#648FFF','#FE6100','#DC267F']})
 colors['kmeans_5_cluster'] = [0,1,2,3,4]
@@ -333,7 +334,7 @@ scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['co
 scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][2], marker = 'v')
 scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][3], marker = 'H')
 scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][4], marker = 'o')
-axes[2].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QE','QW','SW'], numpoints = 1, loc = 'upper left')
+axes[2].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QE','QW','SW'], numpoints = 1, loc = 'upper left', size = 6)
 
         # plt.show()
 plt.savefig(os.path.join(fig_dir, 'F0_cluster_comparison.png'), bbox_inches='tight', dpi=300)
@@ -437,11 +438,13 @@ specific_features_to_plot = ['F0_mean','IH_sF1_mean','IH_sF2_mean','IH_sF3_mean'
                     'AY_sF1_mean_first', 'AY_sF2_mean_first', 'AY_sF3_mean_first', 'AY_sF4_mean_first', 'AY_sF1_mean_third', 'AY_sF2_mean_third', 'AY_sF3_mean_third', 'AY_sF4_mean_third',
                     'vowel_avg_dur','percent_creak','spectral_S_cog','spectral_S_duration','spectral_S_skew']
 
-pc_list = ['Principal Component 1', 'Principal Component 2',
-       'Principal Component 3', 'Principal Component 4',
-       'Principal Component 5', 'Principal Component 6',
-       'Principal Component 7', 'Principal Component 8',
-       'Principal Component 9', 'Principal Component 10']
+# pc_list = ['Principal Component 1', 'Principal Component 2',
+#        'Principal Component 3', 'Principal Component 4',
+#        'Principal Component 5', 'Principal Component 6',
+#        'Principal Component 7', 'Principal Component 8',
+#        'Principal Component 9', 'Principal Component 10']
+
+pc_list = ['Principal Component 2', 'Principal Component 4']
 
 corr_best = corr_df[specific_features_to_plot]
 components = corr_df['PC']
@@ -619,76 +622,82 @@ for pc in pc_list:
             props = dict(boxstyle='round', facecolor='w')
 
             sns.set()
-            fig, axes = plt.subplots(3, 3, figsize = (22,11))
+            fig, axes = plt.subplots(3, 3, figsize = (20,20))
             fig.subplots_adjust(hspace=0.5)
-            fig.suptitle("Correlation between %s, %s, and Participant Ratings"%(pc, feature), fontsize=20, fontweight='bold')
+            fig.suptitle("Correlation between %s, \n %s, and Participant Ratings"%(pc, feature), fontsize=30, fontweight='bold', y = 0.75, x = 0.65)
             fig.subplots_adjust(top = 0.85)
-            axes[0, 0].axis('off')
+            axes[0, 1].axis('off')
             axes[0, 2].axis('off')
 
             ### pcs
-            axes[0,1].set_title('All Conditions')
-            axes[0,1].set_xlim(-1.5,1.5)
+            axes[0,0].set_title('All Conditions', fontsize=18)
+            axes[0,0].set_xlim(-1.5,1.5)
             # sns.scatterplot(data=gender_id_feature, x='Rating_z_score', y=pc, ax=axes[0,0])
-            sns.regplot(data=data_feature, x='Rating_z_score', y=pc, ax=axes[0,1], scatter_kws={"color": "green", 's': 35, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #648FFF d55e00
-            axes[0,1].text(0.60, 0.95, 'Pearson r = %s, p < 0.05'%r_fig, transform=axes[0,1].transAxes, fontsize=10,
+            sns.regplot(data=data_feature, x='Rating_z_score', y=pc, ax=axes[0,0], scatter_kws={"color": "green", 's': 50, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #648FFF d55e00
+            axes[0,0].text(0.50, 0.95, 'Pearson r = %s, p < 0.05'%r_fig, transform=axes[0,0].transAxes, fontsize=14,
                     verticalalignment='top', bbox=props)
-            axes[0,1].set_xlabel('Rating')
-            axes[0,1].set_ylabel('Dimensionless')
+            axes[0,0].text(-0.1, 1.1, string.ascii_uppercase[0], transform=axes[0,0].transAxes,
+                    size=20, weight='bold')
+            axes[0,0].set_xlabel('Rating', fontsize=18)
+            axes[0,0].set_ylabel('Dimensionless', fontsize=18)
 
-            axes[1,0].set_title('Gender Identity')
+            axes[1,0].set_title('Gender Identity', fontsize = 18)
             axes[1,0].set_xlim(-1.5,1.5)
             # sns.scatterplot(data=gender_id_feature, x='Rating_z_score', y=pc, ax=axes[0,0])
-            sns.regplot(data=gender_id_feature, x='Rating_z_score', y=pc, ax=axes[1,0], scatter_kws={"color": "green", 's': 35, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #648FFF d55e00
-            axes[1,0].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_gender_id_pc, p_fig_gender_id_pc), transform=axes[1,0].transAxes, fontsize=10,
+            sns.regplot(data=gender_id_feature, x='Rating_z_score', y=pc, ax=axes[1,0], scatter_kws={"color": "green", 's': 50, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #648FFF d55e00
+            axes[1,0].text(0.50, 0.95, 'Pearson r = %s, %s'%(r_fig_gender_id_pc, p_fig_gender_id_pc), transform=axes[1,0].transAxes, fontsize=14,
                     verticalalignment='top', bbox=props)
-            axes[1,0].set_xlabel('Rating (-: Male, +: Female)')
-            axes[1,0].set_ylabel('Dimensionless')
+            axes[1,0].text(-0.1, 1.1, string.ascii_uppercase[1], transform=axes[1,0].transAxes,
+                    size=20, weight='bold')
+            axes[1,0].set_xlabel('Rating (-: Male, +: Female)', fontsize = 18)
+            axes[1,0].set_ylabel('Dimensionless', fontsize = 18)
 
-            axes[1,1].set_title('Sexual Orientation')
+            axes[1,1].set_title('Sexual Orientation', fontsize = 18)
             axes[1,1].set_xlim(-1.5,1.5)
             # sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y=pc, ax=axes[0,1])
-            sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=pc, ax=axes[1,1], scatter_kws={"color": "green", 's': 35, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #785EF0 0072b2
-            axes[1,1].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_sexual_orientation_pc, p_fig_sexual_orientation_pc), transform=axes[1,1].transAxes, fontsize=10,
+            sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=pc, ax=axes[1,1], scatter_kws={"color": "green", 's': 50, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #785EF0 0072b2
+            axes[1,1].text(0.50, 0.95, 'Pearson r = %s, %s'%(r_fig_sexual_orientation_pc, p_fig_sexual_orientation_pc), transform=axes[1,1].transAxes, fontsize=14,
                     verticalalignment='top', bbox=props)
-            axes[1,1].set_xlabel('Rating (-: Homo, +: Het)')
+            axes[1,1].set_xlabel('Rating (-: Homo, +: Het)', fontsize = 18)
             axes[1,1].set_ylabel('')
 
-            axes[1,2].set_title('Voice Identity')
+            axes[1,2].set_title('Voice Identity', fontsize = 18)
             axes[1,2].set_xlim(-1.5,1.5)
             # sns.scatterplot(data=voice_id_feature, x='Rating_z_score', y=pc, ax=axes[0,2])
-            sns.regplot(data=voice_id_feature, x='Rating_z_score', y=pc, ax=axes[1,2], scatter_kws={"color": "green", 's': 35, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #DC267F 009e73
-            axes[1,2].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_voice_id_pc, p_fig_voice_id_pc), transform=axes[1,2].transAxes, fontsize=10,
+            sns.regplot(data=voice_id_feature, x='Rating_z_score', y=pc, ax=axes[1,2], scatter_kws={"color": "green", 's': 50, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #DC267F 009e73
+            axes[1,2].text(0.50, 0.95, 'Pearson r = %s, %s'%(r_fig_voice_id_pc, p_fig_voice_id_pc), transform=axes[1,2].transAxes, fontsize=14,
                     verticalalignment='top', bbox=props)
-            axes[1,2].set_xlabel('Rating (-: Masc, +: Femme)')
+            axes[1,2].set_xlabel('Rating (-: Masc, +: Femme)', fontsize = 18)
             axes[1,2].set_ylabel('')
 
             ### individual features
-            axes[2,0].set_title('Gender Identity')
+            axes[2,0].set_title('Gender Identity', fontsize = 18)
             axes[2,0].set_xlim(-1.5,1.5)
-            sns.scatterplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[2,0], hue = gender_id_feature[cluster], style = gender_id_feature[cluster], palette = color_dict, markers=markers_dict, s=35)
+            sns.scatterplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[2,0], hue = gender_id_feature[cluster], style = gender_id_feature[cluster], palette = color_dict, markers=markers_dict, s=50)
             sns.regplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[2,0], scatter=False, line_kws={"color": "k"}) # #648FFF d55e00
-            axes[2,0].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_gender_id, p_fig_gender_id), transform=axes[2,0].transAxes, fontsize=10,
+            axes[2,0].text(0.50, 0.95, 'Pearson r = %s, %s'%(r_fig_gender_id, p_fig_gender_id), transform=axes[2,0].transAxes, fontsize=14,
                     verticalalignment='top', bbox=props)
-            axes[2,0].set_xlabel('Rating (-: Male, +: Female)')
-            axes[2,0].set_ylabel('Avg %s'%feature)
+            axes[2,0].text(-0.1, 1.1, string.ascii_uppercase[2], transform=axes[2,0].transAxes,
+                    size=20, weight='bold')
+            axes[2,0].set_xlabel('Rating (-: Male, +: Female)', fontsize = 18)
+            axes[2,0].set_ylabel('Avg %s'%feature, fontsize = 18)
 
-            axes[2,1].set_title('Sexual Orientation')
+            axes[2,1].set_title('Sexual Orientation', fontsize = 18)
             axes[2,1].set_xlim(-1.5,1.5)
-            sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[2,1], hue = sexual_orientation_feature[cluster], style = sexual_orientation_feature[cluster], palette = color_dict, markers=markers_dict, s=35)
+            sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[2,1], hue = sexual_orientation_feature[cluster], style = sexual_orientation_feature[cluster], palette = color_dict, markers=markers_dict, s=50)
             sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[2,1], scatter=False, line_kws={"color": "k"}) # #785EF0 0072b2
-            axes[2,1].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_sexual_orientation, p_fig_sexual_orientation), transform=axes[2,1].transAxes, fontsize=10,
+            axes[2,1].text(0.50, 0.95, 'Pearson r = %s, %s'%(r_fig_sexual_orientation, p_fig_sexual_orientation), transform=axes[2,1].transAxes, fontsize=14,
                     verticalalignment='top', bbox=props)
-            axes[2,1].set_xlabel('Rating (-: Homo, +: Het)')
+            axes[2,1].set_xlabel('Rating (-: Homo, +: Het)', fontsize = 18)
             axes[2,1].set_ylabel('')
 
-            axes[2,2].set_title('Voice Identity')
+            axes[2,2].set_title('Voice Identity', fontsize = 18)
             axes[2,2].set_xlim(-1.5,1.5)
-            sns.scatterplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2,2], hue = voice_id_feature[cluster], style = voice_id_feature[cluster], palette = color_dict, markers=markers_dict, s=35)
+            sns.scatterplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2,2], hue = voice_id_feature[cluster], style = voice_id_feature[cluster], palette = color_dict, markers=markers_dict, s=50)
             sns.regplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2,2], scatter=False, line_kws={"color": "k"}) # #DC267F 009e73
-            axes[2,2].text(0.60, 0.95, 'Pearson r = %s, %s'%(r_fig_voice_id, p_fig_voice_id), transform=axes[2,2].transAxes, fontsize=10,
+            axes[2,2].text(0.50, 0.95, 'Pearson r = %s, %s'%(r_fig_voice_id, p_fig_voice_id), transform=axes[2,2].transAxes, fontsize=14,
                     verticalalignment='top', bbox=props)
-            axes[2,2].set_xlabel('Rating (-: Masc, +: Femme)')
+            axes[2,2].set_xlabel('Rating (-: Masc, +: Femme)', fontsize = 18)
             axes[2,2].set_ylabel('')
 
             if color == 'color_3_cluster':
@@ -698,10 +707,11 @@ for pc in pc_list:
                 scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][1], marker = 'o') #p
                 scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_3_cluster'][2], marker = 'v') #+
                 axes[2,0].get_legend().remove()
-                axes[2,1].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QE','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
+                axes[2,1].legend([scatter3_proxy, scatter2_proxy, scatter1_proxy], ['SM','QE','SW'], numpoints = 1, loc = 'upper left', fontsize=14, facecolor = 'w')
                 axes[2,2].get_legend().remove()
 
                 # plt.show()
+                plt.xticks(fontsize=12)
                 plt.savefig(os.path.join(fig_dir, '3_cluster', 'pc_corr', '%s_avgbycondition_3_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=300)
                 plt.close()
 
@@ -713,11 +723,12 @@ for pc in pc_list:
                 scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][2], marker = 'v')
                 scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_4_cluster'][3], marker = 'D')
                 axes[2,0].get_legend().remove()
-                axes[2,1].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QE','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
+                axes[2,1].legend([scatter3_proxy, scatter4_proxy, scatter1_proxy, scatter2_proxy], ['SM','QM','QE','SW'], numpoints = 1, loc = 'upper left', fontsize=14, facecolor = 'w')
                 axes[2,2].get_legend().remove()
 
 
                 # plt.show()
+                plt.xticks(fontsize=12)
                 plt.savefig(os.path.join(fig_dir, '4_cluster', 'pc_corr', '%s_avgbycondition_4_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=300)
                 plt.close()
 
@@ -731,11 +742,12 @@ for pc in pc_list:
                 scatter4_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][3], marker = 'H')
                 scatter5_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c=colors['color_5_cluster'][4], marker = 'o')
                 axes[2,0].get_legend().remove()
-                axes[2,1].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QE','QW','SW'], numpoints = 1, loc = 'upper left', fontsize=8)
+                axes[2,1].legend([scatter3_proxy, scatter1_proxy, scatter5_proxy, scatter4_proxy, scatter2_proxy], ['SM','QM','QE','QW','SW'], numpoints = 1, loc = 'upper left', fontsize=14, facecolor = 'w')
                 axes[2,2].get_legend().remove()
 
 
                 # plt.show()
+                plt.xticks(fontsize=12)
                 plt.savefig(os.path.join(fig_dir, '5_cluster', 'pc_corr', '%s_avgbycondition_5_clusters_corr_%s.png'%(feature,pc)), bbox_inches='tight', dpi=300)
                 plt.close()
 
