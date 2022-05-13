@@ -641,7 +641,7 @@ for pc in pc_list:
             axes[0,0].set_xlabel('Rating', fontsize=18)
             axes[0,0].set_ylabel('Dimensionless', fontsize=18)
 
-            axes[1,0].set_title('Gender Identity', fontsize = 18)
+            axes[1,0].set_title('Perceived Gender Identity', fontsize = 18)
             axes[1,0].set_xlim(-1.5,1.5)
             # sns.scatterplot(data=gender_id_feature, x='Rating_z_score', y=pc, ax=axes[0,0])
             sns.regplot(data=gender_id_feature, x='Rating_z_score', y=pc, ax=axes[1,0], scatter_kws={"color": "green", 's': 50, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #648FFF d55e00
@@ -652,7 +652,7 @@ for pc in pc_list:
             axes[1,0].set_xlabel('Rating (-: Male, +: Female)', fontsize = 18)
             axes[1,0].set_ylabel('Dimensionless', fontsize = 18)
 
-            axes[1,1].set_title('Sexual Orientation', fontsize = 18)
+            axes[1,1].set_title('Perceived Sexual Orientation', fontsize = 18)
             axes[1,1].set_xlim(-1.5,1.5)
             # sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y=pc, ax=axes[0,1])
             sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=pc, ax=axes[1,1], scatter_kws={"color": "green", 's': 50, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #785EF0 0072b2
@@ -661,7 +661,7 @@ for pc in pc_list:
             axes[1,1].set_xlabel('Rating (-: Homo, +: Het)', fontsize = 18)
             axes[1,1].set_ylabel('')
 
-            axes[1,2].set_title('Gender Expression in Voice', fontsize = 18)
+            axes[1,2].set_title('Perceived Gender Expression in Voice', fontsize = 18)
             axes[1,2].set_xlim(-1.5,1.5)
             # sns.scatterplot(data=voice_id_feature, x='Rating_z_score', y=pc, ax=axes[0,2])
             sns.regplot(data=voice_id_feature, x='Rating_z_score', y=pc, ax=axes[1,2], scatter_kws={"color": "green", 's': 50, 'edgecolors': 'w'}, line_kws={"color": "k"}) # #DC267F 009e73
@@ -671,7 +671,7 @@ for pc in pc_list:
             axes[1,2].set_ylabel('')
 
             ### individual features
-            axes[2,0].set_title('Gender Identity', fontsize = 18)
+            axes[2,0].set_title('Perceived Gender Identity', fontsize = 18)
             axes[2,0].set_xlim(-1.5,1.5)
             sns.scatterplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[2,0], hue = gender_id_feature[cluster], style = gender_id_feature[cluster], palette = color_dict, markers=markers_dict, s=50)
             sns.regplot(data=gender_id_feature, x='Rating_z_score', y=feature, ax=axes[2,0], scatter=False, line_kws={"color": "k"}) # #648FFF d55e00
@@ -682,7 +682,7 @@ for pc in pc_list:
             axes[2,0].set_xlabel('Rating (-: Male, +: Female)', fontsize = 18)
             axes[2,0].set_ylabel('Avg %s'%feature, fontsize = 18)
 
-            axes[2,1].set_title('Sexual Orientation', fontsize = 18)
+            axes[2,1].set_title('Perceived Sexual Orientation', fontsize = 18)
             axes[2,1].set_xlim(-1.5,1.5)
             sns.scatterplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[2,1], hue = sexual_orientation_feature[cluster], style = sexual_orientation_feature[cluster], palette = color_dict, markers=markers_dict, s=50)
             sns.regplot(data=sexual_orientation_feature, x='Rating_z_score', y=feature, ax=axes[2,1], scatter=False, line_kws={"color": "k"}) # #785EF0 0072b2
@@ -691,7 +691,7 @@ for pc in pc_list:
             axes[2,1].set_xlabel('Rating (-: Homo, +: Het)', fontsize = 18)
             axes[2,1].set_ylabel('')
 
-            axes[2,2].set_title('Gender Expression in Voice', fontsize = 18)
+            axes[2,2].set_title('Perceived Gender Expression in Voice', fontsize = 18)
             axes[2,2].set_xlim(-1.5,1.5)
             sns.scatterplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2,2], hue = voice_id_feature[cluster], style = voice_id_feature[cluster], palette = color_dict, markers=markers_dict, s=50)
             sns.regplot(data=voice_id_feature, x='Rating_z_score', y=feature, ax=axes[2,2], scatter=False, line_kws={"color": "k"}) # #DC267F 009e73
