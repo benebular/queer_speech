@@ -12,7 +12,7 @@ from matplotlib.lines import Line2D
 import string
 #import mpld3
 
-dir = '/Users/bcl/Documents/GitHub/queer_speech'
+dir = '/Users/bcl/GitHub/queer_speech'
 os.chdir(dir)
 ratings_fname = os.path.join(dir,'data_analysis_viz/queer_data.csv')
 ratings = pd.read_csv(ratings_fname)
