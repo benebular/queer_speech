@@ -68,15 +68,15 @@ df_imp = pd.concat([df_imp, df_temp], axis=1)
 
 
 # make cluster dfs with imputed grand means
-df_cluster_dummies = pd.get_dummies(df_imp['kmeans_5_cluster'], prefix='cluster')
+df_cluster_dummies = pd.get_dummies(df_imp['kmeans_3_cluster'], prefix='cluster')
 df_grand = pd.concat([df_imp, df_cluster_dummies], axis=1)
-df_sans = df_grand.drop('kmeans_5_cluster', axis=1)
-df_sans = df_sans.rename(columns={'cluster_0.0':'cluster_0', 'cluster_1.0':'cluster_1', 'cluster_2.0':'cluster_2', 'cluster_3.0':'cluster_3', 'cluster_4.0':'cluster_4'})
-df_group_0 = df_sans.drop(['cluster_1','cluster_2','cluster_3','cluster_4'], axis=1)
-df_group_1 = df_sans.drop(['cluster_0','cluster_2','cluster_3','cluster_4'], axis=1)
-df_group_2 = df_sans.drop(['cluster_0','cluster_1','cluster_3','cluster_4'], axis=1)
-df_group_3 = df_sans.drop(['cluster_0','cluster_1','cluster_2','cluster_4'], axis=1)
-df_group_4 = df_sans.drop(['cluster_0','cluster_1','cluster_2','cluster_3'], axis=1)
+df_sans = df_grand.drop('kmeans_3_cluster', axis=1)
+df_sans = df_sans.rename(columns={'cluster_0.0':'cluster_0', 'cluster_1.0':'cluster_1', 'cluster_2.0':'cluster_2'})
+df_group_0 = df_sans.drop(['cluster_1','cluster_2'], axis=1)
+df_group_1 = df_sans.drop(['cluster_0','cluster_2'], axis=1)
+df_group_2 = df_sans.drop(['cluster_0','cluster_1'], axis=1)
+# df_group_3 = df_sans.drop(['cluster_0','cluster_1','cluster_2','cluster_4'], axis=1)
+# df_group_4 = df_sans.drop(['cluster_0','cluster_1','cluster_2','cluster_3'], axis=1)
 
 gender_id = df_imp[df_imp['Condition']=='gender_id']
 sexual_orientation = df_imp[df_imp['Condition']=='sexual_orientation']

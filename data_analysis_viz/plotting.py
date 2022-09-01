@@ -17,7 +17,7 @@ np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
 dir = '/Users/bcl/GitHub/queer_speech'
-fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs'
+fig_dir = '/Users/bcl/Library/CloudStorage/GoogleDrive-blang@ucsd.edu/My Drive/Comps/figs/'
 os.chdir(dir)
 ratings_fname = os.path.join(dir, 'data_analysis_viz','queer_data.csv')
 ratings_all = pd.read_csv(ratings_fname)
@@ -971,8 +971,8 @@ corr_df_array = np.round(np.array(corr_specific), 2)
 fig, ax = plt.subplots(figsize = (100,8))
 im = ax.imshow(corr_df_array, cmap='viridis', interpolation='nearest')
 
-ax.set_xticks(np.arange(len(features)), labels=features, fontsize=20)
-ax.set_yticks(np.arange(len(components)), labels=components, fontsize=20)
+# ax.set_xticks(np.arange(len(features)), labels=features, fontsize=20)
+# ax.set_yticks(np.arange(len(components)), labels=components, fontsize=20)
 
 # Rotate the tick labels and set their alignment.
 plt.setp(ax.get_xticklabels(), rotation=45, ha="right",

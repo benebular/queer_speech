@@ -1,0 +1,11 @@
+,accuracy,n_components,kind,removed_component
+0,1.0,10,grand_raw,Principal Component 2
+1,1.0,9,grand_raw,Principal Component 3
+2,1.0,8,grand_raw,Principal Component 5
+3,1.0,7,grand_raw,Principal Component 6
+4,1.0,6,grand_raw,Principal Component 9
+5,1.0,5,grand_raw,Principal Component 4
+6,1.0,4,grand_raw,Principal Component 7
+7,1.0,3,grand_raw,Principal Component 1
+8,1.0,2,grand_raw,Principal Component 10
+9,0.9950777644847034,1,grand_raw,Principal Component 8

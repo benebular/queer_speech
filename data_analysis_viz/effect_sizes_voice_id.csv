@@ -1,0 +1,23 @@
+,coef,p,t,condition,model,feature
+0,0.014366530460133847,0.0,95.5338832534031,voice_id,Rating_z_score ~ F0_mean,F0_mean
+1,0.004108565697397322,0.0,40.410105793245606,voice_id,Rating_z_score ~ IH_sF1_mean,IH_sF1_mean
+2,0.0011913824946020715,0.0,45.61719219125158,voice_id,Rating_z_score ~ IH_sF2_mean,IH_sF2_mean
+3,0.0016510196643397424,0.0,59.071492390719115,voice_id,Rating_z_score ~ IH_sF3_mean,IH_sF3_mean
+4,0.001253853115235021,0.0,61.82299548520268,voice_id,Rating_z_score ~ IH_sF4_mean,IH_sF4_mean
+5,0.002209718835579676,9.807820914080886e-50,14.890150949289902,voice_id,Rating_z_score ~ IH_sF1_mean_dist,IH_sF1_mean_dist
+6,0.0008700669520881016,7.167431645327639e-85,19.666128705613882,voice_id,Rating_z_score ~ IH_sF2_mean_dist,IH_sF2_mean_dist
+7,0.00020586736346265801,0.0002838249959504588,3.630622128281556,voice_id,Rating_z_score ~ IH_sF3_mean_dist,IH_sF3_mean_dist
+8,-0.0002559656362015059,1.847809497104959e-11,-6.72353248399919,voice_id,Rating_z_score ~ IH_sF4_mean_dist,IH_sF4_mean_dist
+9,0.0019627167179695495,0.0,38.9940406450996,voice_id,Rating_z_score ~ AY_sF1_mean_first,AY_sF1_mean_first
+10,0.0012182216729002637,5.083555419468905e-179,28.982238978267272,voice_id,Rating_z_score ~ AY_sF2_mean_first,AY_sF2_mean_first
+11,7.434401223817742e-05,0.020743821235934542,2.3128972645648656,voice_id,Rating_z_score ~ AY_sF3_mean_first,AY_sF3_mean_first
+12,0.0012055488149649509,2.2191312994600292e-305,38.379401580392546,voice_id,Rating_z_score ~ AY_sF4_mean_first,AY_sF4_mean_first
+13,0.0019325147869841994,2.284150316989587e-307,38.51187864189929,voice_id,Rating_z_score ~ AY_sF1_mean_third,AY_sF1_mean_third
+14,0.0012402083464246832,3.6410290397653456e-185,29.497368829125044,voice_id,Rating_z_score ~ AY_sF2_mean_third,AY_sF2_mean_third
+15,5.760130627345702e-05,0.07547807168152014,1.777690502382549,voice_id,Rating_z_score ~ AY_sF3_mean_third,AY_sF3_mean_third
+16,0.0012064716203332038,8.494875087868496e-306,38.40722917984039,voice_id,Rating_z_score ~ AY_sF4_mean_third,AY_sF4_mean_third
+17,4.24398682831437e-05,0.9097925014429808,0.11330247904812421,voice_id,Rating_z_score ~ vowel_avg_dur,vowel_avg_dur
+18,0.0012588724992673489,0.21835352994964152,1.2309775531689229,voice_id,Rating_z_score ~ percent_creak,percent_creak
+19,-9.880148424459861,9.967671994124386e-263,-35.44153914896276,voice_id,Rating_z_score ~ spectral_S_duration,spectral_S_duration
+20,0.0003476207952180577,0.0,39.47117356291329,voice_id,Rating_z_score ~ spectral_S_cog,spectral_S_cog
+21,-0.5018692971845962,0.0,-39.32568916475813,voice_id,Rating_z_score ~ spectral_S_skew,spectral_S_skew
