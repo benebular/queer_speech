@@ -29,7 +29,7 @@ from sklearn.inspection import permutation_importance
 
 # set up directory and read in csv
 dir = '/Users/bcl/GitHub/queer_speech'
-fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs'
+fig_dir = '/Users/bcl/Library/CloudStorage/GoogleDrive-blang@ucsd.edu/My Drive/Comps/figs/'
 os.chdir(dir)
 ratings_features_fname = os.path.join(dir, 'feature_extraction', 'ratings_features_all.csv')
 data = pd.read_csv(ratings_features_fname)

@@ -1,0 +1,23 @@
+,coef,p,t,condition,model,feature
+0,0.0022707586219941093,1.0534357435746417e-37,12.875316769291475,sexual_orientation,Rating_z_score ~ F0_mean,F0_mean
+1,-0.00016589621083463893,0.08911237733063254,-1.7002258183036216,sexual_orientation,Rating_z_score ~ IH_sF1_mean,IH_sF1_mean
+2,3.495601393918103e-05,0.1695454855335807,1.373741982477772,sexual_orientation,Rating_z_score ~ IH_sF2_mean,IH_sF2_mean
+3,0.0002499498188761875,1.4924196328238908e-18,8.803486705056113,sexual_orientation,Rating_z_score ~ IH_sF3_mean,IH_sF3_mean
+4,0.0001352871639407564,8.749575679575142e-11,6.492493122925689,sexual_orientation,Rating_z_score ~ IH_sF4_mean,IH_sF4_mean
+5,-0.00036750784183893595,0.006633010494507463,-2.7151656153350014,sexual_orientation,Rating_z_score ~ IH_sF1_mean_dist,IH_sF1_mean_dist
+6,0.00016408252045714469,5.3184762231389556e-05,4.042519140790947,sexual_orientation,Rating_z_score ~ IH_sF2_mean_dist,IH_sF2_mean_dist
+7,0.0002907636557978582,1.438095318006307e-08,5.672404182668738,sexual_orientation,Rating_z_score ~ IH_sF3_mean_dist,IH_sF3_mean_dist
+8,0.0003875649808325832,2.0464818084048763e-29,11.288639010249058,sexual_orientation,Rating_z_score ~ IH_sF4_mean_dist,IH_sF4_mean_dist
+9,0.0005078027366177357,3.914762750321548e-26,10.5974321651898,sexual_orientation,Rating_z_score ~ AY_sF1_mean_first,AY_sF1_mean_first
+10,2.6173147184270375e-05,0.5047211579779911,0.6670983441429553,sexual_orientation,Rating_z_score ~ AY_sF2_mean_first,AY_sF2_mean_first
+11,2.007823437263651e-05,0.489984506107472,0.6903530701166253,sexual_orientation,Rating_z_score ~ AY_sF3_mean_first,AY_sF3_mean_first
+12,9.87138173048924e-05,0.0009914770216949548,3.2936842710476695,sexual_orientation,Rating_z_score ~ AY_sF4_mean_first,AY_sF4_mean_first
+13,0.0005099721515174744,1.4624337813858808e-26,10.689946138884217,sexual_orientation,Rating_z_score ~ AY_sF1_mean_third,AY_sF1_mean_third
+14,1.6935122988209304e-05,0.6664383170193497,0.43105116243464986,sexual_orientation,Rating_z_score ~ AY_sF2_mean_third,AY_sF2_mean_third
+15,2.9338149868567944e-05,0.3169533179251954,1.0007768774628936,sexual_orientation,Rating_z_score ~ AY_sF3_mean_third,AY_sF3_mean_third
+16,9.841365028967995e-05,0.0010287569993561144,3.28328535298354,sexual_orientation,Rating_z_score ~ AY_sF4_mean_third,AY_sF4_mean_third
+17,-0.004157362054163583,8.594485519588348e-35,-12.34038532974238,sexual_orientation,Rating_z_score ~ vowel_avg_dur,vowel_avg_dur
+18,-0.017295105587946967,5.1499344866635943e-79,-18.949588263094967,sexual_orientation,Rating_z_score ~ percent_creak,percent_creak
+19,0.469984624643925,0.07513037426094873,1.7798102417862107,sexual_orientation,Rating_z_score ~ spectral_S_duration,spectral_S_duration
+20,-9.805833356855593e-05,2.0246909447948227e-31,-11.691442012210253,sexual_orientation,Rating_z_score ~ spectral_S_cog,spectral_S_cog
+21,0.12172851242249694,1.7472687124897555e-23,10.005826736640596,sexual_orientation,Rating_z_score ~ spectral_S_skew,spectral_S_skew
