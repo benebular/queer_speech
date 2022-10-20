@@ -9,7 +9,7 @@
 % make a list of the resampled files, it's easiest if you just resample
 % elsewhere through praat or python, and then place all of the resampled
 % files in 'audio' in the COVAREP directory
-filePattern = fullfile('./input/', '*.wav');
+filePattern = fullfile('./audio/', '*.wav');
 files = dir(filePattern);
 
 % run creaky detection on each file in directory
@@ -24,7 +24,7 @@ files = dir(filePattern);
 
 for i=1:length(files)
     filename = files(i);
-    filelocation = ['input/',filename.name]
+    filelocation = ['audio/',filename.name]
     % Load soundfile
     [x,fs] = audioread(filelocation);
 
