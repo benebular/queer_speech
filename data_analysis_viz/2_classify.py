@@ -29,8 +29,8 @@ from sklearn.inspection import permutation_importance
 
 # set up directory and read in csv
 dir = '/Users/bcl/GitHub/queer_speech'
-# fig_dir = '/Users/bcl/Library/CloudStorage/GoogleDrive-blang@ucsd.edu/My Drive/Comps/figs/'
-fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs/'
+fig_dir = '/Users/bcl/Library/CloudStorage/GoogleDrive-blang@ucsd.edu/My Drive/Comps/figs/'
+# fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs/'
 os.chdir(dir)
 ratings_features_fname = os.path.join(dir, 'feature_extraction', 'ratings_features_all.csv')
 data = pd.read_csv(ratings_features_fname)
@@ -122,17 +122,28 @@ kmeans_predict = kmeans_model.fit_predict(y)
 x['kmeans_5_cluster'] = kmeans_predict
 
 # Visualising the clusters
-plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#FFB000', label = 'QM')
-plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#785EF0', label = 'SW')
-plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#648FFF', label = 'SM')
-plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#FE6100', label = 'QW')
-plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#DC267F', label = 'QE')
+# plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#FFB000', label = 'QM')
+# plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#785EF0', label = 'SW')
+# plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#648FFF', label = 'SM')
+# plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#FE6100', label = 'QW')
+# plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#DC267F', label = 'QE')
+
+
+#icphs colors
+plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#a6d854', label = 'QM')
+plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#e78ac3', label = 'SW')
+plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#8da0cb', label = 'SM')
+plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#fc8d62', label = 'QW')
+plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#66c2a5', label = 'QE')
+
 
 # Plotting the centroids of the clusters
 plt.scatter(kmeans_model.cluster_centers_[:, 0], kmeans_model.cluster_centers_[:,1], s = 100, c = 'black', label = 'Centroids')
 plt.legend()
 plt.title('K-Means: 5 Clusters from Participant Ratings')
-plt.savefig(os.path.join(fig_dir, 'kmeans_cluster_5.png'), bbox_inches='tight', dpi=300)
+plt.ylabel('Dimensionless')
+plt.xlabel('Dimensionless')
+plt.savefig(os.path.join(fig_dir, 'kmeans_cluster_5_icphs.png'), bbox_inches='tight', dpi=300)
 plt.close()
 
 abc = x

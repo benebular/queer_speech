@@ -62,6 +62,57 @@ plt.title("10th percentile; Average F0; 90th percentile, by speaker (across enti
 plt.savefig(os.path.join(fig_dir, 'F0_raincloud.png'), bbox_inches='tight', dpi=300)
 plt.close()
 
+### raincloud for groups icphs
+gender_id.groupby(['WAV'])['kmeans_5_cluster'].mean()
+
+
+fig, axes = plt.subplots(3, 1)
+fig.subplots_adjust(hspace=0.5)
+color_dict = {0:'#FFB000', 1:'#785EF0', 2:'#648FFF', 3:'#FE6100', 4:'#DC267F'}
+
+
+axes[0].set_title('Cluster Distributions for GI, SO, and GE', fontweight='bold', fontsize=22, y=1.2)
+axes[0].set_xlim(-1.5,1.5)
+# axes[0].set_ylim(0,4)
+sns.kdeplot(data=gender_id, x=gender_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=gender_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[0], common_norm=False, palette='Set2', alpha = 0.5, linewidth=0)
+axes[0].set_xlabel('')
+axes[0].set_xticks([])
+axes[0].set_yticks([])
+axes[0].set_ylabel('GI', rotation = 0, labelpad = 20, fontsize=22, fontweight='bold',)
+axes[0].spines.top.set(visible=False)
+axes[0].spines.left.set(visible=False)
+axes[0].spines.right.set(visible=False)
+
+axes[1].set_xlim(-1.5,1.5)
+# axes[0].set_ylim(0,4)
+sns.kdeplot(data=sexual_orientation, x=sexual_orientation.groupby(['WAV'])['Rating_z_score'].mean(), hue=sexual_orientation.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[1], common_norm=False, palette='Set2', alpha = 0.5, linewidth=0)
+axes[1].set_xlabel('')
+axes[1].set_xticks([])
+axes[1].set_yticks([])
+axes[1].set_ylabel('SO', rotation = 0, labelpad = 20, fontsize=22, fontweight='bold',)
+axes[1].spines.top.set(visible=False)
+axes[1].spines.left.set(visible=False)
+axes[1].spines.right.set(visible=False)
+
+axes[2].set_xlim(-1.5,1.5)
+# axes[0].set_ylim(0,4)
+sns.kdeplot(data=voice_id, x=voice_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=voice_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[2], common_norm=False, palette='Set2', alpha = 0.5, linewidth=0)
+axes[2].set_xlabel('')
+axes[2].set_xticks([])
+axes[2].set_yticks([])
+axes[2].set_ylabel('GE', rotation = 0, labelpad = 20, fontsize=22, fontweight='bold',)
+axes[2].spines.top.set(visible=False)
+axes[2].spines.left.set(visible=False)
+axes[2].spines.right.set(visible=False)
+
+axes[0].legend(['QE','QW','SM','SW','QM'], numpoints = 1, loc = 'upper right', fontsize=14)
+axes[1].get_legend().remove()
+axes[2].get_legend().remove()
+
+plt.savefig(os.path.join(fig_dir, 'distro_plot_icphs.png'), bbox_inches='tight', dpi=300)
+plt.close()
+
+
 ##### regression indiv loop over all features ########
 # need to add in the number of WAV files for each since there's variability
 cluster_colors = ['color_3_cluster','color_4_cluster','color_5_cluster']
