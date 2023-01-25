@@ -17,7 +17,8 @@ np.set_printoptions(threshold=sys.maxsize)
 
 # set up directory and read in csv
 dir = '/Users/bcl/GitHub/queer_speech'
-fig_dir = '/Users/bcl/Library/CloudStorage/GoogleDrive-blang@ucsd.edu/My Drive/Comps/figs/'
+# fig_dir = '/Users/bcl/Library/CloudStorage/GoogleDrive-blang@ucsd.edu/My Drive/Comps/figs/'
+fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs/'
 os.chdir(dir)
 ratings_fname = os.path.join(dir, 'data_analysis_viz','queer_data.csv')
 ratings_all = pd.read_csv(ratings_fname)
@@ -71,45 +72,49 @@ fig.subplots_adjust(hspace=0.5)
 color_dict = {0:'#FFB000', 1:'#785EF0', 2:'#648FFF', 3:'#FE6100', 4:'#DC267F'}
 
 
-axes[0].set_title('Cluster Distributions for GI, SO, and GE', fontweight='bold', fontsize=22, y=1.2)
+axes[0].set_title('Cluster Distributions for GI, SO, and GE', fontweight='bold', fontsize=24, y=1.2)
 axes[0].set_xlim(-1.5,1.5)
 # axes[0].set_ylim(0,4)
-sns.kdeplot(data=gender_id, x=gender_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=gender_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[0], common_norm=False, palette='Set2', alpha = 0.5, linewidth=0)
+# sns.kdeplot(data=gender_id, x=gender_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=gender_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[0], common_norm=False, palette=color_dict, alpha = 0.5, linewidth=0)
+sns.kdeplot(data=gender_id, x=gender_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=gender_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[0], common_norm=False, palette='colorblind', alpha = 0.5, linewidth=0)
 axes[0].set_xlabel('')
 axes[0].set_xticks([])
 axes[0].set_yticks([])
-axes[0].set_ylabel('GI', rotation = 0, labelpad = 20, fontsize=22, fontweight='bold',)
+axes[0].set_ylabel('GI', rotation = 0, labelpad = 20, fontsize=24, fontweight='bold')
 axes[0].spines.top.set(visible=False)
 axes[0].spines.left.set(visible=False)
 axes[0].spines.right.set(visible=False)
 
 axes[1].set_xlim(-1.5,1.5)
 # axes[0].set_ylim(0,4)
-sns.kdeplot(data=sexual_orientation, x=sexual_orientation.groupby(['WAV'])['Rating_z_score'].mean(), hue=sexual_orientation.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[1], common_norm=False, palette='Set2', alpha = 0.5, linewidth=0)
+# sns.kdeplot(data=sexual_orientation, x=sexual_orientation.groupby(['WAV'])['Rating_z_score'].mean(), hue=sexual_orientation.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[1], common_norm=False, palette=color_dict, alpha = 0.5, linewidth=0)
+sns.kdeplot(data=sexual_orientation, x=sexual_orientation.groupby(['WAV'])['Rating_z_score'].mean(), hue=sexual_orientation.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[1], common_norm=False, palette='colorblind', alpha = 0.5, linewidth=0)
 axes[1].set_xlabel('')
 axes[1].set_xticks([])
 axes[1].set_yticks([])
-axes[1].set_ylabel('SO', rotation = 0, labelpad = 20, fontsize=22, fontweight='bold',)
+axes[1].set_ylabel('SO', rotation = 0, labelpad = 20, fontsize=24, fontweight='bold')
 axes[1].spines.top.set(visible=False)
 axes[1].spines.left.set(visible=False)
 axes[1].spines.right.set(visible=False)
 
 axes[2].set_xlim(-1.5,1.5)
 # axes[0].set_ylim(0,4)
-sns.kdeplot(data=voice_id, x=voice_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=voice_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[2], common_norm=False, palette='Set2', alpha = 0.5, linewidth=0)
+# sns.kdeplot(data=voice_id, x=voice_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=voice_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[2], common_norm=False, palette=color_dict, alpha = 0.5, linewidth=0)
+sns.kdeplot(data=voice_id, x=voice_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=voice_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[2], common_norm=False, palette='colorblind', alpha = 0.5, linewidth=0)
 axes[2].set_xlabel('')
 axes[2].set_xticks([])
 axes[2].set_yticks([])
-axes[2].set_ylabel('GE', rotation = 0, labelpad = 20, fontsize=22, fontweight='bold',)
+axes[2].set_ylabel('GE', rotation = 0, labelpad = 20, fontsize=24, fontweight='bold')
 axes[2].spines.top.set(visible=False)
 axes[2].spines.left.set(visible=False)
 axes[2].spines.right.set(visible=False)
 
-axes[0].legend(['QE','QW','SM','SW','QM'], numpoints = 1, loc = 'upper right', fontsize=14)
+axes[0].legend(handles = [2,0,4,3,1], labels=['QE','QW','SM','SW','QM'], numpoints = 1, bbox_to_anchor=(1.05, 1.0), fontsize=14)
 axes[1].get_legend().remove()
 axes[2].get_legend().remove()
 
-plt.savefig(os.path.join(fig_dir, 'distro_plot_icphs.png'), bbox_inches='tight', dpi=300)
+plt.show()
+plt.savefig(os.path.join(fig_dir, 'distro_plot_jasa.png'), bbox_inches='tight', dpi=300)
 plt.close()
 
 
