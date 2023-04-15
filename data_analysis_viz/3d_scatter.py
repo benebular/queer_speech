@@ -46,17 +46,21 @@ ratings_avg_pivot = ratings_avg_pivot.drop(['delete1','delete2'], axis = 1)
 ratings_avg_pivot['cluster'] = ratings_avg_pivot['cluster'].astype('int64')
 print(ratings_avg_pivot)
 
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+    print(ratings_avg.pivot(index = 'WAV', columns = 'Condition', values = ['Rating_z_score','kmeans_5_cluster']))
+
+ratings_id_list = ratings_avg_pivot.index.tolist()
 
 # clusters_avg_pivot = clusters.pivot(index = 'WAV', columns = 'Condition', values = 'kmeans_5_cluster')
 # clusters_avg_pivot = clusters_avg_pivot.drop(['sexual_orientation','voice_id'], axis=1)
 # clusters_avg_pivot = clusters_avg_pivot.rename(columns = {'gender_id':'kmeans_5_cluster'})
 # ratings_avg_pivot.set_index(['Condition']).VALUE.unstack().reset_index()
 
-# ratings_avg_pivot.index.name = None
-# ratings_avg_pivot.index = pd.Series(ratings_avg_pivot.index).astype(str)
+ratings_avg_pivot.index.name = None
+ratings_avg_pivot.index = pd.Series(ratings_avg_pivot.index).astype(str)
 # clusters_avg_pivot.index.name = None
 # clusters_avg_pivot.index = pd.Series(clusters_avg_pivot.index).astype(str)
-# categories = pd.Series(ratings_avg_pivot.index).astype(str)
+categories = pd.Series(ratings_avg_pivot.index).astype(str)
 
 # import random
 # get_colors = lambda n: list(map(lambda i: "#" + "%06x" % random.randint(0, 0xFFFFFF),range(n)))
@@ -67,14 +71,16 @@ print(ratings_avg_pivot)
 colors = pd.DataFrame({"color": ['#FFB000','#785EF0','#648FFF','#FE6100','#DC267F']})
 colors['cluster'] = [0,1,2,3,4]
 ratings_avg_pivot = pd.merge(ratings_avg_pivot, colors, on = 'cluster', how = "outer")
-#
+ratings_avg_pivot['WAV'] = ratings_id_list
+
+
 # ## plot averages for 5 clusters
 fig = plt.figure(figsize = (10,7))
 ax = plt.axes(projection='3d')
-# for i, txt in enumerate(categories): # plots ewach point in red and then plots a text from a separate list to label the dots
-#     ax.scatter(ratings_avg_pivot['gender_id'][i],ratings_avg_pivot['sexual_orientation'][i],ratings_avg_pivot['voice_id'][i], alpha=0.8, s=30, color=colors[i])
-#     ax.text(ratings_avg_pivot['gender_id'][i],ratings_avg_pivot['sexual_orientation'][i],ratings_avg_pivot['voice_id'][i],  '%s' % (str(txt)), size=10, zorder=1, color='k')
-ax.scatter3D(ratings_avg_pivot['gender_id'], ratings_avg_pivot['sexual_orientation'], ratings_avg_pivot['voice_id'], alpha=0.8, s=50, facecolor=ratings_avg_pivot['color'], depthshade=True) # just the scatter, no text
+for i, txt in enumerate(categories): # plots ewach point in red and then plots a text from a separate list to label the dots
+    ax.scatter(ratings_avg_pivot['gender_id'][i],ratings_avg_pivot['sexual_orientation'][i],ratings_avg_pivot['voice_id'][i], alpha=0.8, s=30, color=ratings_avg_pivot['color'][i])
+    ax.text(ratings_avg_pivot['gender_id'][i],ratings_avg_pivot['sexual_orientation'][i],ratings_avg_pivot['voice_id'][i],  '%s' % (str(txt)), size=10, zorder=1, color='k')
+# ax.scatter3D(ratings_avg_pivot['gender_id'], ratings_avg_pivot['sexual_orientation'], ratings_avg_pivot['voice_id'], alpha=0.8, s=50, facecolor=ratings_avg_pivot['color'], depthshade=True) # just the scatter, no text
 plt.title('Gender Identity, Sexual Orientation, and Voice Identity Ratings (Avg)', fontweight='bold')
 ax.set_xlabel('Gender ID', fontweight='bold')
 ax.set_ylabel('PSO', fontweight='bold')
