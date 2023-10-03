@@ -13,6 +13,7 @@ import scipy.stats as stats
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
+import matplotlib.patches as mpatches
 import string
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -69,57 +70,68 @@ gender_id.groupby(['WAV'])['kmeans_5_cluster'].mean()
 
 
 fig, axes = plt.subplots(3, 1)
-fig.subplots_adjust(hspace=0.5)
-color_dict = {0:'#FFB000', 1:'#785EF0', 2:'#648FFF', 3:'#FE6100', 4:'#DC267F'}
+fig.subplots_adjust(right=0.7, hspace=0.9)
+# color_dict = {0:'#FFB000', 1:'#785EF0', 2:'#648FFF', 3:'#FE6100', 4:'#DC267F'} # original
+color_dict = {0:'#66c2a5', 1:'#e78ac3', 2:'#8da0cb', 3:'#fc8d62', 4:'#a6d854'} # icphs
 
-tfont = {'fontname':'Times New Roman'}
 
-axes[0].set_title('Cluster Distributions for GI, SO, and GE', fontweight='bold', fontsize=28, y=1.2, **tfont)
+tfont = {'fontname':'Helvetica'}
+
+axes[0].set_title('Cluster Distributions for GI, SO, and GE', fontweight='bold', fontsize=34, y=1.2, **tfont)
 axes[0].set_xlim(-1.5,1.5)
 # axes[0].set_ylim(0,4)
-# sns.kdeplot(data=gender_id, x=gender_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=gender_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[0], common_norm=False, palette=color_dict, alpha = 0.5, linewidth=0)
-sns.kdeplot(data=gender_id, x=gender_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=gender_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[0], common_norm=False, palette='colorblind', alpha = 0.5, linewidth=0)
+sns.kdeplot(data=gender_id, x=gender_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=gender_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[0], common_norm=False, palette=color_dict, alpha = 0.5, linewidth=0)
+# sns.kdeplot(data=gender_id, x=gender_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=gender_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[0], common_norm=False, palette='colorblind', alpha = 0.5, linewidth=0)
 axes[0].set_xlabel('')
 axes[0].set_xticks([])
 axes[0].set_yticks([])
-axes[0].set_ylabel('GI', rotation = 0, labelpad = 20, fontsize=28, fontweight='bold', **tfont)
+axes[0].set_ylabel('', rotation = 0, labelpad = 20, fontsize=34, fontweight='bold', **tfont)
 axes[0].spines.top.set(visible=False)
 axes[0].spines.left.set(visible=False)
 axes[0].spines.right.set(visible=False)
 
 axes[1].set_xlim(-1.5,1.5)
 # axes[0].set_ylim(0,4)
-# sns.kdeplot(data=sexual_orientation, x=sexual_orientation.groupby(['WAV'])['Rating_z_score'].mean(), hue=sexual_orientation.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[1], common_norm=False, palette=color_dict, alpha = 0.5, linewidth=0)
-sns.kdeplot(data=sexual_orientation, x=sexual_orientation.groupby(['WAV'])['Rating_z_score'].mean(), hue=sexual_orientation.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[1], common_norm=False, palette='colorblind', alpha = 0.5, linewidth=0)
+sns.kdeplot(data=sexual_orientation, x=sexual_orientation.groupby(['WAV'])['Rating_z_score'].mean(), hue=sexual_orientation.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[1], common_norm=False, palette=color_dict, alpha = 0.5, linewidth=0)
+# sns.kdeplot(data=sexual_orientation, x=sexual_orientation.groupby(['WAV'])['Rating_z_score'].mean(), hue=sexual_orientation.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[1], common_norm=False, palette='colorblind', alpha = 0.5, linewidth=0)
 axes[1].set_xlabel('')
 axes[1].set_xticks([])
 axes[1].set_yticks([])
-axes[1].set_ylabel('SO', rotation = 0, labelpad = 20, fontsize=28, fontweight='bold', **tfont)
+axes[1].set_ylabel('', rotation = 0, labelpad = 20, fontsize=34, fontweight='bold', **tfont)
 axes[1].spines.top.set(visible=False)
 axes[1].spines.left.set(visible=False)
 axes[1].spines.right.set(visible=False)
 
 axes[2].set_xlim(-1.5,1.5)
 # axes[0].set_ylim(0,4)
-# sns.kdeplot(data=voice_id, x=voice_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=voice_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[2], common_norm=False, palette=color_dict, alpha = 0.5, linewidth=0)
-sns.kdeplot(data=voice_id, x=voice_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=voice_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[2], common_norm=False, palette='colorblind', alpha = 0.5, linewidth=0)
+sns.kdeplot(data=voice_id, x=voice_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=voice_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[2], common_norm=False, palette=color_dict, alpha = 0.5, linewidth=0)
+# sns.kdeplot(data=voice_id, x=voice_id.groupby(['WAV'])['Rating_z_score'].mean(), hue=voice_id.groupby(['WAV'])['kmeans_5_cluster'].mean(), fill=True, ax=axes[2], common_norm=False, palette='colorblind', alpha = 0.5, linewidth=0)
 axes[2].set_xlabel('')
 axes[2].set_xticks([])
 axes[2].set_yticks([])
-axes[2].set_ylabel('GE', rotation = 0, labelpad = 20, fontsize=28, fontweight='bold', **tfont)
+axes[2].set_ylabel('', rotation = 0, labelpad = 20, fontsize=34, fontweight='bold', **tfont)
 axes[2].spines.top.set(visible=False)
 axes[2].spines.left.set(visible=False)
 axes[2].spines.right.set(visible=False)
 
-axes[0].legend(['QE','QW','SM','SW','QM'], numpoints = 1, bbox_to_anchor=(1.05, 1.0), prop=font_manager.FontProperties(family='Times New Roman',
+scatter1_proxy = mpatches.Patch(color='#8da0cb', label='1 (Straight Men) (SM)')
+scatter2_proxy = mpatches.Patch(color='#66c2a5', label='2 (Queer Men) (QM)')
+scatter3_proxy = mpatches.Patch(color='#a6d854', label='3 (Gay Men) (GM)')
+scatter4_proxy = mpatches.Patch(color='#fc8d62', label='4 (Queer Women) (QW)')
+scatter5_proxy = mpatches.Patch(color='#e78ac3', label='5 (Straight Women) (SW)')
+axes[0].legend(handles=[scatter1_proxy, scatter2_proxy, scatter3_proxy, scatter4_proxy, scatter5_proxy], numpoints = 1, loc=(1.04, 0), borderaxespad=0, prop=font_manager.FontProperties(family='Helvetica',
                                    weight='bold',
-                                   style='normal', size=18))
+                                   style='normal', 
+                                   size=18))
+# axes[0].legend(['Gay Men','Queer Women','Straight Men','Straight Women','Queer Men'], numpoints = 1, bbox_to_anchor=(1.10, 1.0), prop=font_manager.FontProperties(family='Helvetica',
+#                                    weight='bold',
+#                                    style='normal', size=18))
 axes[1].get_legend().remove()
 axes[2].get_legend().remove()
 
 plt.show()
-plt.savefig(os.path.join(fig_dir, 'distro_plot_jasa.png'), bbox_inches='tight', dpi=300)
-plt.close()
+# plt.savefig(os.path.join(fig_dir, 'distro_plot_icphs.png'), bbox_inches='tight', dpi=300)
+# plt.close()
 
 
 ##### regression indiv loop over all features ########

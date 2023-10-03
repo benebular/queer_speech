@@ -29,8 +29,8 @@ from sklearn.inspection import permutation_importance
 
 # set up directory and read in csv
 dir = '/Users/bcl/GitHub/queer_speech'
-# fig_dir = '/Users/bcl/Library/CloudStorage/GoogleDrive-blang@ucsd.edu/My Drive/Comps/figs/'
-fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs/'
+fig_dir = '/Users/bcl/Library/CloudStorage/GoogleDrive-blang@ucsd.edu/My Drive/Comps/figs/'
+# fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs/'
 os.chdir(dir)
 ratings_features_fname = os.path.join(dir, 'feature_extraction', 'ratings_features_all.csv')
 data = pd.read_csv(ratings_features_fname)
@@ -136,20 +136,20 @@ x['kmeans_5_cluster'] = kmeans_predict
 # plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#fc8d62', label = 'QW')
 # plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#66c2a5', label = 'QE')
 
+plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#8da0cb', label = '1')
+plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#66c2a5', label = '2')
+plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#a6d854', label = '3')
+plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#fc8d62', label = '4')
+plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#e78ac3', label = '5')
+
+## jasa colors
+# print(sns.color_palette("colorblind", 5).as_hex())
+
 # plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#8da0cb', label = '1')
 # plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#a6d854', label = '2')
 # plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#66c2a5', label = '3')
 # plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#fc8d62', label = '4')
 # plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#e78ac3', label = '5')
-
-## jasa colors
-# print(sns.color_palette("colorblind", 5).as_hex())
-
-plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#8da0cb', label = '1')
-plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#a6d854', label = '2')
-plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#66c2a5', label = '3')
-plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#fc8d62', label = '4')
-plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#e78ac3', label = '5')
 
 
 
