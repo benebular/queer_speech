@@ -10,6 +10,7 @@ import os
 import sys
 import time
 import seaborn as sns
+import matplotlib
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 from sklearn.pipeline import make_pipeline
@@ -29,8 +30,8 @@ from sklearn.inspection import permutation_importance
 
 # set up directory and read in csv
 dir = '/Users/bcl/GitHub/queer_speech'
-# fig_dir = '/Users/bcl/Library/CloudStorage/GoogleDrive-blang@ucsd.edu/My Drive/Comps/figs/'
-fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs/'
+fig_dir = '/Users/bcl/Library/CloudStorage/GoogleDrive-blang@ucsd.edu/My Drive/Comps/figs/'
+# fig_dir = '/Volumes/GoogleDrive/My Drive/Comps/figs/'
 os.chdir(dir)
 ratings_features_fname = os.path.join(dir, 'feature_extraction', 'ratings_features_all.csv')
 data = pd.read_csv(ratings_features_fname)
@@ -70,12 +71,61 @@ for k in K:
 
  # Plotting the distortions
 plt.figure(figsize=(16,8))
-plt.plot(K, distortions, 'bx-')
-plt.xlabel('k')
-plt.ylabel('Distortion')
-plt.title('The Elbow Method showing the optimal clusters')
+plt.plot(K, distortions, '-', marker='o', lw='5', ms='16', color='mediumblue')
+plt.xlabel('k', fontsize=22)
+plt.ylabel('Distortion',  fontsize=22)
+plt.title('Elbow Plot of Cluster Distortion',  fontsize=22)
+plt.xticks(fontsize=18)
+plt.yticks(fontsize=18)
 plt.savefig(os.path.join(fig_dir, 'kmeans_cluster_elbow.png'), bbox_inches='tight', dpi=300)
 plt.close()
+
+## Silhouette to establish cluster number
+from sklearn import datasets
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+from yellowbrick.cluster import SilhouetteVisualizer
+
+# # Load the IRIS dataset
+# iris = datasets.load_iris()
+# X = iris.data
+# y = iris.target
+
+matplotlib.rcParams.update({'font.size': 22})
+fig, ax = plt.subplots(3, 2, figsize=(15,8))
+for i in [2, 3, 4, 5, 6, 7]:
+    '''
+    Create KMeans instances for different number of clusters
+    '''
+    km = KMeans(n_clusters=i, random_state=42)
+    q, mod = divmod(i, 2)
+    '''
+    Create SilhouetteVisualizer instance with KMeans instance
+    Fit the visualizer
+    '''
+    visualizer = SilhouetteVisualizer(km, colors=['#648FFF', '#785EF0', '#DC267F', '#FE6100', '#FFB000', '#32A183', '#4722EF'], ax=ax[q-1][mod])
+    visualizer.fit(x)
+    print(i)
+    print(visualizer.silhouette_score_)
+
+matplotlib.rcParams.update({'font.size': 22})
+fig, ax = plt.subplots(figsize=(15,8))
+'''
+Create KMeans instances for different number of clusters
+'''
+# set cluster number
+i=5
+km = KMeans(n_clusters=i, random_state=42)
+# q, mod = divmod(i, 2)
+'''
+Create SilhouetteVisualizer instance with KMeans instance
+Fit the visualizer
+'''
+visualizer = SilhouetteVisualizer(km, colors=['#648FFF', '#785EF0', '#DC267F', '#FE6100', '#FFB000'])
+visualizer.fit(x)
+
+['#648FFF', '#785EF0', '#DC267F', '#FE6100', '#FFB000']
+
 
 # Define the model for 3 clusters
 kmeans_model = KMeans(n_clusters=3, random_state=42)
@@ -122,11 +172,14 @@ kmeans_predict = kmeans_model.fit_predict(y)
 x['kmeans_5_cluster'] = kmeans_predict
 
 # Visualising the clusters
-# plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#FFB000', label = 'QM')
-# plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#785EF0', label = 'SW')
-# plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#648FFF', label = 'SM')
-# plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#FE6100', label = 'QW')
-# plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#DC267F', label = 'QE')
+# this just extracts from the first two columns of the array y, fiulled with participant ratings for each speaker, and then gets the x and y values for the scatter
+# the x and y values are not dimensionless, and are instead just extracted from y, which is original averaged score data for each speaker
+# you are plotting gender id, from the 0 column, and sexual oirientation, from the 1 column
+plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#FFB000', label = 'QM')
+plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#785EF0', label = 'SW')
+plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#648FFF', label = 'SM')
+plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#FE6100', label = 'QW')
+plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#DC267F', label = 'GM')
 
 
 #icphs colors
@@ -145,11 +198,11 @@ x['kmeans_5_cluster'] = kmeans_predict
 ## jasa colors
 # print(sns.color_palette("colorblind", 5).as_hex())
 
-plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#8da0cb', label = '1')
-plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#a6d854', label = '2')
-plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#66c2a5', label = '3')
-plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#fc8d62', label = '4')
-plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#e78ac3', label = '5')
+# plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#8da0cb', label = '1')
+# plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#a6d854', label = '2')
+# plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#66c2a5', label = '3')
+# plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#fc8d62', label = '4')
+# plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#e78ac3', label = '5')
 
 
 
@@ -157,9 +210,9 @@ plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '
 plt.scatter(kmeans_model.cluster_centers_[:, 0], kmeans_model.cluster_centers_[:,1], s = 100, c = 'black', label = 'Centroids')
 plt.legend()
 plt.title('K-Means: 5 Clusters from Participant Ratings')
-plt.ylabel('Dimensionless')
-plt.xlabel('Dimensionless')
-plt.savefig(os.path.join(fig_dir, 'kmeans_cluster_5_icphs.png'), bbox_inches='tight', dpi=300)
+plt.ylabel('Sexual Orientation (SO)')
+plt.xlabel('Gender Identity (GI)')
+plt.savefig(os.path.join(fig_dir, 'kmeans_cluster_5_jasa.png'), bbox_inches='tight', dpi=300)
 plt.close()
 
 abc = x
