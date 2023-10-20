@@ -10,6 +10,7 @@ import os
 import sys
 import time
 import seaborn as sns
+import matplotlib
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 from sklearn.pipeline import make_pipeline
@@ -70,12 +71,196 @@ for k in K:
 
  # Plotting the distortions
 plt.figure(figsize=(16,8))
-plt.plot(K, distortions, 'bx-')
-plt.xlabel('k')
-plt.ylabel('Distortion')
-plt.title('The Elbow Method showing the optimal clusters')
+plt.plot(K, distortions, '-', marker='o', lw='5', ms='16', color='mediumblue')
+plt.xlabel('k', fontsize=22)
+plt.ylabel('Distortion',  fontsize=22)
+plt.title('Elbow Plot of Cluster Distortion',  fontsize=22)
+plt.xticks(fontsize=18)
+plt.yticks(fontsize=18)
 plt.savefig(os.path.join(fig_dir, 'kmeans_cluster_elbow.png'), bbox_inches='tight', dpi=300)
 plt.close()
+
+# ## Silhouette to establish cluster number
+# from sklearn import datasets
+# from sklearn.cluster import KMeans
+# import matplotlib.pyplot as plt
+# from yellowbrick.cluster import SilhouetteVisualizer
+
+# # # Load the IRIS dataset
+# # iris = datasets.load_iris()
+# # X = iris.data
+# # y = iris.target
+
+# matplotlib.rcParams.update({'font.size': 22})
+# fig, ax = plt.subplots(3, 2, figsize=(15,8))
+# for i in [2, 3, 4, 5, 6, 7]:
+#     '''
+#     Create KMeans instances for different number of clusters
+#     '''
+#     km = KMeans(n_clusters=i, random_state=42)
+#     q, mod = divmod(i, 2)
+#     '''
+#     Create SilhouetteVisualizer instance with KMeans instance
+#     Fit the visualizer
+#     '''
+#     visualizer = SilhouetteVisualizer(km, colors=['#648FFF', '#785EF0', '#DC267F', '#FE6100', '#FFB000', '#32A183', '#4722EF'], ax=ax[q-1][mod])
+#     visualizer.fit(x)
+#     print(i)
+#     print(visualizer.silhouette_score_)
+
+# matplotlib.rcParams.update({'font.size': 22})
+# fig, ax = plt.subplots(figsize=(15,8))
+# '''
+# Create KMeans instances for different number of clusters
+# '''
+# # set cluster number
+# i=5
+# km = KMeans(n_clusters=i, random_state=42)
+# # q, mod = divmod(i, 2)
+# '''
+# Create SilhouetteVisualizer instance with KMeans instance
+# Fit the visualizer
+# '''
+# visualizer = SilhouetteVisualizer(km, colors=['#648FFF', '#785EF0', '#DC267F', '#FE6100', '#FFB000'])
+# visualizer.fit(x)
+
+# ['#648FFF', '#785EF0', '#DC267F', '#FE6100', '#FFB000']
+
+
+#### silhouette the manual way
+import matplotlib.cm as cm
+# import matplotlib.pyplot as plt
+# import numpy as np
+
+from sklearn.cluster import KMeans
+from sklearn.datasets import make_blobs
+from sklearn.metrics import silhouette_samples, silhouette_score
+
+X = y
+
+range_n_clusters = [2, 3, 4, 5, 6]
+
+for n_clusters in range_n_clusters:
+    # Create a subplot with 1 row and 2 columns
+    fig, (ax1, ax2) = plt.subplots(2, 1)
+    fig.set_size_inches(18, 7)
+
+    # The 1st subplot is the silhouette plot
+    # The silhouette coefficient can range from -1, 1 but in this example all
+    # lie within [-0.1, 1]
+    ax1.set_xlim([-0.1, 1])
+    # The (n_clusters+1)*10 is for inserting blank space between silhouette
+    # plots of individual clusters, to demarcate them clearly.
+    ax1.set_ylim([0, len(X) + (n_clusters + 1) * 10])
+
+    # Initialize the clusterer with n_clusters value and a random generator
+    # seed of 10 for reproducibility.
+    clusterer = KMeans(n_clusters=n_clusters, n_init="auto", random_state=10)
+    cluster_labels = clusterer.fit_predict(X)
+
+    # The silhouette_score gives the average value for all the samples.
+    # This gives a perspective into the density and separation of the formed
+    # clusters
+    silhouette_avg = silhouette_score(X, cluster_labels)
+    print(
+        "For n_clusters =",
+        n_clusters,
+        "The average silhouette_score is :",
+        silhouette_avg,
+    )
+
+    # Compute the silhouette scores for each sample
+    sample_silhouette_values = silhouette_samples(X, cluster_labels)
+
+    y_lower = 10
+    for i in range(n_clusters):
+        # Aggregate the silhouette scores for samples belonging to
+        # cluster i, and sort them
+        ith_cluster_silhouette_values = sample_silhouette_values[cluster_labels == i]
+
+        ith_cluster_silhouette_values.sort()
+
+        size_cluster_i = ith_cluster_silhouette_values.shape[0]
+        y_upper = y_lower + size_cluster_i
+
+        # color = cm.nipy_spectral(float(i) / n_clusters)
+        color_dict = {0:'#FE6100', 1:'#FFB000', 2:'#785EF0', 3:'#DC267F', 4:'#648FFF', 5:'#9FF7CA'} # original
+        # ax1.fill_betweenx(
+        #     np.arange(y_lower, y_upper),
+        #     0,
+        #     ith_cluster_silhouette_values,
+        #     facecolor=color,
+        #     edgecolor=color,
+        #     alpha=0.7,
+        # )
+        # for j in list(np.unique(cluster_labels)):
+        ax1.fill_betweenx(
+            np.arange(y_lower, y_upper),
+            0,
+            ith_cluster_silhouette_values,
+            facecolor=color_dict[i],
+            edgecolor=color_dict[i],
+            alpha=0.7,
+        )
+
+        # Label the silhouette plots with their cluster numbers at the middle
+        ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+
+        # Compute the new y_lower for next plot
+        y_lower = y_upper + 10  # 10 for the 0 samples
+
+    ax1.set_title("Silhouette Scores for 5 Clusters")
+    ax1.set_xlabel("Silhouette Coefficient Values")
+    ax1.set_ylabel("Cluster Label")
+
+    # The vertical line for average silhouette score of all the values
+    ax1.axvline(x=silhouette_avg, color="red", linestyle="--")
+
+    ax1.set_yticks([])  # Clear the yaxis labels / ticks
+    ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
+
+    # 2nd Plot showing the actual clusters formed
+    # colors = cm.nipy_spectral(cluster_labels.astype(float) / n_clusters)
+    # colors = ['#648FFF', '#785EF0', '#DC267F', '#FE6100', '#FFB000']
+    color_dict = {0:'#FE6100', 1:'#FFB000', 2:'#785EF0', 3:'#DC267F', 4:'#648FFF', 5:'#9FF7CA'} # original
+    # ax2.scatter(
+    #     X[:, 0], X[:, 1], marker=".", s=80, lw=0, alpha=0.7, c=colors, edgecolor="k"
+    # )
+
+    for j in list(np.unique(cluster_labels)):
+        ax2.scatter(
+            X[cluster_labels == j, 0], X[cluster_labels == j, 1], marker=".", s=100, lw=0, c=color_dict[j], edgecolor="k"
+        )
+
+    # Labeling the clusters
+    centers = clusterer.cluster_centers_
+    # Draw white circles at cluster centers
+    ax2.scatter(
+        centers[:, 0],
+        centers[:, 1],
+        marker="o",
+        c="white",
+        alpha=1,
+        s=200,
+        edgecolor="k",
+    )
+
+    for i, c in enumerate(centers):
+        ax2.scatter(c[0], c[1], marker="$%d$" % i, alpha=1, s=50, edgecolor="k")
+
+    ax2.set_title("K-Means Clustering of Participant Ratings")
+    ax2.set_xlabel("Gender Identity (GI)")
+    ax2.set_ylabel("Sexual Orientation (SO)")
+
+    plt.suptitle(
+        "Silhouette Analysis for KMeans clustering on Participant Ratings with n_clusters = %d"
+        % n_clusters,
+        fontsize=14,
+        fontweight="bold",
+    )
+
+plt.show()
+
 
 # Define the model for 3 clusters
 kmeans_model = KMeans(n_clusters=3, random_state=42)
@@ -122,11 +307,14 @@ kmeans_predict = kmeans_model.fit_predict(y)
 x['kmeans_5_cluster'] = kmeans_predict
 
 # Visualising the clusters
-# plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#FFB000', label = 'QM')
-# plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#785EF0', label = 'SW')
-# plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#648FFF', label = 'SM')
-# plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#FE6100', label = 'QW')
-# plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#DC267F', label = 'QE')
+# this just extracts from the first two columns of the array y, fiulled with participant ratings for each speaker, and then gets the x and y values for the scatter
+# the x and y values are not dimensionless, and are instead just extracted from y, which is original averaged score data for each speaker
+# you are plotting gender id, from the 0 column, and sexual oirientation, from the 1 column
+plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#FFB000', label = 'QM')
+plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#785EF0', label = 'SW')
+plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#648FFF', label = 'SM')
+plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#FE6100', label = 'QW')
+plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#DC267F', label = 'GM')
 
 
 #icphs colors
@@ -136,11 +324,11 @@ x['kmeans_5_cluster'] = kmeans_predict
 # plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#fc8d62', label = 'QW')
 # plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#66c2a5', label = 'QE')
 
-plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#8da0cb', label = '1')
-plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#66c2a5', label = '2')
-plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#a6d854', label = '3')
-plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#fc8d62', label = '4')
-plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#e78ac3', label = '5')
+# plt.scatter(y[kmeans_predict == 2, 0], y[kmeans_predict == 2, 1], s = 100, c = '#8da0cb', label = '1')
+# plt.scatter(y[kmeans_predict == 0, 0], y[kmeans_predict == 0, 1], s = 100, c = '#a6d854', label = '2')
+# plt.scatter(y[kmeans_predict == 4, 0], y[kmeans_predict == 4, 1], s = 100, c = '#66c2a5', label = '3')
+# plt.scatter(y[kmeans_predict == 3, 0], y[kmeans_predict == 3, 1], s = 100, c = '#fc8d62', label = '4')
+# plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '#e78ac3', label = '5')
 
 ## jasa colors
 # print(sns.color_palette("colorblind", 5).as_hex())
@@ -157,9 +345,9 @@ plt.scatter(y[kmeans_predict == 1, 0], y[kmeans_predict == 1, 1], s = 100, c = '
 plt.scatter(kmeans_model.cluster_centers_[:, 0], kmeans_model.cluster_centers_[:,1], s = 100, c = 'black', label = 'Centroids')
 plt.legend()
 plt.title('K-Means: 5 Clusters from Participant Ratings')
-plt.ylabel('Dimensionless')
-plt.xlabel('Dimensionless')
-plt.savefig(os.path.join(fig_dir, 'kmeans_cluster_5_icphs.png'), bbox_inches='tight', dpi=300)
+plt.ylabel('Sexual Orientation (SO)')
+plt.xlabel('Gender Identity (GI)')
+plt.savefig(os.path.join(fig_dir, 'kmeans_cluster_5_jasa.png'), bbox_inches='tight', dpi=300)
 plt.close()
 
 abc = x
