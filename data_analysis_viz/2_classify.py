@@ -138,7 +138,7 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 
 X = y
 
-range_n_clusters = [2, 3, 4, 5, 6]
+range_n_clusters = [2, 3, 4, 5, 6, 7]
 
 for n_clusters in range_n_clusters:
     # Create a subplot with 1 row and 2 columns
@@ -184,7 +184,8 @@ for n_clusters in range_n_clusters:
         y_upper = y_lower + size_cluster_i
 
         # color = cm.nipy_spectral(float(i) / n_clusters)
-        color_dict = {0:'#FE6100', 1:'#FFB000', 2:'#785EF0', 3:'#DC267F', 4:'#648FFF', 5:'#9FF7CA'} # original
+        # color_dict = {0:'#FE6100', 1:'#FFB000', 2:'#785EF0', 3:'#DC267F', 4:'#648FFF', 5:'#9FF7CA'} # original
+        # color_dict = {0:'#8dd3c7', 1:'#ffffb3', 2:'#bebada', 3:'#fb8072', 4:'#80b1d3', 5:'#fbd462', 6:'b3de69'} # R Markdown graphs for publication
         # ax1.fill_betweenx(
         #     np.arange(y_lower, y_upper),
         #     0,
@@ -198,8 +199,8 @@ for n_clusters in range_n_clusters:
             np.arange(y_lower, y_upper),
             0,
             ith_cluster_silhouette_values,
-            facecolor=color_dict[i],
-            edgecolor=color_dict[i],
+            # facecolor=color_dict[i],
+            # edgecolor=color_dict[i],
             alpha=0.7,
         )
 
@@ -209,7 +210,7 @@ for n_clusters in range_n_clusters:
         # Compute the new y_lower for next plot
         y_lower = y_upper + 10  # 10 for the 0 samples
 
-    ax1.set_title("Silhouette Scores for 5 Clusters")
+    ax1.set_title("Silhouette Scores for %s Clusters"%n_clusters)
     ax1.set_xlabel("Silhouette Coefficient Values")
     ax1.set_ylabel("Cluster Label")
 
@@ -222,14 +223,16 @@ for n_clusters in range_n_clusters:
     # 2nd Plot showing the actual clusters formed
     # colors = cm.nipy_spectral(cluster_labels.astype(float) / n_clusters)
     # colors = ['#648FFF', '#785EF0', '#DC267F', '#FE6100', '#FFB000']
-    color_dict = {0:'#FE6100', 1:'#FFB000', 2:'#785EF0', 3:'#DC267F', 4:'#648FFF', 5:'#9FF7CA'} # original
+    # color_dict = {0:'#FE6100', 1:'#FFB000', 2:'#785EF0', 3:'#DC267F', 4:'#648FFF', 5:'#9FF7CA'} # original
     # ax2.scatter(
     #     X[:, 0], X[:, 1], marker=".", s=80, lw=0, alpha=0.7, c=colors, edgecolor="k"
     # )
 
     for j in list(np.unique(cluster_labels)):
         ax2.scatter(
-            X[cluster_labels == j, 0], X[cluster_labels == j, 1], marker=".", s=100, lw=0, c=color_dict[j], edgecolor="k"
+            # X[cluster_labels == j, 0], X[cluster_labels == j, 1], marker=".", s=100, lw=0, c=color_dict[j], edgecolor="k"
+            X[cluster_labels == j, 0], X[cluster_labels == j, 1], marker=".", s=100, lw=0, edgecolor="k"
+
         )
 
     # Labeling the clusters
